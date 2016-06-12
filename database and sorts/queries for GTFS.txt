@@ -1,0 +1,105 @@
+Query per avere tutti i passaggi da Sansovino verso Piazzale Roma, sperabilmente:
+
+SELECT t.trip_id,
+       start_s.stop_name as departure_stop,
+       start_st.departure_time,
+       direction_id as direction,
+       end_s.stop_name as arrival_stop,
+       end_st.arrival_time,
+       r.route_short_name,
+       r.route_long_name
+FROM
+trips t INNER JOIN calendar c ON t.service_id = c.service_id
+        INNER JOIN routes r ON t.route_id = r.route_id
+        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id
+        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id
+        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id
+        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id
+WHERE c.monday = 1
+  AND direction_id = 1
+  AND start_st.departure_time > "00:00:00" AND start_st.departure_time < "23:59:59" 
+  AND start_s.stop_id in (6061, 6062)
+  AND end_s.stop_name LIKE "%CAPOLINEA%"
+order by start_st.departure_time asc
+
+Tutte le partenze da Sansovino per Venezia di lunedì
+
+SELECT t.trip_id,
+       start_s.stop_name as departure_stop,
+       start_st.departure_time,
+       end_st.arrival_time,
+       r.route_short_name
+FROM
+trips t INNER JOIN calendar c ON t.service_id = c.service_id
+        INNER JOIN routes r ON t.route_id = r.route_id
+        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id
+        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id
+        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id
+        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id
+WHERE c.monday = 1
+  AND direction_id = 1
+  AND start_s.stop_id in (6061, 6062)
+  AND end_s.stop_id IN ("1400", "1401", "501", "503", "506", "507", "508", "509", "511", "512", "514","515", "516", "517", "518")
+order by start_st.departure_time asc
+
+Da Piazzale Roma a Sansovino? Basta scambiare le fermate di arrivo e partenza:
+
+SELECT t.trip_id,
+       start_s.stop_name as departure_stop,
+       start_st.departure_time,
+       end_st.arrival_time,
+       r.route_short_name
+FROM
+trips t INNER JOIN calendar c ON t.service_id = c.service_id
+        INNER JOIN routes r ON t.route_id = r.route_id
+        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id
+        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id
+        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id
+        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id
+WHERE c.monday = 1
+  AND direction_id = 1
+  AND start_s.stop_id in ("1400", "1401", "501", "503", "506", "507", "508", "509", "511", "512", "514","515", "516", "517", "518")
+  AND end_s.stop_id IN (6061, 6062)
+order by start_st.departure_time asc
+
+Presumibile query per avere gli orari dei tram tra Mestre Centro e la Stazione
+
+SELECT t.trip_id,
+       start_s.stop_name as departure_stop,
+       start_st.departure_time,
+       end_st.arrival_time,
+       r.route_short_name
+FROM
+trips t INNER JOIN calendar c ON t.service_id = c.service_id
+        INNER JOIN routes r ON t.route_id = r.route_id
+        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id
+        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id
+        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id
+        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id
+WHERE c.monday = 1
+  AND direction_id = 1
+  AND r.route_id = 460
+  AND start_s.stop_id in ("6027", "6080")
+  AND end_s.stop_id IN ("6073", "6074")
+order by start_st.departure_time asc
+
+Presumibile query per il contrario, dalla stazione a Mestre Centro
+
+SELECT t.trip_id,
+       start_s.stop_name as departure_stop,
+       start_st.departure_time,
+       end_st.arrival_time,
+       r.route_short_name
+FROM
+trips t INNER JOIN calendar c ON t.service_id = c.service_id
+        INNER JOIN routes r ON t.route_id = r.route_id
+        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id
+        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id
+        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id
+        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id
+WHERE c.monday = 1
+  AND direction_id = 1
+  AND r.route_id = 460
+  AND end_s.stop_id  in ("6027", "6080")
+  AND start_s.stop_id IN ("6073", "6074")
+order by start_st.departure_time asc

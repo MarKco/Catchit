@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/home/marco/workspace/AndroidStudioProjects/CatchIt/DaoExample/build/intermediates/res/merged/debug/menu/edit_item_menu.xml",
+        "source": "/home/marco/workspace/AndroidStudioProjects/CatchIt/DaoExample/src/main/res/menu/edit_item_menu.xml"
+    },
+    {
+        "merged": "/home/marco/workspace/AndroidStudioProjects/CatchIt/DaoExample/build/intermediates/res/merged/debug/menu/box_list_menu.xml",
+        "source": "/home/marco/workspace/AndroidStudioProjects/CatchIt/DaoExample/src/main/res/menu/box_list_menu.xml"
+    }
+]

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/exploded-aar/com.android.support/support-v4/23.4.0/jars/libs/internal_impl-23.4.0.jar"
+        jumboMode="true"
+        optimize="false"
+        revision="23.0.3"
+        sha1="ea3c07504d2c8f4b13aa17c45c1b68ed9c1c3674">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/internal_impl-23.4.0_83380e1d1f66ab9139e8d5e77239faa16ea610ab/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/exploded-aar/com.android.support/multidex/1.0.1/jars/classes.jar"
+        jumboMode="true"
+        optimize="false"
+        revision="23.0.3"
+        sha1="78ea232052df889856dcb7b7b542707c89bb3bfb">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-multidex-1.0.1_03ce2d006a7373fc8a021191ba97f27c146b9824/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.4.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="false"
+        revision="23.0.3"
+        sha1="548f06de403a9409f00554b3ee12a9fdea0e236c">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-appcompat-v7-23.4.0_df50138edf807ab8386bc38fe6fe2286408d2494/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/exploded-aar/com.android.support/animated-vector-drawable/23.4.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="false"
+        revision="23.0.3"
+        sha1="de4db3785756bfb0915a9f59a9b3f2fea7407be4">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-animated-vector-drawable-23.4.0_ee1c0736e293d54adc4a1787e6daa4d083142fe1/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/.gradle/caches/modules-2/files-2.1/com.readystatesoftware.sqliteasset/sqliteassethelper/2.0.1/d5f02e4a4d65ec0fbb339f2e4228723d1540bb9f/sqliteassethelper-2.0.1.jar"
+        jumboMode="true"
+        optimize="false"
+        revision="23.0.3"
+        sha1="d5f02e4a4d65ec0fbb339f2e4228723d1540bb9f">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/sqliteassethelper-2.0.1_90ce7e0ee64b0fc725d834e669fb27e294a9cff7/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/Android/Sdk/extras/android/m2repository/com/android/support/support-annotations/23.4.0/support-annotations-23.4.0.jar"
+        jumboMode="true"
+        optimize="false"
+        revision="23.0.3"
+        sha1="ffbe55fdb2bb456b1485831706a9eac3300bb6b8">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/support-annotations-23.4.0_112247b5ccb9f0025bc42df91c00219166e037ce/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/.gradle/caches/modules-2/files-2.1/de.greenrobot/greendao/1.3.7/dda08161d004c4df96938da6909f1c2b96cd33c8/greendao-1.3.7.jar"
+        jumboMode="true"
+        optimize="false"
+        revision="23.0.3"
+        sha1="dda08161d004c4df96938da6909f1c2b96cd33c8">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/greendao-1.3.7_de3cd6c355f866b005d3e3c114ffd6f0bdd94765/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/libs/libGoogleAnalyticsServices.jar"
+        jumboMode="true"
+        optimize="false"
+        revision="23.0.3"
+        sha1="e887c6c9b31b39a39b0eaba981448b78902ea813">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/2/libGoogleAnalyticsServices_2cb8844cd9d47994e5b0737f773865a7390f11c3/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        optimize="false"
+        revision="23.0.3"
+        sha1="93336ac60e5d491e4aa91415b5c0954424cf616f">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_e2783089bfcda754ab205e78ce5f73068e9d387a/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/exploded-aar/com.android.support/support-vector-drawable/23.4.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="false"
+        revision="23.0.3"
+        sha1="c2c594cace5d83a3227b2b6e658ecbfd586d3ed9">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-vector-drawable-23.4.0_05e0e406b07043eb920d4a902988018407e1c361/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="false"
+        revision="23.0.3"
+        sha1="c00a2c23eb43cb6bab3f2bfd1dc2872d3fa63538">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_4172d9e17a8ee9f0b2672ba97dd8cc1e6f07d1f0/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/exploded-aar/com.android.support/support-v4/23.4.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="false"
+        revision="23.0.3"
+        sha1="67bd36ee9340ec7c254108936ad16b24bed160cc">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-v4-23.4.0_d9e0a3c65c3e454611cae7be535467faa82aa328/classes.dex" />
+    </item>
+
+</items>

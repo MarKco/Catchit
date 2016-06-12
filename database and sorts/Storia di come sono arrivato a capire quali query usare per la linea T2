@@ -1,0 +1,91 @@
+Questo stream of consciousness ti potrebbe essere utile - insieme allo schema entità-relazione - per quando dovrai aggiornare gli orari e potrebbero essere cambiati alcuni ID
+
+Route T1 ID 481 Favaro - CORSIA C
+Ha molti Trips, ognuno con Headsign "Corsia C"
+Per esempio Trip 775
+Ci sono due stop_times con Trip 775, tutti con Stop_headsign "Venezia"
+Uno è riferito allo stop_id 6027 -> Mestre centro A1
+L'altro (6061) è Sansovino
+
+Le route del Tram T2 sono
+525 MESTRE CENTRO A2 - Marghera
+526 Marghera - MESTRE CENTRO A4
+527 Marghera - MESTRE CENTRO A2
+
+Partiamo dalla prima.
+Ci sono molti trips con route 525 ma noi sappiamo che la stazione ha stop_id 14816
+
+Mi serve una query che, data una route (che ho) e due codici fermata (che ho, forse) mi dia gli stop_times nel mezzo... o i trips?
+
+Modificando leggermente la query che uso per estrarre i dati da Sansovino a Venezia posso tirare fuori TUTTI i 1274 tratti che partono da Stazione FS e vanno da qualche parte con il tram T2
+
+SELECT t.trip_id,
+       start_s.stop_name as departure_stop,
+	   start_s.stop_id as departure_stop_id,
+       start_st.departure_time,
+       direction_id as direction,
+       end_s.stop_name as arrival_stop,
+	   end_s.stop_id as arrival_stop_id,
+       end_st.arrival_time,
+       r.route_short_name,
+       r.route_long_name,
+	   r.route_id
+FROM
+trips t INNER JOIN calendar c ON t.service_id = c.service_id
+        INNER JOIN routes r ON t.route_id = r.route_id
+        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id
+        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id
+        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id
+        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id
+WHERE c.monday = 1
+  AND direction_id = 1
+  and r.route_short_name = "T2"
+  and departure_stop_id in (6073, 6074, 3333)
+  and arrival_stop_id = 6081
+order by start_st.departure_time asc	
+
+Ne deduco che la fermata in centro è 6081 - MESTRE CENTRO A2
+
+A questo punto la inserisco come end_st.stop_id e come route non metto = "T2" ma il route_id  (527)
+
+ottengo
+
+SELECT t.trip_id,
+       start_s.stop_name as departure_stop,
+	   start_s.stop_id as departure_stop_id,
+       start_st.departure_time,
+       direction_id as direction,
+       end_s.stop_name as arrival_stop,
+	   end_s.stop_id as arrival_stop_id,
+       end_st.arrival_time,
+       r.route_short_name
+FROM
+trips t INNER JOIN calendar c ON t.service_id = c.service_id
+        INNER JOIN routes r ON t.route_id = r.route_id
+        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id
+        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id
+        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id
+        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id
+WHERE c.monday = 1
+  AND direction_id = 1
+  and r.route_id = 527
+  and departure_stop_id in (6073, 6074, 3333)
+  and arrival_stop_id = 6081
+order by start_st.departure_time asc
+
+ed è istantanea o quasi :-)
+
+Scambiando le fermate ottengo la query per il tragitto opposto. Non capisco a cosa serva "direction", a questo punto.
+
+A questo punto quali stops e stop_times posso togliere?
+Lancio tutte le query e vedo quali stops e stop_times abbiamo in gioco
+
+Sansovino-Venezia e ritorno -> fermate 6061, 6062 e 6084
+Stazione-Centro e ritorno -> fermate 6073, 6074, 3333 e 6081
+
+Proviamo a togliere tutto tranne quelle
+
+1- delete from stops where stop_id not in (6061, 6062, 6084, 6073, 6074, 3333, 6081);
+2- delete from stop_times where stop_times.stop_id not in (select stop_id from stops);
+
+Siamo a 17Mb

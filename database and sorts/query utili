@@ -1,0 +1,33 @@
+Tutte le fermate del tram T2
+
+SELECT start_s.stop_name as departure_stop,
+		start_s.stop_id,
+       r.route_short_name
+FROM
+trips t INNER JOIN calendar c ON t.service_id = c.service_id
+        INNER JOIN routes r ON t.route_id = r.route_id
+        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id
+        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id
+        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id
+        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id
+WHERE
+  route_short_name = "T2"
+  group by route_short_name, start_s.stop_id, departure_stop
+order by start_st.departure_time asc
+
+Tutte le fermate del tram T1
+
+SELECT start_s.stop_name as departure_stop,
+		start_s.stop_id,
+       r.route_short_name
+FROM
+trips t INNER JOIN calendar c ON t.service_id = c.service_id
+        INNER JOIN routes r ON t.route_id = r.route_id
+        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id
+        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id
+        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id
+        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id
+WHERE
+  route_short_name = "T1"
+  group by route_short_name, start_s.stop_id, departure_stop
+order by start_st.departure_time asc

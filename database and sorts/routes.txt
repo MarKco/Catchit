@@ -1,0 +1,518 @@
+route_id,agency_id,route_short_name,route_long_name,route_desc,route_type,route_url,route_color,route_text_color
+1,ACTV S.p.a,11,S.Maria Elisabetta - Imbarco per Chioggia,,3,,FFFFFF,000000
+2,ACTV S.p.a,11,S. Maria Del Mare - Imbarco per Chioggia,,3,,FFFFFF,000000
+3,ACTV S.p.a,11,Imbarco per Chioggia - S.Maria Elisabetta,,3,,FFFFFF,000000
+4,ACTV S.p.a,11,Imbarco per Chioggia - S.Maria Elisabetta,,3,,FFFFFF,000000
+5,ACTV S.p.a,11,Imbarco per Chioggia - S. Maria Del Mare,,3,,FFFFFF,000000
+6,ACTV S.p.a,11,Sbarco Ferry - S.Maria Elisabetta,,3,,FFFFFF,000000
+7,ACTV S.p.a,A,SME 1 - Faro Rocchetta,,3,,FFFFFF,000000
+8,ACTV S.p.a,A,SME 1 - Malamocco capolinea,,3,,FFFFFF,000000
+9,ACTV S.p.a,A,SME 1 - Alberoni Spiaggia,,3,,FFFFFF,000000
+10,ACTV S.p.a,A,SME 1 - SME 1,,3,,FFFFFF,000000
+11,ACTV S.p.a,A,SME 1 - SME 1,,3,,FFFFFF,000000
+12,ACTV S.p.a,A,Spiaggia S.Nicolo' - SME 1,,3,,FFFFFF,000000
+13,ACTV S.p.a,A,SME 1 - Spiaggia S.Nicolo',,3,,FFFFFF,000000
+14,ACTV S.p.a,A,Spiaggia S.Nicolo' - SME 1,,3,,FFFFFF,000000
+15,ACTV S.p.a,A,Ospedale al Mare - SME 1,,3,,FFFFFF,000000
+16,ACTV S.p.a,A,SME 1 - Ospedale al Mare,,3,,FFFFFF,000000
+17,ACTV S.p.a,A,SME 1 - S. Nicolo',,3,,FFFFFF,000000
+18,ACTV S.p.a,A,SME 1 - SME 1,,3,,FFFFFF,000000
+19,ACTV S.p.a,A,SME 1 - SME 1,,3,,FFFFFF,000000
+20,ACTV S.p.a,A,Faro Rocchetta - SME 1,,3,,FFFFFF,000000
+21,ACTV S.p.a,A,Malamocco capolinea - SME 1,,3,,FFFFFF,000000
+22,ACTV S.p.a,A,Alberoni Spiaggia - SME 1,,3,,FFFFFF,000000
+23,ACTV S.p.a,C,SME 1 - SME 1,,3,,FFFFFF,000000
+24,ACTV S.p.a,C,SME 1 - Ca' Bianca Capolinea,,3,,FFFFFF,000000
+25,ACTV S.p.a,C,Ca' Bianca Capolinea - SME 1,,3,,FFFFFF,000000
+26,ACTV S.p.a,N,SME 1 - Imbarco per Chioggia,,3,,FFFFFF,000000
+27,ACTV S.p.a,N,SME 1 - Faro Rocchetta,,3,,FFFFFF,000000
+28,ACTV S.p.a,N,SME 1 - Ca' Bianca Capolinea,,3,,FFFFFF,000000
+29,ACTV S.p.a,N,Imbarco per Chioggia - SME 1,,3,,FFFFFF,000000
+30,ACTV S.p.a,N,Faro Rocchetta - SME 1,,3,,FFFFFF,000000
+31,ACTV S.p.a,N,Ca' Bianca Capolinea - SME 1,,3,,FFFFFF,000000
+32,ACTV S.p.a,V,SME 1 - Incr. via Parri,,3,,FFFFFF,000000
+33,ACTV S.p.a,V,SME 1 - Ca' Bianca Capolinea,,3,,FFFFFF,000000
+34,ACTV S.p.a,V,Incr. via Parri - SME 1,,3,,FFFFFF,000000
+35,ACTV S.p.a,V,Ca' Bianca Capolinea - SME 1,,3,,FFFFFF,000000
+36,ACTV S.p.a,11,Scorze' - Capolinea - Ospedale Mirano,,3,,FFFFFF,000000
+37,ACTV S.p.a,11,Ospedale Mirano - Scorze' - Capolinea,,3,,FFFFFF,000000
+38,ACTV S.p.a,12,Scorze' - Capolinea - CORSIA B3,,3,,FFFFFF,000000
+39,ACTV S.p.a,12,Scorze' - Capolinea - Mogliano,,3,,FFFFFF,000000
+40,ACTV S.p.a,12,CORSIA B3 - Scorze' - Capolinea,,3,,FFFFFF,000000
+41,ACTV S.p.a,12,Mogliano - Scorze' - Capolinea,,3,,FFFFFF,000000
+42,ACTV S.p.a,14,Casale sul Sile (Chiesa) - Finanza,,3,,FFFFFF,000000
+43,ACTV S.p.a,14,Casale sul Sile (Chiesa) - Finanza,,3,,FFFFFF,000000
+44,ACTV S.p.a,14,Casale sul Sile (Chiesa) - Mogliano FS,,3,,FFFFFF,000000
+45,ACTV S.p.a,14,Capolinea Zerman - CORSIA B5,,3,,FFFFFF,000000
+46,ACTV S.p.a,14,Z.industriale - Mogliano FS,,3,,FFFFFF,000000
+47,ACTV S.p.a,14,Capolinea Zerman - Mogliano FS,,3,,FFFFFF,000000
+48,ACTV S.p.a,14,Finanza - Casale sul Sile (Chiesa),,3,,FFFFFF,000000
+49,ACTV S.p.a,14,Mogliano FS - Casale sul Sile (Chiesa),,3,,FFFFFF,000000
+50,ACTV S.p.a,14,Mogliano FS - Z.industriale,,3,,FFFFFF,000000
+51,ACTV S.p.a,14,Mogliano FS - Capolinea Zerman,,3,,FFFFFF,000000
+52,ACTV S.p.a,17,Capolinea - Caltana - Mirano - Capolinea,,3,,FFFFFF,000000
+53,ACTV S.p.a,17,Mirano - Capolinea - Capolinea - Caltana,,3,,FFFFFF,000000
+54,ACTV S.p.a,3,Zona Indust. - Capolinea - Mirano - Capolinea,,3,,FFFFFF,000000
+55,ACTV S.p.a,3,Mirano - Capolinea - Borgoricco - Capolinea,,3,,FFFFFF,000000
+56,ACTV S.p.a,4,Noale - Capolinea - Mirano - Capolinea,,3,,FFFFFF,000000
+57,ACTV S.p.a,4,Noale - Capolinea - Ospedale Mirano,,3,,FFFFFF,000000
+58,ACTV S.p.a,4,Mirano - Capolinea - Noale - Capolinea,,3,,FFFFFF,000000
+59,ACTV S.p.a,4,Ospedale Mirano - Noale - Capolinea,,3,,FFFFFF,000000
+60,ACTV S.p.a,5,Noale - Capolinea - CORSIA B3,,3,,FFFFFF,000000
+61,ACTV S.p.a,5,Noale - Capolinea - CORSIA B3,,3,,FFFFFF,000000
+62,ACTV S.p.a,5,Noale - Capolinea - Finanza,,3,,FFFFFF,000000
+63,ACTV S.p.a,5,Maerne FS - Finanza,,3,,FFFFFF,000000
+64,ACTV S.p.a,5,CORSIA B3 - Noale - Capolinea,,3,,FFFFFF,000000
+65,ACTV S.p.a,5,Finanza - Noale - Capolinea,,3,,FFFFFF,000000
+66,ACTV S.p.a,5,CORSIA B3 - Maerne FS,,3,,FFFFFF,000000
+67,ACTV S.p.a,6,Scorze' - Capolinea - CORSIA B3,,3,,FFFFFF,000000
+68,ACTV S.p.a,6,CORSIA B3 - Scorze' - Capolinea,,3,,FFFFFF,000000
+69,ACTV S.p.a,6,CORSIA B3 - Capolinea - Martellago,,3,,FFFFFF,000000
+70,ACTV S.p.a,7,Mirano - Capolinea - CORSIA A2,,3,,FFFFFF,000000
+71,ACTV S.p.a,7,Mirano - Capolinea - CORSIA A2,,3,,FFFFFF,000000
+72,ACTV S.p.a,7,CORSIA A2 - Mirano - Capolinea,,3,,FFFFFF,000000
+73,ACTV S.p.a,7,CORSIA A2 - Mirano - Capolinea,,3,,FFFFFF,000000
+74,ACTV S.p.a,8,Treviso - Capolinea - CORSIA B1,,3,,FFFFFF,000000
+75,ACTV S.p.a,8,Treviso - Capolinea - C.Comm.Le Barche,,3,,FFFFFF,000000
+76,ACTV S.p.a,8,Preganziol FS - CORSIA B1,,3,,FFFFFF,000000
+77,ACTV S.p.a,8,F. Banca Cassamarca - CORSIA B1,,3,,FFFFFF,000000
+78,ACTV S.p.a,8,Preganziol FS - C.Comm.Le Barche,,3,,FFFFFF,000000
+79,ACTV S.p.a,8,Treviso - Capolinea - F. Banca Cassamarca,,3,,FFFFFF,000000
+80,ACTV S.p.a,8,Treviso - Capolinea - Preganziol FS,,3,,FFFFFF,000000
+81,ACTV S.p.a,8,CORSIA B1 - Treviso - Capolinea,,3,,FFFFFF,000000
+82,ACTV S.p.a,8,C.Comm.Le Barche - Treviso - Capolinea,,3,,FFFFFF,000000
+83,ACTV S.p.a,8,CORSIA B1 - Preganziol FS,,3,,FFFFFF,000000
+84,ACTV S.p.a,8,C.Comm.Le Barche - Preganziol FS,,3,,FFFFFF,000000
+85,ACTV S.p.a,8,C.Comm.Le Barche - Mogliano - Centro Civico,,3,,FFFFFF,000000
+86,ACTV S.p.a,8,Mogliano - Centro Civico - Preganziol FS,,3,,FFFFFF,000000
+87,ACTV S.p.a,8A,Valecenter - Capolinea - Mestre FS,,3,,FFFFFF,000000
+88,ACTV S.p.a,8A,Valecenter - Capolinea - Mestre FS,,3,,FFFFFF,000000
+89,ACTV S.p.a,8A,Marcon - Capolinea - Mestre FS,,3,,FFFFFF,000000
+90,ACTV S.p.a,8A,Valecenter - Capolinea - F. Banca Cassamarca,,3,,FFFFFF,000000
+91,ACTV S.p.a,8A,Mestre FS - Valecenter - Capolinea,,3,,FFFFFF,000000
+92,ACTV S.p.a,8A,Mestre FS - Marcon - Capolinea,,3,,FFFFFF,000000
+93,ACTV S.p.a,8A,Mestre FS - Mazzocco Chiesa Piazzale,,3,,FFFFFF,000000
+94,ACTV S.p.a,9,Zero Branco -Capolinea - Mogliano FS,,3,,FFFFFF,000000
+95,ACTV S.p.a,9,Mogliano FS - Zero Branco -Capolinea,,3,,FFFFFF,000000
+96,ACTV S.p.a,53,Autostazione Padova - CORSIA B7,,3,,FFFFFF,000000
+97,ACTV S.p.a,53,Autostazione Padova - CORSIA B7,,3,,FFFFFF,000000
+98,ACTV S.p.a,53,Autostazione Padova - CORSIA B7,,3,,FFFFFF,000000
+99,ACTV S.p.a,53,Autostazione Padova - CORSIA B7,,3,,FFFFFF,000000
+100,ACTV S.p.a,53,Autostazione Padova - Incr. v.Pepe,,3,,FFFFFF,000000
+101,ACTV S.p.a,53,Capolinea Stra - CORSIA B7,,3,,FFFFFF,000000
+102,ACTV S.p.a,53,Stra - Incr. v.Pepe,,3,,FFFFFF,000000
+103,ACTV S.p.a,53,Dolo Centro - CORSIA B7,,3,,FFFFFF,000000
+104,ACTV S.p.a,53,Dolo Centro - Incr. v.Pepe,,3,,FFFFFF,000000
+105,ACTV S.p.a,53,Dolo Centro - CORSIA B7,,3,,FFFFFF,000000
+106,ACTV S.p.a,53,Dolo Centro - CORSIA B7,,3,,FFFFFF,000000
+107,ACTV S.p.a,53,Dolo Centro - Incr. v.Pepe,,3,,FFFFFF,000000
+108,ACTV S.p.a,53,Mira Lanza - CORSIA B7,,3,,FFFFFF,000000
+109,ACTV S.p.a,53,Autostazione Padova - Dolo Centro,,3,,FFFFFF,000000
+110,ACTV S.p.a,53,Dolo Centro - CORSIA B7,,3,,FFFFFF,000000
+111,ACTV S.p.a,53,Capolinea Stra - Dolo Centro,,3,,FFFFFF,000000
+112,ACTV S.p.a,53,CORSIA B7 - Autostazione Padova,,3,,FFFFFF,000000
+113,ACTV S.p.a,53,CORSIA B7 - Autostazione Padova,,3,,FFFFFF,000000
+114,ACTV S.p.a,53,CORSIA B7 - Autostazione Padova,,3,,FFFFFF,000000
+115,ACTV S.p.a,53,Incr. v.Pepe - Autostazione Padova,,3,,FFFFFF,000000
+116,ACTV S.p.a,53,CORSIA B7 - Autostazione Padova,,3,,FFFFFF,000000
+117,ACTV S.p.a,53,CORSIA B7 - Capolinea Stra,,3,,FFFFFF,000000
+118,ACTV S.p.a,53,CORSIA B7 - Capolinea Stra,,3,,FFFFFF,000000
+119,ACTV S.p.a,53,CORSIA B7 - Stra,,3,,FFFFFF,000000
+120,ACTV S.p.a,53,Incr. v.Pepe - Stra,,3,,FFFFFF,000000
+121,ACTV S.p.a,53,CORSIA B7 - Dolo Centro,,3,,FFFFFF,000000
+122,ACTV S.p.a,53,CORSIA B7 - Dolo Centro,,3,,FFFFFF,000000
+123,ACTV S.p.a,53,CORSIA B7 - Dolo Centro,,3,,FFFFFF,000000
+124,ACTV S.p.a,53,Incr. v.Pepe - Dolo Centro,,3,,FFFFFF,000000
+125,ACTV S.p.a,53,Dolo Centro - Autostazione Padova,,3,,FFFFFF,000000
+126,ACTV S.p.a,53,CORSIA B7 - Dolo Centro,,3,,FFFFFF,000000
+127,ACTV S.p.a,53,Dolo Centro - Stra,,3,,FFFFFF,000000
+128,ACTV S.p.a,54,Corte - Capolinea - Incr. v.Pepe,,3,,FFFFFF,000000
+129,ACTV S.p.a,54,Bojon Centro - CORSIA B8,,3,,FFFFFF,000000
+130,ACTV S.p.a,54,Corte - Capolinea - Dolo Centro,,3,,FFFFFF,000000
+131,ACTV S.p.a,54,Bojon Centro - Dolo Centro,,3,,FFFFFF,000000
+132,ACTV S.p.a,54,Incr. via Durando Ior - Bojon Centro,,3,,FFFFFF,000000
+133,ACTV S.p.a,54,Incr. v.Pepe - Corte fronte Capolinea,,3,,FFFFFF,000000
+134,ACTV S.p.a,54,CORSIA B8 - Bojon Centro,,3,,FFFFFF,000000
+135,ACTV S.p.a,54,Dolo Centro - Bojon Centro,,3,,FFFFFF,000000
+136,ACTV S.p.a,55,Dolo Centro - Celeseo - Capolinea,,3,,FFFFFF,000000
+137,ACTV S.p.a,55,Dolo Centro - Capolinea Stra,,3,,FFFFFF,000000
+138,ACTV S.p.a,55,Calcroci Chiesa - Autostazione Padova,,3,,FFFFFF,000000
+139,ACTV S.p.a,55,Calcroci Chiesa - Vigonovo - Capolinea,,3,,FFFFFF,000000
+140,ACTV S.p.a,55,Dolo Centro - Calcroci Chiesa,,3,,FFFFFF,000000
+141,ACTV S.p.a,55,Dolo Centro - Fosso' Centro,,3,,FFFFFF,000000
+142,ACTV S.p.a,55,Dolo Centro - Autostazione Padova,,3,,FFFFFF,000000
+143,ACTV S.p.a,55,Autostazione Padova - Calcroci Chiesa,,3,,FFFFFF,000000
+144,ACTV S.p.a,55,Celeseo - Capolinea - Dolo Centro,,3,,FFFFFF,000000
+145,ACTV S.p.a,55,Capolinea Stra - Dolo Centro,,3,,FFFFFF,000000
+146,ACTV S.p.a,55,Celeseo - Capolinea - Dolo Centro,,3,,FFFFFF,000000
+147,ACTV S.p.a,55,Autostazione Padova - Calcroci Chiesa,,3,,FFFFFF,000000
+148,ACTV S.p.a,55,Vigonovo - Capolinea - Dolo Centro,,3,,FFFFFF,000000
+149,ACTV S.p.a,55,Vigonovo - Capolinea - Calcroci Chiesa,,3,,FFFFFF,000000
+150,ACTV S.p.a,55,Calcroci Chiesa - Dolo Centro,,3,,FFFFFF,000000
+151,ACTV S.p.a,55,Autostazione Padova - Dolo Centro,,3,,FFFFFF,000000
+152,ACTV S.p.a,55S,Dolo Centro - Stra,,3,,FFFFFF,000000
+153,ACTV S.p.a,55S,Stra - Dolo Centro,,3,,FFFFFF,000000
+154,ACTV S.p.a,56,Dolo Centro - Mirano - Capolinea,,3,,FFFFFF,000000
+155,ACTV S.p.a,56,Dolo Centro - Stra,,3,,FFFFFF,000000
+156,ACTV S.p.a,56,Dolo Centro - Dolo Centro,,3,,FFFFFF,000000
+157,ACTV S.p.a,56,Dolo Centro - Mirano - Capolinea,,3,,FFFFFF,000000
+158,ACTV S.p.a,56,Dolo Centro - Mira Lanza,,3,,FFFFFF,000000
+159,ACTV S.p.a,56,Mirano - Capolinea - Dolo Centro,,3,,FFFFFF,000000
+160,ACTV S.p.a,56,Dolo Centro - Dolo Centro,,3,,FFFFFF,000000
+161,ACTV S.p.a,56,Mirano - Capolinea - Dolo Centro,,3,,FFFFFF,000000
+162,ACTV S.p.a,57,Incr. v.Pepe - Mellaredo - Capolinea,,3,,FFFFFF,000000
+163,ACTV S.p.a,57,Incr. via Righi - Capolinea - Caltana,,3,,FFFFFF,000000
+164,ACTV S.p.a,57,Oriago - Capolinea - Mellaredo - Capolinea,,3,,FFFFFF,000000
+165,ACTV S.p.a,57,Oriago - Capolinea - Scaltenigo Centro,,3,,FFFFFF,000000
+166,ACTV S.p.a,57,Mellaredo - Capolinea - CORSIA B8,,3,,FFFFFF,000000
+167,ACTV S.p.a,57,Mellaredo - Capolinea - Incr. v.Pepe,,3,,FFFFFF,000000
+168,ACTV S.p.a,57,Capolinea - Caltana - Incr. v.Pepe,,3,,FFFFFF,000000
+169,ACTV S.p.a,57,Mellaredo - Capolinea - Oriago - Capolinea,,3,,FFFFFF,000000
+170,ACTV S.p.a,57,Mirano - Capolinea - Oriago  (Rist. Vettore),,3,,FFFFFF,000000
+171,ACTV S.p.a,58,Adria FS - Dolo Centro,,3,,FFFFFF,000000
+172,ACTV S.p.a,58,Cavarzere Capolinea - Dolo Centro,,3,,FFFFFF,000000
+173,ACTV S.p.a,58,Cavarzere Capolinea - Piove di Sacco,,3,,FFFFFF,000000
+174,ACTV S.p.a,58,Piove di Sacco - Dolo Centro,,3,,FFFFFF,000000
+175,ACTV S.p.a,58,Liettoli - Dolo Centro,,3,,FFFFFF,000000
+176,ACTV S.p.a,58,Sandon - Dolo Centro,,3,,FFFFFF,000000
+177,ACTV S.p.a,58,Centro Commerciale - Cavarzere Capolinea,,3,,FFFFFF,000000
+178,ACTV S.p.a,58,Fosso' Centro - Dolo Centro,,3,,FFFFFF,000000
+179,ACTV S.p.a,58,Adria Ospedale - Cavarzere Capolinea,,3,,FFFFFF,000000
+180,ACTV S.p.a,58,Adria FS - Cavarzere Capolinea,,3,,FFFFFF,000000
+181,ACTV S.p.a,58,Cavarzere Capolinea - Cavarzere FS,,3,,FFFFFF,000000
+182,ACTV S.p.a,58,Cavarzere Capolinea - Cavarzere FS,,3,,FFFFFF,000000
+183,ACTV S.p.a,58,Dolo Centro - Adria FS,,3,,FFFFFF,000000
+184,ACTV S.p.a,58,Dolo Centro - Cavarzere Capolinea,,3,,FFFFFF,000000
+185,ACTV S.p.a,58,Stra - Piove di Sacco,,3,,FFFFFF,000000
+186,ACTV S.p.a,58,Piove di Sacco - Cavarzere Capolinea,,3,,FFFFFF,000000
+187,ACTV S.p.a,58,Dolo Centro - Piove di Sacco,,3,,FFFFFF,000000
+188,ACTV S.p.a,58,Dolo Centro - Liettoli,,3,,FFFFFF,000000
+189,ACTV S.p.a,58,Cavarzere Capolinea - Centro Commerciale,,3,,FFFFFF,000000
+190,ACTV S.p.a,58,Cavarzere Capolinea - Adria Ospedale,,3,,FFFFFF,000000
+191,ACTV S.p.a,58,Cavarzere Capolinea - Adria Ospedale,,3,,FFFFFF,000000
+192,ACTV S.p.a,58,Cavarzere Capolinea - Adria FS,,3,,FFFFFF,000000
+193,ACTV S.p.a,58,Adria FS - Adria Ospedale,,3,,FFFFFF,000000
+194,ACTV S.p.a,58,Cavarzere FS - Cavarzere Capolinea,,3,,FFFFFF,000000
+195,ACTV S.p.a,58,Cavarzere FS - Cavarzere Capolinea,,3,,FFFFFF,000000
+196,ACTV S.p.a,58R,Adria FS - Entrata Centrale Enel,,3,,FFFFFF,000000
+197,ACTV S.p.a,58R,Adria FS - CORSIA B8,,3,,FFFFFF,000000
+198,ACTV S.p.a,58R,Ponte Grignella - CORSIA B8,,3,,FFFFFF,000000
+199,ACTV S.p.a,58R,Cavarzere Capolinea - CORSIA B8,,3,,FFFFFF,000000
+200,ACTV S.p.a,58R,Cavarzere Capolinea - CORSIA B8,,3,,FFFFFF,000000
+201,ACTV S.p.a,58R,S. Pietro Centro - CORSIA B8,,3,,FFFFFF,000000
+202,ACTV S.p.a,58R,Entrata Centrale Enel - Adria FS,,3,,FFFFFF,000000
+203,ACTV S.p.a,58R,Entrata Centrale Enel - Adria FS,,3,,FFFFFF,000000
+204,ACTV S.p.a,58R,CORSIA B8 - Cavarzere Capolinea,,3,,FFFFFF,000000
+205,ACTV S.p.a,58R,CORSIA B8 - Adria FS,,3,,FFFFFF,000000
+206,ACTV S.p.a,58R,CORSIA B8 - Cavarzere Capolinea,,3,,FFFFFF,000000
+207,ACTV S.p.a,58R,CORSIA B8 - Cavarzere Capolinea,,3,,FFFFFF,000000
+208,ACTV S.p.a,59,Dolo Centro - Mirano - Capolinea,,3,,FFFFFF,000000
+209,ACTV S.p.a,59,Mirano - Capolinea - Dolo Centro,,3,,FFFFFF,000000
+210,ACTV S.p.a,60,Cavarzere Capolinea - Perarolo,,3,,FFFFFF,000000
+211,ACTV S.p.a,60,Cavarzere Capolinea - Stra,,3,,FFFFFF,000000
+212,ACTV S.p.a,60,Perarolo - Cavarzere Capolinea,,3,,FFFFFF,000000
+213,ACTV S.p.a,60,Stra - Cavarzere Capolinea,,3,,FFFFFF,000000
+214,ACTV S.p.a,66,Dolo Centro - Mellaredo - Capolinea,,3,,FFFFFF,000000
+215,ACTV S.p.a,66,Mellaredo - Capolinea - CORSIA B8,,3,,FFFFFF,000000
+216,ACTV S.p.a,66,Mellaredo - Capolinea - Dolo Centro,,3,,FFFFFF,000000
+217,ACTV S.p.a,67,Stra - Piove di Sacco,,3,,FFFFFF,000000
+218,ACTV S.p.a,67,Stra - Rosara - Capolinea,,3,,FFFFFF,000000
+219,ACTV S.p.a,67,Dolo Centro - Piove di Sacco,,3,,FFFFFF,000000
+220,ACTV S.p.a,67,Dolo Centro - Corte Centro,,3,,FFFFFF,000000
+221,ACTV S.p.a,67,Dolo Centro - Lugo - fronte Capolinea,,3,,FFFFFF,000000
+222,ACTV S.p.a,67,Dolo Centro - Bojon Centro,,3,,FFFFFF,000000
+223,ACTV S.p.a,67,Dolo Centro - Bojon Ferrovia,,3,,FFFFFF,000000
+224,ACTV S.p.a,67,Piove di Sacco - Dolo Centro,,3,,FFFFFF,000000
+225,ACTV S.p.a,67,Rosara - Capolinea - Dolo Centro,,3,,FFFFFF,000000
+226,ACTV S.p.a,67,Lugo - Capolinea - Dolo Centro,,3,,FFFFFF,000000
+227,ACTV S.p.a,67,Bojon Ferrovia - Dolo Centro,,3,,FFFFFF,000000
+228,ACTV S.p.a,67R,Piove di Sacco - CORSIA B8,,3,,FFFFFF,000000
+229,ACTV S.p.a,67R,Piove di Sacco - CORSIA B8,,3,,FFFFFF,000000
+230,ACTV S.p.a,67R,Piove di Sacco - CORSIA B8,,3,,FFFFFF,000000
+231,ACTV S.p.a,67R,Corte - Capolinea - CORSIA B8,,3,,FFFFFF,000000
+232,ACTV S.p.a,67R,Bojon Ferrovia - CORSIA B8,,3,,FFFFFF,000000
+233,ACTV S.p.a,67R,Piove di Sacco - CORSIA B8,,3,,FFFFFF,000000
+234,ACTV S.p.a,67R,Bojon Ferrovia - CORSIA B8,,3,,FFFFFF,000000
+235,ACTV S.p.a,67R,CORSIA B8 - Piove di Sacco,,3,,FFFFFF,000000
+236,ACTV S.p.a,67R,CORSIA B8 - Piove di Sacco,,3,,FFFFFF,000000
+237,ACTV S.p.a,67R,CORSIA B8 - Bojon Ferrovia,,3,,FFFFFF,000000
+238,ACTV S.p.a,73,Cavarzere Capolinea - Rottanova Centro,,3,,FFFFFF,000000
+239,ACTV S.p.a,73,Rottanova Centro - Cavarzere Capolinea,,3,,FFFFFF,000000
+240,ACTV S.p.a,80E,CORSIA B6 - Sottomarina capolinea,,3,,FFFFFF,000000
+241,ACTV S.p.a,80E,Entrata Centrale Enel - Sottomarina capolinea,,3,,FFFFFF,000000
+242,ACTV S.p.a,80E,CORSIA B6 - Sottomarina capolinea,,3,,FFFFFF,000000
+243,ACTV S.p.a,80E,Incr. via Righi - Sottomarina capolinea,,3,,FFFFFF,000000
+244,ACTV S.p.a,80E,CORSIA B6 - Sottomarina capolinea,,3,,FFFFFF,000000
+245,ACTV S.p.a,80E,CORSIA B6 - Biblioteca (ExtraUrbano),,3,,FFFFFF,000000
+246,ACTV S.p.a,80E,Montefibre - Capolinea - Sottomarina capolinea,,3,,FFFFFF,000000
+247,ACTV S.p.a,80E,CORSIA B6 - Biblioteca (ExtraUrbano),,3,,FFFFFF,000000
+248,ACTV S.p.a,80E,Ipermercato Lando - Sottomarina capolinea,,3,,FFFFFF,000000
+249,ACTV S.p.a,80E,Sottomarina capolinea - CORSIA B6,,3,,FFFFFF,000000
+250,ACTV S.p.a,80E,Cavanella - Capolinea - CORSIA B6,,3,,FFFFFF,000000
+251,ACTV S.p.a,80E,Sottomarina capolinea - Entrata Centrale Enel,,3,,FFFFFF,000000
+252,ACTV S.p.a,80E,Sottomarina capolinea - Entrata Centrale Enel,,3,,FFFFFF,000000
+253,ACTV S.p.a,80E,Sottomarina capolinea - CORSIA B6,,3,,FFFFFF,000000
+254,ACTV S.p.a,80E,Incr.v.De Gasperi - CORSIA B6,,3,,FFFFFF,000000
+255,ACTV S.p.a,80E,Linee Venezia - CORSIA B6,,3,,FFFFFF,000000
+256,ACTV S.p.a,80E,Sottomarina capolinea - CORSIA B6,,3,,FFFFFF,000000
+257,ACTV S.p.a,80E,Fronte Civico 12 - CORSIA B6,,3,,FFFFFF,000000
+258,ACTV S.p.a,80E,Ca' Pasqua - Capolinea - CORSIA B6,,3,,FFFFFF,000000
+259,ACTV S.p.a,80E,Fronte Civico 12 - Incr. via Righi,,3,,FFFFFF,000000
+260,ACTV S.p.a,80E,Sottomarina capolinea - Incr. via Appia,,3,,FFFFFF,000000
+261,ACTV S.p.a,81E,Cavarzere Capolinea - Sottomarina capolinea,,3,,FFFFFF,000000
+262,ACTV S.p.a,81E,Cavarzere Capolinea - Sottomarina capolinea,,3,,FFFFFF,000000
+263,ACTV S.p.a,81E,Cavarzere Capolinea - Sottomarina capolinea,,3,,FFFFFF,000000
+264,ACTV S.p.a,81E,Adria FS - Cavarzere Capolinea,,3,,FFFFFF,000000
+265,ACTV S.p.a,81E,Sottomarina capolinea - Adria FS,,3,,FFFFFF,000000
+266,ACTV S.p.a,81E,Sottomarina capolinea - Cavarzere Capolinea,,3,,FFFFFF,000000
+267,ACTV S.p.a,81E,Sottomarina capolinea - Cavarzere Capolinea,,3,,FFFFFF,000000
+268,ACTV S.p.a,81E,Sottomarina capolinea - Cavarzere Capolinea,,3,,FFFFFF,000000
+269,ACTV S.p.a,81E,Sottomarina capolinea - Cavarzere Capolinea,,3,,FFFFFF,000000
+270,ACTV S.p.a,81E,Sottomarina capolinea - Cavarzere Capolinea,,3,,FFFFFF,000000
+271,ACTV S.p.a,83,Cavarzere Capolinea - Ponte Grignella,,3,,FFFFFF,000000
+272,ACTV S.p.a,83,Cavarzere Capolinea - Ponte Grignella,,3,,FFFFFF,000000
+273,ACTV S.p.a,83,Ponte Grignella - Cavarzere Capolinea,,3,,FFFFFF,000000
+274,ACTV S.p.a,83,Ponte Grignella - Cavarzere Capolinea,,3,,FFFFFF,000000
+275,ACTV S.p.a,OMN,Mirano Ospedale - Marano FS,,3,,FFFFFF,000000
+276,ACTV S.p.a,OMN,Dolo Centro - Stazione di Ballo',,3,,FFFFFF,000000
+277,ACTV S.p.a,OMN,Mirano Ospedale - Marano FS,,3,,FFFFFF,000000
+278,ACTV S.p.a,OMN,Dolo Centro - Stazione di Ballo',,3,,FFFFFF,000000
+279,ACTV S.p.a,OMN,Mira - Stazione FS - Marano FS,,3,,FFFFFF,000000
+280,ACTV S.p.a,OMN,Mira - Stazione FS - Marano FS,,3,,FFFFFF,000000
+281,ACTV S.p.a,OMN,Marano FS - Mirano Ospedale,,3,,FFFFFF,000000
+282,ACTV S.p.a,OMN,Marano FS - Ospedale Mirano,,3,,FFFFFF,000000
+283,ACTV S.p.a,OMN,Stazione di Ballo' - Dolo Centro,,3,,FFFFFF,000000
+284,ACTV S.p.a,OMN,Marano FS - Mirano Ospedale,,3,,FFFFFF,000000
+285,ACTV S.p.a,OMN,Stazione di Ballo' - Dolo Centro,,3,,FFFFFF,000000
+286,ACTV S.p.a,OMN,Marano FS - Mira - Stazione FS,,3,,FFFFFF,000000
+287,ACTV S.p.a,OMN,Marano FS - Mira - Stazione FS,,3,,FFFFFF,000000
+288,ACTV S.p.a,1,Terminal Is.Unione - Terminal Is.Unione,,3,,FFFFFF,000000
+289,ACTV S.p.a,1,Capolinea - Terminal Is.Unione,,3,,FFFFFF,000000
+290,ACTV S.p.a,1,Civico 1227 - Civico 1227,,3,,FFFFFF,000000
+291,ACTV S.p.a,1,Civico 1227 - Civico 1227,,3,,FFFFFF,000000
+292,ACTV S.p.a,2,Terminal Is.Unione - Terminal Is.Unione,,3,,FFFFFF,000000
+293,ACTV S.p.a,2,Terminal Is.Unione - Capolinea,,3,,FFFFFF,000000
+294,ACTV S.p.a,6,Terminal Is.Unione - Terminal Is.Unione,,3,,FFFFFF,000000
+295,ACTV S.p.a,6,Terminal Is.Unione - Capolinea,,3,,FFFFFF,000000
+296,ACTV S.p.a,7,Terminal Is.Unione - Terminal Is.Unione,,3,,FFFFFF,000000
+297,ACTV S.p.a,7,Terminal Is.Unione - Terminal Is.Unione,,3,,FFFFFF,000000
+298,ACTV S.p.a,7,Capolinea - Terminal Is.Unione,,3,,FFFFFF,000000
+299,ACTV S.p.a,10,Ca' Sabbioni - Capolinea - Asseggiano - Capolinea,,3,,FFFFFF,000000
+300,ACTV S.p.a,10,Ca' Sabbioni - Capolinea - Asseggiano - Capolinea,,3,,FFFFFF,000000
+301,ACTV S.p.a,10,P.le Fusina - Capolinea - Asseggiano - Capolinea,,3,,FFFFFF,000000
+302,ACTV S.p.a,10,Ca' Sabbioni - Capolinea - Asseggiano - Capolinea,,3,,FFFFFF,000000
+303,ACTV S.p.a,10,Mestre FS - Capolinea 15 - Asseggiano - Capolinea,,3,,FFFFFF,000000
+304,ACTV S.p.a,10,Finanza - Asseggiano - Capolinea,,3,,FFFFFF,000000
+305,ACTV S.p.a,10,Asseggiano - Capolinea - Ca' Sabbioni - Capolinea,,3,,FFFFFF,000000
+306,ACTV S.p.a,10,Asseggiano - Capolinea - P.le Fusina - Capolinea,,3,,FFFFFF,000000
+307,ACTV S.p.a,10,Asseggiano - Capolinea - Ca' Sabbioni - Capolinea,,3,,FFFFFF,000000
+308,ACTV S.p.a,10,Asseggiano - Capolinea - Ca' Sabbioni - Capolinea,,3,,FFFFFF,000000
+309,ACTV S.p.a,10,Asseggiano - Capolinea - Mestre FS - Capolinea 15,,3,,FFFFFF,000000
+310,ACTV S.p.a,10,Asseggiano - Capolinea - Finanza,,3,,FFFFFF,000000
+311,ACTV S.p.a,12,CORSIA B1 - Capolinea,,3,,FFFFFF,000000
+312,ACTV S.p.a,12,Capolinea - CORSIA B1,,3,,FFFFFF,000000
+313,ACTV S.p.a,12/,CORSIA B1 - Taliercio - Capolinea,,3,,FFFFFF,000000
+314,ACTV S.p.a,12/,CORSIA B1 - Taliercio - Capolinea,,3,,FFFFFF,000000
+315,ACTV S.p.a,12/,Taliercio - Capolinea - CORSIA B1,,3,,FFFFFF,000000
+316,ACTV S.p.a,12L,CORSIA B1 - Finanza,,3,,FFFFFF,000000
+317,ACTV S.p.a,12L,Finanza - CORSIA B1,,3,,FFFFFF,000000
+318,ACTV S.p.a,13,C.Comm. Nave de Vero - Vallenari - Capolinea,,3,,FFFFFF,000000
+319,ACTV S.p.a,13,Taliercio - Capolinea - Capolinea,,3,,FFFFFF,000000
+320,ACTV S.p.a,13,Vallenari - Capolinea - C.Comm. Nave de Vero,,3,,FFFFFF,000000
+321,ACTV S.p.a,13,Vallenari - Capolinea - Capolinea,,3,,FFFFFF,000000
+322,ACTV S.p.a,15,AEROPORTO M.POLO - Villabona - Capolinea,,3,,FFFFFF,000000
+323,ACTV S.p.a,15,AEROPORTO M.POLO - Mestre FS - Capolinea 15,,3,,FFFFFF,000000
+324,ACTV S.p.a,15,Villabona - Capolinea - AEROPORTO M.POLO,,3,,FFFFFF,000000
+325,ACTV S.p.a,15,Mestre FS - Capolinea 15 - AEROPORTO M.POLO,,3,,FFFFFF,000000
+326,ACTV S.p.a,19,CORSIA A7 - Marcon - Capolinea,,3,,FFFFFF,000000
+327,ACTV S.p.a,19,CORSIA A7 - Capolinea,,3,,FFFFFF,000000
+328,ACTV S.p.a,19,Marcon - Capolinea - CORSIA A7,,3,,FFFFFF,000000
+329,ACTV S.p.a,19,Capolinea - CORSIA A7,,3,,FFFFFF,000000
+330,ACTV S.p.a,2,CORSIA A6 - v.le don Sturzo,,3,,FFFFFF,000000
+331,ACTV S.p.a,2,CORSIA A6 - Piscina CONI,,3,,FFFFFF,000000
+332,ACTV S.p.a,2,v.le don Sturzo - CORSIA A6,,3,,FFFFFF,000000
+333,ACTV S.p.a,2,Piscina CONI - CORSIA A6,,3,,FFFFFF,000000
+334,ACTV S.p.a,20,Capolinea - Martellago - Incr. v.Lazzari,,3,,FFFFFF,000000
+335,ACTV S.p.a,20,Ca' Lin Capolinea - Incr. v.Lazzari,,3,,FFFFFF,000000
+336,ACTV S.p.a,20,Incr. v.Lazzari - Capolinea - Martellago,,3,,FFFFFF,000000
+337,ACTV S.p.a,20,Incr. v.Lazzari - Ca' Lin Capolinea,,3,,FFFFFF,000000
+338,ACTV S.p.a,21,Capolinea - Martellago - Mestre FS - Favretti,,3,,FFFFFF,000000
+339,ACTV S.p.a,21,Centro Polo - Mestre FS - Favretti,,3,,FFFFFF,000000
+340,ACTV S.p.a,21,Mestre FS - Favretti - Capolinea - Martellago,,3,,FFFFFF,000000
+341,ACTV S.p.a,21,Mestre FS - Favretti - Centro Polo,,3,,FFFFFF,000000
+342,ACTV S.p.a,24,CORSIA A8 - CORSIA A8,,3,,FFFFFF,000000
+343,ACTV S.p.a,24,Pergola - CORSIA A8,,3,,FFFFFF,000000
+344,ACTV S.p.a,24,CORSIA A8 - Civico 33 (Parco),,3,,FFFFFF,000000
+345,ACTV S.p.a,24,Ist.Gritti - Capolinea - CORSIA A8,,3,,FFFFFF,000000
+346,ACTV S.p.a,3,C.Comm. Auchan - Villabona - Capolinea,,3,,FFFFFF,000000
+347,ACTV S.p.a,3,C.Comm. Auchan - Telecom,,3,,FFFFFF,000000
+348,ACTV S.p.a,3,Villabona - Capolinea - C.Comm. Auchan,,3,,FFFFFF,000000
+349,ACTV S.p.a,3,Villabona - Capolinea - P.zza Carpenedo,,3,,FFFFFF,000000
+350,ACTV S.p.a,31,Mestre FS - Favretti - Mestre FS - Favretti,,3,,FFFFFF,000000
+351,ACTV S.p.a,31,Mestre FS - Favretti - Edicola,,3,,FFFFFF,000000
+352,ACTV S.p.a,31,Finanza - Mestre FS - Favretti,,3,,FFFFFF,000000
+353,ACTV S.p.a,31,Incr. v.Carrer - Mestre FS - Favretti,,3,,FFFFFF,000000
+354,ACTV S.p.a,32,Mestre FS - Capolinea  32 - Mestre FS - Capolinea  32,,3,,FFFFFF,000000
+355,ACTV S.p.a,32,Mestre FS - Capolinea  32 - Incr. v.Lazzari,,3,,FFFFFF,000000
+356,ACTV S.p.a,32,P.le Foscari - Capolinea - Finanza,,3,,FFFFFF,000000
+357,ACTV S.p.a,32,Finanza - Mestre FS - Capolinea  32,,3,,FFFFFF,000000
+358,ACTV S.p.a,4,CORSIA A4 - S. Liberale - Capolinea,,3,,FFFFFF,000000
+359,ACTV S.p.a,4,CORSIA A4 - Ca' Noghera - Capolinea,,3,,FFFFFF,000000
+360,ACTV S.p.a,4,CORSIA A4 - Capolinea,,3,,FFFFFF,000000
+361,ACTV S.p.a,4,Finanza - Capolinea,,3,,FFFFFF,000000
+362,ACTV S.p.a,4,S. Liberale - Capolinea - CORSIA A4,,3,,FFFFFF,000000
+363,ACTV S.p.a,4,Ca' Noghera - Capolinea - CORSIA A4,,3,,FFFFFF,000000
+364,ACTV S.p.a,4,Dese FS - Capolinea - CORSIA A4,,3,,FFFFFF,000000
+365,ACTV S.p.a,4,Capolinea - CORSIA A4,,3,,FFFFFF,000000
+366,ACTV S.p.a,4,Capolinea - Finanza,,3,,FFFFFF,000000
+367,ACTV S.p.a,4,Capolinea - Finanza,,3,,FFFFFF,000000
+368,ACTV S.p.a,5,CORSIA A1 - AEROPORTO M.POLO,,3,,FFFFFF,000000
+369,ACTV S.p.a,5,AEROPORTO M.POLO - CORSIA A1,,3,,FFFFFF,000000
+370,ACTV S.p.a,53,Finanza - Chiesa,,3,,FFFFFF,000000
+371,ACTV S.p.a,53,Finanza - Montefibre - Capolinea,,3,,FFFFFF,000000
+372,ACTV S.p.a,53,Finanza - Montefibre - Capolinea,,3,,FFFFFF,000000
+373,ACTV S.p.a,53,Cantiere Munari - Finanza,,3,,FFFFFF,000000
+374,ACTV S.p.a,53,Entrata Centrale Enel - Finanza,,3,,FFFFFF,000000
+375,ACTV S.p.a,53,Montefibre - Capolinea - Finanza,,3,,FFFFFF,000000
+376,ACTV S.p.a,53,Montefibre - Capolinea - Finanza,,3,,FFFFFF,000000
+377,ACTV S.p.a,56,CORSIA B7 - Ca' Sabbioni - Capolinea,,3,,FFFFFF,000000
+378,ACTV S.p.a,56,CORSIA B7 - Ca' Brentelle,,3,,FFFFFF,000000
+379,ACTV S.p.a,56,Ca' Brentelle - CORSIA B7,,3,,FFFFFF,000000
+380,ACTV S.p.a,56,Ca' Sabbioni - Capolinea - CORSIA B7,,3,,FFFFFF,000000
+381,ACTV S.p.a,56,Ca' Brentelle - CORSIA B7,,3,,FFFFFF,000000
+382,ACTV S.p.a,6,CORSIA A3 - Spinea Capolinea,,3,,FFFFFF,000000
+383,ACTV S.p.a,6,CORSIA A3 - Incr. via dell' Edera,,3,,FFFFFF,000000
+384,ACTV S.p.a,6,CORSIA A3 - Incr.via dei Pioppi,,3,,FFFFFF,000000
+385,ACTV S.p.a,6,Spinea Capolinea - CORSIA A3,,3,,FFFFFF,000000
+386,ACTV S.p.a,6,Incr. via dell' Edera - CORSIA A3,,3,,FFFFFF,000000
+387,ACTV S.p.a,6,Incr. via dell' Edera - CORSIA A3,,3,,FFFFFF,000000
+388,ACTV S.p.a,6,Incr.via dei Pioppi - CORSIA A3,,3,,FFFFFF,000000
+389,ACTV S.p.a,6,P.le Parmesan - CORSIA A3,,3,,FFFFFF,000000
+390,ACTV S.p.a,66,CORSIA A3 - Incr. via dell' Edera,,3,,FFFFFF,000000
+391,ACTV S.p.a,66,Incr.v.Marovich - CORSIA A3,,3,,FFFFFF,000000
+392,ACTV S.p.a,7,CORSIA A2 - Villaggio dei Fiori,,3,,FFFFFF,000000
+393,ACTV S.p.a,7,Villaggio dei Fiori - CORSIA A2,,3,,FFFFFF,000000
+394,ACTV S.p.a,7L,CORSIA A2 - Brendole - Capolinea,,3,,FFFFFF,000000
+395,ACTV S.p.a,7L,Telecom - Brendole - Capolinea,,3,,FFFFFF,000000
+396,ACTV S.p.a,7L,Brendole - Capolinea - CORSIA A2,,3,,FFFFFF,000000
+397,ACTV S.p.a,7L,Localita' Avanti - CORSIA A2,,3,,FFFFFF,000000
+398,ACTV S.p.a,7L,Asseggiano - Capolinea - CORSIA A2,,3,,FFFFFF,000000
+399,ACTV S.p.a,80,CORSIA B8 - Capolinea - Martellago,,3,,FFFFFF,000000
+400,ACTV S.p.a,80,CORSIA B8 - Capolinea - Martellago,,3,,FFFFFF,000000
+401,ACTV S.p.a,80,CORSIA B8 - Ca' Lin Capolinea,,3,,FFFFFF,000000
+402,ACTV S.p.a,80,Capolinea - Martellago - CORSIA B8,,3,,FFFFFF,000000
+403,ACTV S.p.a,80,Maerne FS - CORSIA B8,,3,,FFFFFF,000000
+404,ACTV S.p.a,80,Capolinea - Martellago - CORSIA B8,,3,,FFFFFF,000000
+405,ACTV S.p.a,80,Maerne FS - CORSIA B8,,3,,FFFFFF,000000
+406,ACTV S.p.a,80,Ca' Lin Capolinea - CORSIA B8,,3,,FFFFFF,000000
+407,ACTV S.p.a,80,Ca' Lin Capolinea - CORSIA B8,,3,,FFFFFF,000000
+408,ACTV S.p.a,81F,Hotel Lugano - Hotel Lugano,,3,,FFFFFF,000000
+409,ACTV S.p.a,81F,CORSIA A7 - Agenzia Delle Entrate,,3,,FFFFFF,000000
+410,ACTV S.p.a,81F,Hotel Lugano - CORSIA A7,,3,,FFFFFF,000000
+411,ACTV S.p.a,81F,Agenzia Delle Entrate - Hotel Lugano,,3,,FFFFFF,000000
+412,ACTV S.p.a,84,CORSIA B8 - Marcon - Capolinea,,3,,FFFFFF,000000
+413,ACTV S.p.a,84,CORSIA B8 - Dese FS - Capolinea,,3,,FFFFFF,000000
+414,ACTV S.p.a,84,"Favaro, fronte Municipio - Dese FS - Capolinea",,3,,FFFFFF,000000
+415,ACTV S.p.a,84,Dese FS - Capolinea - CORSIA B8,,3,,FFFFFF,000000
+416,ACTV S.p.a,84,Rielta - CORSIA B8,,3,,FFFFFF,000000
+417,ACTV S.p.a,84,Dese FS - Capolinea - Favaro Municipio,,3,,FFFFFF,000000
+418,ACTV S.p.a,86,Mestre FS - Capolinea - Ag. Delle Dogane,,3,,FFFFFF,000000
+419,ACTV S.p.a,86,Ag. Delle Dogane - Mestre FS (hotel Tritone),,3,,FFFFFF,000000
+420,ACTV S.p.a,9,Mestre FS - S. Liberale - Capolinea,,3,,FFFFFF,000000
+421,ACTV S.p.a,9,Finanza - S. Liberale - Capolinea,,3,,FFFFFF,000000
+422,ACTV S.p.a,9,Mestre FS - S. Liberale - Capolinea,,3,,FFFFFF,000000
+423,ACTV S.p.a,9,Finanza - Capolinea,,3,,FFFFFF,000000
+424,ACTV S.p.a,9,Mestre FS - Favaro C.Comm.La Piazza,,3,,FFFFFF,000000
+425,ACTV S.p.a,9,S. Liberale - Capolinea - Mestre FS,,3,,FFFFFF,000000
+426,ACTV S.p.a,9,S. Liberale - Capolinea - Mestre FS,,3,,FFFFFF,000000
+427,ACTV S.p.a,9,S. Liberale - Capolinea - Finanza,,3,,FFFFFF,000000
+428,ACTV S.p.a,9,Marcon - Capolinea - Finanza,,3,,FFFFFF,000000
+429,ACTV S.p.a,9,Marcon - Capolinea - Mestre FS,,3,,FFFFFF,000000
+430,ACTV S.p.a,9,Capolinea - Finanza,,3,,FFFFFF,000000
+431,ACTV S.p.a,9,Favaro C.Comm.La Piazza - Mestre FS,,3,,FFFFFF,000000
+432,ACTV S.p.a,N1,CORSIA A4 - CORSIA A4,,3,,FFFFFF,000000
+433,ACTV S.p.a,N2,CORSIA A4 - CORSIA A4,,3,,FFFFFF,000000
+434,ACTV S.p.a,H1,Corsia 1 - Corsia 1,,3,,FFFFFF,000000
+435,ACTV S.p.a,H1,Corsia 1 - Mestre FS,,3,,FFFFFF,000000
+436,ACTV S.p.a,H1,Mestre FS - Corsia 1,,3,,FFFFFF,000000
+437,ACTV S.p.a,H2,Corsia 1 - Corsia 1,,3,,FFFFFF,000000
+438,ACTV S.p.a,H2,Mestre FS (hotel Tritone) - Corsia 1,,3,,FFFFFF,000000
+439,ACTV S.p.a,H2,Corsia 1 - Mestre FS (hotel Tritone),,3,,FFFFFF,000000
+440,ACTV S.p.a,80H,CORSIA A8 - Corsia 2,,3,,FFFFFF,000000
+441,ACTV S.p.a,80H,Corsia 2 - CORSIA A8,,3,,FFFFFF,000000
+442,ACTV S.p.a,NAV,Deposito - Pertini - Incr. via Gozzi,,3,,FFFFFF,000000
+443,ACTV S.p.a,NAV,Deposito - Pertini - Deposito via della Fisica,,3,,FFFFFF,000000
+444,ACTV S.p.a,NAV,Deposito via della Fisica - Deposito - Pertini,,3,,FFFFFF,000000
+445,ACTV S.p.a,NAV,Deposito - Pertini - CORSIA A8,,3,,FFFFFF,000000
+446,ACTV S.p.a,NAV,Deposito - Pertini - Vempa 1 Urbano,,3,,FFFFFF,000000
+447,ACTV S.p.a,40,CORSIA A8 - Finanza,,3,,FFFFFF,000000
+448,ACTV S.p.a,40,Universita' - CORSIA A8,,3,,FFFFFF,000000
+449,ACTV S.p.a,GSB,SFMR Spinea - SFMR Spinea,,3,,FFFFFF,000000
+450,ACTV S.p.a,GSB,SFMR Spinea - SFMR Spinea,,3,,FFFFFF,000000
+451,ACTV S.p.a,GSB,Capolinea - Crea - SFMR Spinea,,3,,FFFFFF,000000
+452,ACTV S.p.a,GSB,Localita' Orgnano - Capolinea - Crea,,3,,FFFFFF,000000
+453,ACTV S.p.a,GSG,SFMR Spinea - SFMR Spinea,,3,,FFFFFF,000000
+454,ACTV S.p.a,GSG,SFMR Spinea - SFMR Spinea,,3,,FFFFFF,000000
+455,ACTV S.p.a,GSG,SFMR Spinea - Capolinea - Crea,,3,,FFFFFF,000000
+456,ACTV S.p.a,GSG,Capolinea - Crea - Localita' Orgnano,,3,,FFFFFF,000000
+457,ACTV S.p.a,4L,CORSIA A4 - Mestre centro,,3,,FFFFFF,000000
+458,ACTV S.p.a,4L,Mestre centro - CORSIA A4,,3,,FFFFFF,000000
+459,ACTV S.p.a,T1,Capolinea - Panorama,,3,,FFFFFF,000000
+460,ACTV S.p.a,T1,Panorama - Capolinea,,3,,FFFFFF,000000
+461,ACTV S.p.a,45,Mestre FS (hotel Tritone) - Ca' Noghera - Capolinea,,3,,FFFFFF,000000
+462,ACTV S.p.a,45,Tipografia - Ca' Noghera - Capolinea,,3,,FFFFFF,000000
+463,ACTV S.p.a,45,Ca' Noghera - Capolinea - Mestre FS,,3,,FFFFFF,000000
+464,ACTV S.p.a,45,Ca' Noghera - Capolinea - Tipografia,,3,,FFFFFF,000000
+465,ACTV S.p.a,CAR,CORSIA A7 - Universita',,3,,FFFFFF,000000
+466,ACTV S.p.a,CAR,Mestre FS - Capolinea - CA.RI.VE.,,3,,FFFFFF,000000
+467,ACTV S.p.a,CAR,CA.RI.VE. - CORSIA A7,,3,,FFFFFF,000000
+468,ACTV S.p.a,16,Hotel Lugano - P.le Fusina - Capolinea,,3,,FFFFFF,000000
+469,ACTV S.p.a,16,Finanza - Capolinea,,3,,FFFFFF,000000
+470,ACTV S.p.a,16,Finanza - Capolinea,,3,,FFFFFF,000000
+471,ACTV S.p.a,16,P.le Fusina - Capolinea - Hotel Lugano,,3,,FFFFFF,000000
+472,ACTV S.p.a,16,Capolinea - Finanza,,3,,FFFFFF,000000
+473,ACTV S.p.a,16,Capolinea - Finanza,,3,,FFFFFF,000000
+474,ACTV S.p.a,45H,Capolinea ASL - Ca' Noghera - Capolinea,,3,,FFFFFF,000000
+475,ACTV S.p.a,45H,Corsia 2 - Ca' Noghera - Capolinea,,3,,FFFFFF,000000
+476,ACTV S.p.a,45H,Ca' Noghera - Capolinea - Capolinea ASL,,3,,FFFFFF,000000
+477,ACTV S.p.a,45H,Ca' Noghera - Capolinea - Corsia 2,,3,,FFFFFF,000000
+478,ACTV S.p.a,21,Terminal Is.Unione - Terminal Is.Unione,,3,,FFFFFF,000000
+479,ACTV S.p.a,6L,CORSIA A3 - Panorama,,3,,FFFFFF,000000
+480,ACTV S.p.a,6L,Approdo Nave Traghetto - Concordia,,3,,FFFFFF,000000
+481,ACTV S.p.a,6L,CORSIA A3 - Concordia,,3,,FFFFFF,000000
+482,ACTV S.p.a,6L,Panorama - CORSIA A3,,3,,FFFFFF,000000
+483,ACTV S.p.a,6L,Concordia - Approdo Nave Traghetto,,3,,FFFFFF,000000
+484,ACTV S.p.a,6L,Concordia - CORSIA A3,,3,,FFFFFF,000000
+485,ACTV S.p.a,CA,SME 1 - SME 1,,3,,FFFFFF,000000
+486,ACTV S.p.a,24H,CORSIA A8 - C.Comm. Auchan,,3,,FFFFFF,000000
+487,ACTV S.p.a,24H,C.Comm. Auchan - CORSIA A8,,3,,FFFFFF,000000
+488,ACTV S.p.a,34H,Corsia 1 - Incr. v.Carrer,,3,,FFFFFF,000000
+489,ACTV S.p.a,34H,Incr. v.Carrer - Corsia 1,,3,,FFFFFF,000000
+490,ACTV S.p.a,33H,Corsia 1 - Taliercio - Capolinea,,3,,FFFFFF,000000
+491,ACTV S.p.a,33H,Taliercio - Capolinea - Corsia 1,,3,,FFFFFF,000000
+492,ACTV S.p.a,33H,Mestre FS (hotel Tritone) - Corsia 1,,3,,FFFFFF,000000
+493,ACTV S.p.a,CO,SME 1 - SME 1,,3,,FFFFFF,000000
+494,ACTV S.p.a,4D,Noale - Capolinea - CORSIA B5,,3,,FFFFFF,000000
+495,ACTV S.p.a,4D,Noale - Capolinea - CORSIA B5,,3,,FFFFFF,000000
+496,ACTV S.p.a,4D,CORSIA B5 - Noale - Capolinea,,3,,FFFFFF,000000
+497,ACTV S.p.a,4D,CORSIA B5 - Noale - Capolinea,,3,,FFFFFF,000000
+498,ACTV S.p.a,7D,Mirano - Capolinea - CORSIA B5,,3,,FFFFFF,000000
+499,ACTV S.p.a,7D,CORSIA B5 - Mirano - Capolinea,,3,,FFFFFF,000000
+500,ACTV S.p.a,345,Linee frazioni - Rosolina P.za Marconi,,3,,FFFFFF,000000
+501,ACTV S.p.a,345,Linee frazioni - Cavanella - Capolinea,,3,,FFFFFF,000000
+502,ACTV S.p.a,345,Linee frazioni - Isola Verde - Capolinea,,3,,FFFFFF,000000
+503,ACTV S.p.a,345,Linee frazioni - Ca' Bianca - Capolinea,,3,,FFFFFF,000000
+504,ACTV S.p.a,345,Ridotto Madonna - Cive' - Capolinea,,3,,FFFFFF,000000
+505,ACTV S.p.a,345,Ridotto Madonna - Ca' Bianca - Capolinea,,3,,FFFFFF,000000
+506,ACTV S.p.a,345,Ridotto Madonna - Cavanella - Capolinea,,3,,FFFFFF,000000
+507,ACTV S.p.a,345,Ridotto Madonna - Isola Verde - Capolinea,,3,,FFFFFF,000000
+508,ACTV S.p.a,345,Borgo San Giovanni Park - Incr. Conche,,3,,FFFFFF,000000
+509,ACTV S.p.a,345,Rosolina P.za Marconi - Linee frazioni,,3,,FFFFFF,000000
+510,ACTV S.p.a,345,Isola Verde - Capolinea - Linee frazioni,,3,,FFFFFF,000000
+511,ACTV S.p.a,345,Cavanella - Capolinea - Linee frazioni,,3,,FFFFFF,000000
+512,ACTV S.p.a,345,Ca' Bianca - Capolinea - Linee frazioni,,3,,FFFFFF,000000
+513,ACTV S.p.a,345,Cive' - Capolinea - Ridotto Madonna,,3,,FFFFFF,000000
+514,ACTV S.p.a,345,Isola Verde - Capolinea - Ridotto Madonna,,3,,FFFFFF,000000
+515,ACTV S.p.a,345,Cavanella - Capolinea - Ridotto Madonna,,3,,FFFFFF,000000
+516,ACTV S.p.a,345,Ca' Bianca - Capolinea - Ridotto Madonna,,3,,FFFFFF,000000
+517,ACTV S.p.a,345,Incr. Conche - Borgo San Giovanni Park,,3,,FFFFFF,000000

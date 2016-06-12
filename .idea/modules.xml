@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/CatchIt.iml" filepath="$PROJECT_DIR$/CatchIt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DaoExample/DaoExample.iml" filepath="$PROJECT_DIR$/DaoExample/DaoExample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MyDaoGenerator/MyDaoGenerator.iml" filepath="$PROJECT_DIR$/MyDaoGenerator/MyDaoGenerator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/catchit/catchit.iml" filepath="$PROJECT_DIR$/catchit/catchit.iml" />
+    </modules>
+  </component>
+</project>

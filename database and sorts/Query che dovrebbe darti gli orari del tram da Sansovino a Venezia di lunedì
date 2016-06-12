@@ -1,0 +1,22 @@
+SELECT t.trip_id,
+       start_s.stop_name as departure_stop,
+	   start_s.stop_id as departure_stop_id,
+       start_st.departure_time as departure_time,
+       direction_id as direction,
+       end_s.stop_name as arrival_stop,
+	   end_s.stop_id as arrival_stop_id,
+       end_st.arrival_time as arrival_time,
+       r.route_short_name,
+       r.route_long_name
+FROM
+trips t INNER JOIN calendar c ON t.service_id = c.service_id
+        INNER JOIN routes r ON t.route_id = r.route_id
+        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id
+        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id
+        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id
+        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id
+WHERE c.monday = 1
+  and r.route_id = 481
+  and departure_stop_id in (6061, 6062)
+  and end_s.stop_id = 6084
+order by start_st.departure_time asc
