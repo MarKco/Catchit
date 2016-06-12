@@ -8,7 +8,7 @@ import android.graphics.Color;
 public class Bus {
 	private Date departure;
 	private String lineNumber;
-    private String departingStop;
+    private String departureStop;
     private String arrivalStop;
     private Date arrival;
 //	private boolean leaving;
@@ -20,10 +20,10 @@ public class Bus {
 	private boolean toBePutLast;
 	private SimpleDateFormat dateFormatter = new SimpleDateFormat("H:mm");
 
-    public Bus(Date departure, String lineNumber, String departingStop, String arrivalStop, Date arrival) {
+    public Bus(Date departure, String lineNumber, String departureStop, String arrivalStop, Date arrival) {
         this.departure = departure;
         this.lineNumber = lineNumber;
-        this.departingStop = departingStop;
+        this.departureStop = departureStop;
         this.arrivalStop = arrivalStop;
         this.arrival = arrival;
 
@@ -81,8 +81,8 @@ public class Bus {
 
         if(this.lineNumber.equals("N1"))
         {
-            //Rosa
-            this.busColor = Color.argb(40, 255, 204, 229);
+            //azzurrino
+            this.busColor = Color.parseColor("#44518aff");
         }
 
         if(this.lineNumber.equals("N2"))
@@ -161,12 +161,12 @@ public class Bus {
         this.lineNumber = lineNumber;
     }
 
-    public String getDepartingStop() {
-        return departingStop;
+    public String getDepartureStop() {
+        return departureStop;
     }
 
-    public void setDepartingStop(String departingStop) {
-        this.departingStop = departingStop;
+    public void setDepartureStop(String departureStop) {
+        this.departureStop = departureStop;
     }
 
     public String getArrivalStop() {

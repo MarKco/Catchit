@@ -37,7 +37,7 @@ public class MainCatchitActivity extends AppCompatActivity {
     List<Bus> tramToStationTimes = new LinkedList<>();
     List<Bus> tramToMestreCityCenterTimes = new LinkedList<>();
 
-    public static final boolean DEBUG = false; //if true, custom time below is set in the app,
+    public static final boolean DEBUG = false; //if true, custom departureTime below is set in the app,
     // regardless of real timestamp
     public static final int DEBUG_HOURS = 19;
     public static final int DEBUG_MINUTES = 4;
@@ -317,10 +317,14 @@ public class MainCatchitActivity extends AppCompatActivity {
                         "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
                         "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
                         "WHERE " + dayForQuery + " = 1\n" +
-                        "  and r.route_id = 481\n" +
+                        "  and ((r.route_id = 481\n" +      //For ordinary buses
                         "  and departure_stop_id in (6061, 6062)\n" +
-                        "  and end_s.stop_id = 6084\n" +
-                        "order by start_st.departure_time asc"; //your wanted query
+                        "  and end_s.stop_id = 6084\n)" +
+                        "  OR " +
+                        "  ( r.route_id = 6062\n" +
+                        "  and departure_stop_id in (453, 454)\n" + //For night buses
+                        "  and end_s.stop_id = 510\n))" +
+                        "order by start_st.departure_time asc";
 
                 Cursor leavingCursor = db.rawQuery(tramToVenice, null);
                 leavingCursor.moveToFirst();
@@ -366,10 +370,14 @@ public class MainCatchitActivity extends AppCompatActivity {
                         "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
                         "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
                         "WHERE " + dayForQuery + " = 1\n" +
-                        "  and r.route_id = 483\n" +
+                        "  and ((r.route_id = 483\n" +      //For ordinary buses
                         "  and departure_stop_id = 6084\n" +
-                        "  and end_s.stop_id in (6061, 6062)\n" +
-                        "order by start_st.departure_time asc"; //your wanted query
+                        "  and end_s.stop_id in (6061, 6062)\n)" +
+                        " OR " +
+                        "  (r.route_id in (453, 454)\n" +   //For night buses
+                        "  and departure_stop_id = 6062\n" +
+                        "  and end_s.stop_id = 510\n))" +
+                        "order by start_st.departure_time asc";
 
                 Cursor comingCursor = db.rawQuery(tramFromVenice, null);
                 comingCursor.moveToFirst();
@@ -417,7 +425,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                         "  and r.route_id = 525\n" +
                         "  and arrival_stop_id in (6073, 6074, 3333)\n" +
                         "  and departure_stop_id = 6081\n" +
-                        "order by start_st.departure_time asc\t"; //your wanted query
+                        "order by start_st.departure_time asc\t";
 
                 Cursor leavingTramCursor = db.rawQuery(tramToStation, null);
                 leavingTramCursor.moveToFirst();
@@ -464,7 +472,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                         "  and r.route_id = 527\n" +
                         "  and departure_stop_id in (6073, 6074, 3333)\n" +
                         "  and arrival_stop_id = 6081\n" +
-                        "order by start_st.departure_time asc\t"; //your wanted query
+                        "order by start_st.departure_time asc\t";
 
                Cursor comingTramCursor = db.rawQuery(tramFromStation, null);
                 comingTramCursor.moveToFirst();
@@ -525,7 +533,7 @@ public class MainCatchitActivity extends AppCompatActivity {
         Date now = dateFormatter.parse(dateFormatter.format(new Date()));
 
         /**
-         * DEBUG: Set specific time, if needed
+         * DEBUG: Set specific departureTime, if needed
          */
         if (DEBUG) {
             Calendar cal = Calendar.getInstance();
@@ -624,7 +632,7 @@ public class MainCatchitActivity extends AppCompatActivity {
         passed = new LinkedList<Bus>();
 
         for (int i = 0; i < tramToStationTimes.size(); i++) {
-            if (tramToStationTimes.get(i).getDeparture().getTime() > (now.getTime())) { //No "sevenminutes", because tram is always on time
+            if (tramToStationTimes.get(i).getDeparture().getTime() > (now.getTime())) { //No "sevenminutes", because tram is always on departureTime
                 toPass.add(tramToStationTimes.get(i));
                 //If the bus has passed in last five minutes it should be grey
                 if (tramToStationTimes.get(i).getDeparture().getTime() < now.getTime()) {
@@ -662,7 +670,7 @@ public class MainCatchitActivity extends AppCompatActivity {
         passed = new LinkedList<Bus>();
 
         for (int i = 0; i < tramToMestreCityCenterTimes.size(); i++) {
-            if (tramToMestreCityCenterTimes.get(i).getDeparture().getTime() > (now.getTime())) { //No "sevenminutes", because tram is always on time
+            if (tramToMestreCityCenterTimes.get(i).getDeparture().getTime() > (now.getTime())) { //No "sevenminutes", because tram is always on departureTime
                 toPass.add(tramToMestreCityCenterTimes.get(i));
                 //If the bus has passed in last seven minutes it should be grey
                 if (tramToMestreCityCenterTimes.get(i).getDeparture().getTime() < now.getTime()) {

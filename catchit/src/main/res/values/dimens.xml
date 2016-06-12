@@ -4,5 +4,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="text_size_for_list_items">20sp</dimen>
+    <dimen name="text_size_for_stop_names">15sp</dimen>
+    <dimen name="text_size_for_title">23sp</dimen>
 
 </resources>

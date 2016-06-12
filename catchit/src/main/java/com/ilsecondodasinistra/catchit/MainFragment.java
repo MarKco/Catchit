@@ -34,10 +34,6 @@ public class MainFragment extends Fragment {
 
     ListView timeTable;
     CustomAdapter leavingAdapter;
-    CustomAdapter comingAdapter;
-    CustomAdapter tramLeavingAdapter;
-    CustomAdapter tramComingAdapter;
-//    private TextView mSelected;
 
     List<Bus> leavingTimes;
     List<Bus> comingTimes;

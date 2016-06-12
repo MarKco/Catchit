@@ -31,3 +31,5 @@ WHERE
   route_short_name = "T1"
   group by route_short_name, start_s.stop_id, departure_stop
 order by start_st.departure_time asc
+
+
