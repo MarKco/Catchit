@@ -58,7 +58,6 @@ public class MainCatchitActivity extends AppCompatActivity {
     public static String departingSansovino = "6061";
     public static String returningSansovino = "6062";
     public static String veniceStops = "510, 6084";
-    public static String veniceStopsForN = "510";
     public static String cialdini = "6080, 6027";
     public static String stazioneMestre = "6074, 6073";
 
@@ -402,7 +401,8 @@ public class MainCatchitActivity extends AppCompatActivity {
                             "  and end_s.stop_id in (" + veniceStops + ")\n" +
                             "order by start_st.departure_time asc";
 
-                    Log.e("TramToVenice", tramToVenice);
+                    if(BuildConfig.DEBUG)
+                        Log.w("TramToVenice", tramToVenice);
 
                     Cursor leavingCursor = db.rawQuery(tramToVenice, null);
                     leavingCursor.moveToFirst();
@@ -478,7 +478,8 @@ public class MainCatchitActivity extends AppCompatActivity {
                         "  and end_s.stop_id = " + returningSansovino + "\n" +
                         "order by start_st.departure_time asc";
 
-                    Log.e("TramFromVenice", tramFromVenice);
+                    if(BuildConfig.DEBUG)
+                        Log.w("TramFromVenice", tramFromVenice);
 
                 Cursor comingCursor = db.rawQuery(tramFromVenice, null);
                 comingCursor.moveToFirst();
@@ -529,6 +530,9 @@ public class MainCatchitActivity extends AppCompatActivity {
                         "  and departure_stop_id in (" + cialdini + ")\n" +
                         "order by start_st.departure_time asc\t";
 
+                if(BuildConfig.DEBUG)
+                    Log.w("TramToStation", tramToStation);
+
                 Cursor leavingTramCursor = db.rawQuery(tramToStation, null);
                 leavingTramCursor.moveToFirst();
                 if(leavingTramCursor.getCount() > 0)
@@ -577,7 +581,10 @@ public class MainCatchitActivity extends AppCompatActivity {
                         "  and arrival_stop_id in (" + cialdini + ")\n" +
                         "order by start_st.departure_time asc\t";
 
-               Cursor comingTramCursor = db.rawQuery(tramFromStation, null);
+                if(BuildConfig.DEBUG)
+                    Log.w("tramFromStation", tramFromStation);
+
+                Cursor comingTramCursor = db.rawQuery(tramFromStation, null);
                 comingTramCursor.moveToFirst();
                 if(comingTramCursor.getCount() > 0)
                     try {
