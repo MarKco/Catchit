@@ -1,23 +1,71 @@
 Questo stream of consciousness ti potrebbe essere utile - insieme allo schema entità-relazione - per quando dovrai aggiornare gli orari e potrebbero essere cambiati alcuni ID
 
-Route T1 ID 481 Favaro - CORSIA C
-Ha molti Trips, ognuno con Headsign "Corsia C"
-Per esempio Trip 775
-Ci sono due stop_times con Trip 775, tutti con Stop_headsign "Venezia"
-Uno è riferito allo stop_id 6027 -> Mestre centro A1
-L'altro (6061) è Sansovino
+Sansovino ha gli stop ID 6061 e 6062
+
+Ricordiamo le fermate, ricavate dalle mappe delle linee ACTV disponibili per la consultazione degli utenti nel sito accanto agli orari :)
+
+Linea T2:
+6074 Stazione -> 6081 Colombo / Mestre Centro A2
+ritorno
+6081 Mestre Centro A2 -> 6073 Stazione FS
+
+Linea T1:
+6084 P.Roma C -> 6062 Sansovino -> 6080 Cialdini
+ritorno
+6027 Cialdini -> 6061 Sansovino -> 6084 P.Roma C
+
+Linea N1:
+510 Venezia A5 -> 6062 Sansovino
+
+Linea N2:
+6061 Sansovino -> 510 Venezia A5
+
+Linea 12L:
+6061 Sansovino -> 510 Venezia A5
+ritorno
+510 Venezia A5 -> 6062 Sansovino
 
 Le route del Tram T2 sono
-525 MESTRE CENTRO A2 - Marghera
-526 Marghera - MESTRE CENTRO A4
-527 Marghera - MESTRE CENTRO A2
+1114 MESTRE CENTRO A2 - Marghera
+1115 MESTRE CENTRO A2 - Marghera
+1116 Marghera - MESTRE CENTRO A4
+1118 Marghera - MESTRE CENTRO A4
+1117 Marghera - MESTRE CENTRO A2
+1119 Marghera - MESTRE CENTRO A2
 
-Partiamo dalla prima.
-Ci sono molti trips con route 525 ma noi sappiamo che la stazione ha stop_id 14816
+Quelle del T1
+1022 - Favaro - CORSIA C
+1023 - Favaro - MESTRE CENTRO A2
+1024 - Favaro - CORSIA C
+1025 - Favaro - MESTRE CENTRO A2
+1026 - CORSIA C - Favaro
+1027 - MESTRE CENTRO A4 - Favaro
+1028 - CORSIA C - Favaro
+1029 - MESTRE CENTRO A4 - Favaro
+
+Route dell'N1: 987, 988, 989, 990
+Route dell'N2: 991, 992
+
+Route del 12L
+da Sansovino a Venezia: 693 - 694
+da Venezia a Sansovino: 691 - 692
+
+Esempio di ragionamento:
+
+Route T1 ID 1022 Favaro - CORSIA C
+Ha molti Trips, ognuno con Headsign Corsia C
+Per esempio Trip 1000
+Ci sono molti stop_times con Trip 1000, tutti con Stop_headsign Venezia
+Uno solo è riferito alla fermata Sansovino 6061, nessuno alla fermata Sansovino 6062. Questo ci fa capire che Sansovino 6061 è la fermata dal lato di via Hermada, perché evidentemente ci ferma il tram da Favaro a VE.
+
+Parliamo ora di T2
+Ci sono molti trips con route 1114 ma noi sappiamo che la stazione ha stop_id 6073 e 6074
 
 Mi serve una query che, data una route (che ho) e due codici fermata (che ho, forse) mi dia gli stop_times nel mezzo... o i trips?
 
-Modificando leggermente la query che uso per estrarre i dati da Sansovino a Venezia posso tirare fuori TUTTI i 1274 tratti che partono da Stazione FS e vanno da qualche parte con il tram T2
+Praticamente io so quali sono le routes che mi interessano (sono elencate sopra), so quali sono le fermate che mi interessano, però purtroppo nella tabella stop_times sono legati solamente i trips (cioè i singoli bus che partono, non le linee) con gli orari. Mi serve una query che metta insieme la linea con i bus che partono su quella linea per estrarre le fermate.
+
+Modificando leggermente la query che uso per estrarre i dati da Sansovino a Venezia posso tirare fuori TUTTI i tratti che partono da Stazione FS e vanno da qualche parte con il tram T2
 
 SELECT t.trip_id,
        start_s.stop_name as departure_stop,
@@ -39,63 +87,34 @@ trips t INNER JOIN calendar c ON t.service_id = c.service_id
         INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id
 WHERE c.monday = 1
   AND direction_id = 1
-  and r.route_short_name = "T2"
-  and departure_stop_id in (6073, 6074, 3333)
-  and arrival_stop_id = 6081
-order by start_st.departure_time asc	
-
-Ne deduco che la fermata in centro è 6081 - MESTRE CENTRO A2
-
-A questo punto la inserisco come end_st.stop_id e come route non metto = "T2" ma il route_id  (527)
-
-ottengo
-
-SELECT t.trip_id,
-       start_s.stop_name as departure_stop,
-	   start_s.stop_id as departure_stop_id,
-       start_st.departure_time,
-       direction_id as direction,
-       end_s.stop_name as arrival_stop,
-	   end_s.stop_id as arrival_stop_id,
-       end_st.arrival_time,
-       r.route_short_name
-FROM
-trips t INNER JOIN calendar c ON t.service_id = c.service_id
-        INNER JOIN routes r ON t.route_id = r.route_id
-        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id
-        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id
-        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id
-        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id
-WHERE c.monday = 1
-  AND direction_id = 1
-  and r.route_id = 527
-  and departure_stop_id in (6073, 6074, 3333)
+  --and r.route_short_name = "T2"
+  and r.route_id in (1116, 1117, 1118, 1119)	--ID delle linee del T2 dalla stazione al centro
+  and departure_stop_id in (6073, 6074)
   and arrival_stop_id = 6081
 order by start_st.departure_time asc
 
 ed è istantanea o quasi :-)
 
-Scambiando le fermate ottengo la query per il tragitto opposto. Non capisco a cosa serva "direction", a questo punto.
+Scambiando le fermate ottengo la query per il tragitto opposto. Non capisco a cosa serva direction, a questo punto.
 
 A questo punto quali stops e stop_times posso togliere?
 Lancio tutte le query e vedo quali stops e stop_times abbiamo in gioco
 
-Sansovino-Venezia e ritorno -> fermate 6061, 6062 e 6084
-Stazione-Centro e ritorno -> fermate 6073, 6074, 3333 e 6081
-
 Proviamo a togliere tutto tranne quelle
 
-1- delete from stops where stop_id not in (6061, 6062, 6084, 6073, 6074, 3333, 6081);
+1- delete from stops where stop_id not in (6081, 6074, 6073, 6084, 6062, 6080, 6027, 6061, 6084, 510);
 2- delete from stop_times where stop_times.stop_id not in (select stop_id from stops);
 
-Siamo a 17Mb
+Siamo a 7.9Mb
+
+/** DISCLAIMER: La parte seguente è relativa al mondo prima, ovvero a quando non sapevamo che gli ID delle fermate fossero ricavabili dalle mappe ACTV **/
 
 Esempio d'uso: voglio aggiungere i tram della linea N1
 
 Vado a vedere le routes che hanno come route_short_name N1 e trovo
 
-"453"	"ACTV S.p.a"	"N1"	"CORSIA A5 - CORSIA A5"
-"454"	"ACTV S.p.a"	"N1"	"MESTRE CENTRO B2 - CORSIA A5"
+453 - ACTV S.p.a - N1 - CORSIA A5 - CORSIA A5
+454 - ACTV S.p.a - N1 - MESTRE CENTRO B2 - CORSIA A5
 
 Presumo che CORSIA A5 - CORSIA A5 sia il circolare che va a mestre e torna (vedi anche http://actv.avmspa.it/sites/default/files/attachments/pdf/UM/U-N1.pdf) mentre l'altro sia un N1 che parte da Mestre e arriva a Venezia. Per noi poco utile, ma teniamolo.
 
@@ -127,3 +146,34 @@ WHERE c.monday = 1
 order by start_st.departure_time asc
 
 Ora dovrò unire le condizioni in modo da tirare fuori gli uni e gli altri.
+
+Le voilà:
+
+SELECT t.trip_id,
+ start_s.stop_name as departure_stop,
+ start_s.stop_id as departure_stop_id,
+ start_st.departure_time,
+ direction_id as direction,
+ end_s.stop_name as arrival_stop,
+ end_s.stop_id as arrival_stop_id,
+ end_st.arrival_time,
+ r.route_short_name,
+ r.route_long_name
+FROM
+trips t INNER JOIN calendar c ON t.service_id = c.service_id
+  INNER JOIN routes r ON t.route_id = r.route_id
+  INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id
+  INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id
+  INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id
+  INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id
+WHERE   c.monday   = 1
+  and ((r.route_id = 483
+  and departure_stop_id = 6084
+  and end_s.stop_id in (6061, 6062)) 
+ OR  
+  (r.route_id in (453, 454)
+  and departure_stop_id = 510
+  and end_s.stop_id = 6062)) 
+order by start_st.departure_time asc;
+
+Poi hai usato un altro trucco (un foreach su un arraylist di stringhe) per tirare fuori prima quelli nel futuro e poi quelli nel passato. #fiol

@@ -11,14 +11,11 @@ public class Bus {
     private String departureStop;
     private String arrivalStop;
     private Date arrival;
-//	private boolean leaving;
-//	private boolean workDays;
-//	private boolean saturdays;
-//	private boolean sundays;
 	private int busColor;
 	private int textColor;
 	private boolean toBePutLast;
 	private SimpleDateFormat dateFormatter = new SimpleDateFormat("H:mm");
+	private SimpleDateFormat dateFormatterForComparison = new SimpleDateFormat("kk:mm");
 
     public Bus(Date departure, String lineNumber, String departureStop, String arrivalStop, Date arrival) {
         this.departure = departure;
@@ -29,6 +26,8 @@ public class Bus {
 
         this.textColor = Color.BLACK;
         this.toBePutLast = false;
+
+        resetColors();
     }
 
     public boolean getToBePutLast()
@@ -43,35 +42,35 @@ public class Bus {
 	
 	public void resetColors()
 	{
-		if(this.lineNumber.equals("12"))
-		{
-			//Rosso più scuro
-			this.busColor = Color.argb(40, 178, 34, 34);
-		}
-		
-		if(this.lineNumber.equals("12/"))
-		{
-			//Rosso
-			this.busColor = Color.argb(30, 255, 20, 147);
-		}
-		
-		if(this.lineNumber.equals("12L"))
-		{
-			//Rosso meno intenso
-			this.busColor = Color.argb(40, 255, 69, 0);
-		}
-		
-		if(this.lineNumber.equals("SCORZE'"))
-		{
-			//Azzurrino
-			this.busColor = Color.argb(50, 185, 211, 238);
-		}
-		
-		if(this.lineNumber.equals("NOALE"))
-		{
-			//Giallino
-			this.busColor = Color.argb(30, 255, 255, 0);
-		}
+//		if(this.lineNumber.equals("12"))
+//		{
+//			//Rosso più scuro
+//			this.busColor = Color.argb(40, 178, 34, 34);
+//		}
+//
+//		if(this.lineNumber.equals("12/"))
+//		{
+//			//Rosso
+//			this.busColor = Color.argb(30, 255, 20, 147);
+//		}
+//
+//		if(this.lineNumber.equals("12L"))
+//		{
+//			//Rosso meno intenso
+//			this.busColor = Color.argb(40, 255, 69, 0);
+//		}
+//
+//		if(this.lineNumber.equals("SCORZE'"))
+//		{
+//			//Azzurrino
+//			this.busColor = Color.argb(50, 185, 211, 238);
+//		}
+//
+//		if(this.lineNumber.equals("NOALE"))
+//		{
+//			//Giallino
+//			this.busColor = Color.argb(30, 255, 255, 0);
+//		}
 
         if(this.lineNumber.equals("T1"))
         {
@@ -82,7 +81,7 @@ public class Bus {
         if(this.lineNumber.equals("N1"))
         {
             //azzurrino
-            this.busColor = Color.parseColor("#44518aff");
+            this.busColor = Color.parseColor("#33518aff");
         }
 
         if(this.lineNumber.equals("N2"))
@@ -90,7 +89,6 @@ public class Bus {
             //Giallino
             this.busColor = Color.argb(30, 30, 255, 255);
         }
-
 
         this.textColor = Color.BLACK;
 	}
@@ -102,7 +100,11 @@ public class Bus {
 	public void setTextColor(int a, int r, int g, int b) {
 		this.textColor = Color.argb(a, r, g, b);
 	}
-	
+
+    public void setColor(String color) {
+        this.busColor = Color.parseColor(color);
+    }
+
 	public void setColor(int a, int r, int g, int b)
 	{
 		this.busColor = Color.argb(a, r, g, b);
@@ -117,19 +119,7 @@ public class Bus {
 	{
 		return this.busColor;
 	}
-	
-//	public boolean doesItPassOnSundays() {
-//		return this.sundays;
-//	}
-//
-//	public boolean doesItPassOnSaturdays() {
-//		return this.saturdays;
-//	}
-//
-//	public boolean doesItPassOnWorkdays() {
-//		return this.workDays;
-//	}
-	
+
 	public String getLine()
 	{
 		return this.lineNumber;
@@ -142,6 +132,10 @@ public class Bus {
 
     public String getArrivalString() {
         return dateFormatter.format(this.arrival);
+    }
+
+    public String getDepartureStringForComparison() {
+        return dateFormatterForComparison.format(this.departure);
     }
 	
 	public Date getDeparture()

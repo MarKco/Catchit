@@ -1,1 +1,1 @@
-include ':catchit', ':DaoExample', ':MyDaoGenerator'
+include ':catchit', ':MyDaoGenerator'

@@ -1,6 +1,7 @@
 package com.ilsecondodasinistra.catchit;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import android.content.Context;
@@ -12,7 +13,7 @@ import android.widget.TextView;
 
 public class CustomAdapter extends ArrayAdapter<Bus> {
 
-	final SimpleDateFormat parser = new SimpleDateFormat("HH.mm");
+	final SimpleDateFormat parser = new SimpleDateFormat("kk:mm");
 	
 	public CustomAdapter(Context context, int resource,
 			List<Bus> leavingTimes) {
@@ -69,6 +70,10 @@ public class CustomAdapter extends ArrayAdapter<Bus> {
         viewHolder.arrivalStop.setText(bus.getArrivalStop());
 
         viewHolder.busArrivalTime.setText(bus.getArrivalString());
+
+        if(position < 5) //In the first places of the list there could be some probably-already-passed buses we should emphasize
+            if(bus.getDepartureStringForComparison().compareTo(parser.format(new Date())) < 0)
+                bus.setColor(String.valueOf((getContext().getResources().getString(0+R.color.already_passed))));
 
 		convertView.setBackgroundColor(bus.getColor());
 		
