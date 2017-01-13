@@ -177,3 +177,53 @@ WHERE   c.monday   = 1
 order by start_st.departure_time asc;
 
 Poi hai usato un altro trucco (un foreach su un arraylist di stringhe) per tirare fuori prima quelli nel futuro e poi quelli nel passato. #fiol
+
+ALTRA COSA IMPORTANTE: L'ACTV, essendo un'azienda geniale, ha pensato bene di mettere gli orari delle corse notturne che però afferiscono ancora alla giornata corrente con degli orari di questo tipo
+24 -> mezzanotte
+25 -> l'una
+26 -> le due
+
+e così via
+
+Ecco le query per spostare ogni stop_time nell'orario corretto MA c'è un ma. Quale? Ho il sospetto che è quasi una certezza che così facendo si sposti una corsa dalla sera tardi del venerdì al mattino presto del venerdì stesso! Solo che non è facile modificare le query affinché vadano a modificare il trip_id (che è pure chiave) andando a prendere quello della corsa omologa del giorno successivo! Catzo! Questo potrebbe sminchiare non poco i notturni nel fine settimana. Da testare.
+
+UPDATE stop_times
+SET arrival_time = REPLACE(arrival_time, '25:', '01:')
+WHERE arrival_time LIKE '25:%'
+
+UPDATE stop_times
+SET departure_time = REPLACE(departure_time, '25:', '01:')
+WHERE departure_time LIKE '25:%'
+
+UPDATE stop_times
+SET arrival_time = REPLACE(arrival_time, '26:', '02:')
+WHERE arrival_time LIKE '26:%'
+
+UPDATE stop_times
+SET departure_time = REPLACE(departure_time, '26:', '02:')
+WHERE departure_time LIKE '26:%'
+
+UPDATE stop_times
+SET arrival_time = REPLACE(arrival_time, '27:', '03:')
+WHERE arrival_time LIKE '27:%';
+
+UPDATE stop_times
+SET departure_time = REPLACE(departure_time, '27:', '03:')
+WHERE departure_time LIKE '27:%';
+
+UPDATE stop_times
+SET arrival_time = REPLACE(arrival_time, '28:', '04:')
+WHERE arrival_time LIKE '28:%';
+
+UPDATE stop_times
+SET departure_time = REPLACE(departure_time, '28:', '04:')
+WHERE departure_time LIKE '28:%';
+
+UPDATE stop_times
+SET arrival_time = REPLACE(arrival_time, '29:', '05:')
+WHERE arrival_time LIKE '29:%';
+
+UPDATE stop_times
+SET departure_time = REPLACE(departure_time, '29:', '05:')
+WHERE departure_time LIKE '29:%';
+

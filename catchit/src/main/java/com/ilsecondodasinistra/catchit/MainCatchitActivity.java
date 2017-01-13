@@ -57,8 +57,9 @@ public class MainCatchitActivity extends AppCompatActivity {
 
     public static String departingSansovino = "6061";
     public static String returningSansovino = "6062";
+    public static String sansovinoForN = departingSansovino + ", " + returningSansovino;
     public static String veniceStops = "510, 6084";
-    public static String cialdini = "6080, 6027";
+    public static String cialdini = "6080, 6027, 6081";
     public static String stazioneMestre = "6074, 6073";
 
     int todayWeek;
@@ -294,6 +295,12 @@ public class MainCatchitActivity extends AppCompatActivity {
         final String dayForQuery;
         final String tomorrowForQuery;
 
+        tramToVeniceTimes = new LinkedList<>();
+        tramToMestreTimes = new LinkedList<>();
+
+        tramToStationTimes = new LinkedList<>();
+        tramToMestreCityCenterTimes = new LinkedList<>();
+
         switch (todayWeek) {
             case Calendar.SUNDAY:
                 dayForQuery = "c.sunday";
@@ -395,7 +402,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                             "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
                             "WHERE " + dayForThisQuery + " = 1\n" +
                             "  and r.route_id in (" + routeForN1 + ", " + routeForN2 + ")\n" +
-                            "  and departure_stop_id = " + departingSansovino + "\n" + //For night buses
+                            "  and departure_stop_id in (" + sansovinoForN + ")\n" + //For night buses
                             "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                             "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" +   //Needed only because N1 and N2 are circular, so you could get paradoxical results
                             "  and end_s.stop_id in (" + veniceStops + ")\n" +
@@ -475,7 +482,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                         "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                         "  and departure_stop_id in (" + veniceStops + ")\n" +
                         "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" +   //Needed only because N1 and N2 are circular, so you could get paradoxical results
-                        "  and end_s.stop_id = " + returningSansovino + "\n" +
+                        "  and end_s.stop_id in (" + sansovinoForN + ")\n" +
                         "order by start_st.departure_time asc";
 
                     if(BuildConfig.DEBUG)
