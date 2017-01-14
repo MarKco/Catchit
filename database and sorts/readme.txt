@@ -40,5 +40,5 @@ CREATE INDEX ix_trips_route_id ON trips (route_id);
 
 Come togliere i dati non necessari dal DB
 
-1- delete from stops where stop_id not in (6081, 6074, 6073, 6084, 6062, 6080, 6027, 6061, 6084);
+1- delete from stops where stop_id not in (6081, 6074, 6073, 6084, 6062, 6080, 6027, 6061, 6084, 510);
 2- delete from stop_times where stop_times.stop_id not in (select stop_id from stops);

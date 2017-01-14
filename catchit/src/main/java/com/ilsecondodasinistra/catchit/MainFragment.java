@@ -41,6 +41,9 @@ public class MainFragment extends Fragment {
     List<Bus> tramLeavingTimes;
     List<Bus> tramComingTimes;
 
+    List<Bus> tramCentroSansovinoTimes;
+    List<Bus> tramSansovinoCentroTimes;
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
@@ -68,6 +71,8 @@ public class MainFragment extends Fragment {
         comingTimes = ((MainCatchitActivity) getActivity()).getTramToMestreTimes();
         tramLeavingTimes = ((MainCatchitActivity) getActivity()).getTramToStationTimes();
         tramComingTimes = ((MainCatchitActivity) getActivity()).getTramToMestreCityCenterTimes();
+        tramCentroSansovinoTimes = ((MainCatchitActivity) getActivity()).getTramCentroSansovinoTimes();
+        tramSansovinoCentroTimes = ((MainCatchitActivity) getActivity()).getTramSansovinoCentroTimes();
 
         populateTimeTableOld();
     }

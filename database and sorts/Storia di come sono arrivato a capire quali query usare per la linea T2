@@ -188,42 +188,42 @@ e così via
 Ecco le query per spostare ogni stop_time nell'orario corretto MA c'è un ma. Quale? Ho il sospetto che è quasi una certezza che così facendo si sposti una corsa dalla sera tardi del venerdì al mattino presto del venerdì stesso! Solo che non è facile modificare le query affinché vadano a modificare il trip_id (che è pure chiave) andando a prendere quello della corsa omologa del giorno successivo! Catzo! Questo potrebbe sminchiare non poco i notturni nel fine settimana. Da testare.
 
 UPDATE stop_times
-SET arrival_time = REPLACE(arrival_time, '25:', '01:')
-WHERE arrival_time LIKE '25:%'
+SET arrival_time = REPLACE(arrival_time, '25:', '01:'), late_night = 1
+WHERE arrival_time LIKE '25:%';
 
 UPDATE stop_times
-SET departure_time = REPLACE(departure_time, '25:', '01:')
-WHERE departure_time LIKE '25:%'
+SET departure_time = REPLACE(departure_time, '25:', '01:'), late_night = 1
+WHERE departure_time LIKE '25:%';
 
 UPDATE stop_times
-SET arrival_time = REPLACE(arrival_time, '26:', '02:')
-WHERE arrival_time LIKE '26:%'
+SET arrival_time = REPLACE(arrival_time, '26:', '02:'), late_night = 1
+WHERE arrival_time LIKE '26:%';
 
 UPDATE stop_times
-SET departure_time = REPLACE(departure_time, '26:', '02:')
-WHERE departure_time LIKE '26:%'
+SET departure_time = REPLACE(departure_time, '26:', '02:'), late_night = 1
+WHERE departure_time LIKE '26:%';
 
 UPDATE stop_times
-SET arrival_time = REPLACE(arrival_time, '27:', '03:')
+SET arrival_time = REPLACE(arrival_time, '27:', '03:'), late_night = 1
 WHERE arrival_time LIKE '27:%';
 
 UPDATE stop_times
-SET departure_time = REPLACE(departure_time, '27:', '03:')
+SET departure_time = REPLACE(departure_time, '27:', '03:'), late_night = 1
 WHERE departure_time LIKE '27:%';
 
 UPDATE stop_times
-SET arrival_time = REPLACE(arrival_time, '28:', '04:')
+SET arrival_time = REPLACE(arrival_time, '28:', '04:'), late_night = 1
 WHERE arrival_time LIKE '28:%';
 
 UPDATE stop_times
-SET departure_time = REPLACE(departure_time, '28:', '04:')
+SET departure_time = REPLACE(departure_time, '28:', '04:'), late_night = 1
 WHERE departure_time LIKE '28:%';
 
 UPDATE stop_times
-SET arrival_time = REPLACE(arrival_time, '29:', '05:')
+SET arrival_time = REPLACE(arrival_time, '29:', '05:'), late_night = 1
 WHERE arrival_time LIKE '29:%';
 
 UPDATE stop_times
-SET departure_time = REPLACE(departure_time, '29:', '05:')
+SET departure_time = REPLACE(departure_time, '29:', '05:'), late_night = 1
 WHERE departure_time LIKE '29:%';
 

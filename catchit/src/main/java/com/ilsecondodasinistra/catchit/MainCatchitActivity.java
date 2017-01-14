@@ -37,6 +37,9 @@ public class MainCatchitActivity extends AppCompatActivity {
     List<Bus> tramToStationTimes = new LinkedList<>();
     List<Bus> tramToMestreCityCenterTimes = new LinkedList<>();
 
+    List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
+    List<Bus> tramSansovinoCentroTimes = new LinkedList<>();
+
     public static final boolean DEBUG = false; //if true, custom departureTime below is set in the app,
     // regardless of real timestamp
     public static final int DEBUG_HOURS = 1;
@@ -75,8 +78,8 @@ public class MainCatchitActivity extends AppCompatActivity {
      * The pager adapter, which provides the pages to the view pager widget.
      */
     private PagerAdapter mPagerAdapter;
-    private SimpleDateFormat dateFormatter = new SimpleDateFormat("kk:mm:ss"); //DateFormatter four hours.minutes.seconds
-    private SimpleDateFormat databaseHourFormatter = new SimpleDateFormat("kk:mm:ss"); //DateFormatter four hours.minutes.seconds
+    private SimpleDateFormat dateFormatter = new SimpleDateFormat("HH:mm:ss"); //DateFormatter four hours.minutes.seconds
+    private SimpleDateFormat databaseHourFormatter = new SimpleDateFormat("HH:mm:ss"); //DateFormatter four hours.minutes.seconds
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +124,12 @@ public class MainCatchitActivity extends AppCompatActivity {
                             break;
                         case 3:
                             titleText.setText("Tram Stazione -> Centro");
+                            break;
+                        case 4:
+                            titleText.setText("Tram Centro -> Sansovino");
+                            break;
+                        case 5:
+                            titleText.setText("Tram Sansovino -> Centro");
                             break;
                     }
                 } catch (NullPointerException e) {
@@ -192,7 +201,7 @@ public class MainCatchitActivity extends AppCompatActivity {
     private List<Fragment> getFragments() {
         List<Fragment> fList = new ArrayList<Fragment>();
 
-        for (int position = 1; position < 5; position++) {
+        for (int position = 1; position < 7; position++) {
 //            MainFragment thisFragment = new MainFragment();
             Bundle args = new Bundle();
             MainFragment thisFragment = new MainFragment();
@@ -301,6 +310,9 @@ public class MainCatchitActivity extends AppCompatActivity {
         tramToStationTimes = new LinkedList<>();
         tramToMestreCityCenterTimes = new LinkedList<>();
 
+        tramCentroSansovinoTimes = new LinkedList<>();
+        tramSansovinoCentroTimes = new LinkedList<>();
+
         switch (todayWeek) {
             case Calendar.SUNDAY:
                 dayForQuery = "c.sunday";
@@ -360,6 +372,63 @@ public class MainCatchitActivity extends AppCompatActivity {
                     else
                         dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
 
+                    String moreTramToVenice =
+                            "SELECT t.trip_id,\n" +
+                                    "       start_s.stop_name as departure_stop,\n" +
+                                    "\t   start_s.stop_id as departure_stop_id,\n" +
+                                    "       start_st.departure_time as departure_time,\n" +
+                                    "       direction_id as direction,\n" +
+                                    "       end_s.stop_name as arrival_stop,\n" +
+                                    "\t   end_s.stop_id as arrival_stop_id,\n" +
+                                    "       end_st.arrival_time as arrival_time,\n" +
+                                    "       r.route_short_name as route_short_name,\n" +
+                                    "       end_st.late_night as bus_late_night,\n" +
+                                    "       r.route_long_name as route_long_name\n" +
+                                    "FROM\n" +
+                                    "trips t INNER JOIN calendar c ON t.service_id = c.service_id\n" +
+                                    "        INNER JOIN routes r ON t.route_id = r.route_id\n" +
+                                    "        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id\n" +
+                                    "        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id\n" +
+                                    "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
+                                    "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
+                                    "WHERE " + dayForThisQuery + " = 1\n" +
+                                    "  and r.route_id in (" + routeForN1 + ", " + routeForN2 + ")\n" +
+                                    "  and departure_stop_id in (" + sansovinoForN + ")\n" + //For night buses
+                                    "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
+                                    "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" +   //Needed only because N1 and N2 are circular, so you could get paradoxical results
+                                    "  and end_s.stop_id in (" + veniceStops + ")\n" +
+                                    "  and bus_late_night IS NOT NULL\n" +
+                                    "order by start_st.departure_time asc";
+
+                    if(BuildConfig.DEBUG)
+                        Log.w("MoreTramToVenice", moreTramToVenice);
+
+                    Cursor moreLeavingCursor = db.rawQuery(moreTramToVenice, null);
+                    moreLeavingCursor.moveToFirst();
+                    if (moreLeavingCursor.getCount() > 0)
+                        try {
+                            do {
+                                String departureStop = moreLeavingCursor.getString(moreLeavingCursor.getColumnIndex("departure_stop"));
+                                String departureTime = moreLeavingCursor.getString(moreLeavingCursor.getColumnIndex("departure_time"));
+                                String arrivalStop = moreLeavingCursor.getString(moreLeavingCursor.getColumnIndex("arrival_stop"));
+                                String arrivalTime = moreLeavingCursor.getString(moreLeavingCursor.getColumnIndex("arrival_time"));
+                                String line = moreLeavingCursor.getString(moreLeavingCursor.getColumnIndex("route_short_name"));
+
+                                tramToVeniceTimes.add(new Bus(dateFormatter.parse(departureTime),
+                                        line,
+                                        departureStop,
+                                        arrivalStop,
+                                        dateFormatter.parse(arrivalTime)
+                                ));
+                                //                    Log.i("Catchit", "Added a new item: " + departureStop + " " + departureTime + " " + line);
+
+                            } while (moreLeavingCursor.moveToNext());
+                        } catch (ParseException e) {
+                            Log.e("Catchit", "Uff, cheppalle");
+                        }
+
+                    moreLeavingCursor.close();
+
                     String tramToVenice = "SELECT t.trip_id,\n" +
                             "       start_s.stop_name as departure_stop,\n" +
                             "\t   start_s.stop_id as departure_stop_id,\n" +
@@ -406,6 +475,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                             "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                             "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" +   //Needed only because N1 and N2 are circular, so you could get paradoxical results
                             "  and end_s.stop_id in (" + veniceStops + ")\n" +
+                            "  and end_st.late_night IS NULL\n" +
                             "order by start_st.departure_time asc";
 
                     if(BuildConfig.DEBUG)
@@ -437,7 +507,64 @@ public class MainCatchitActivity extends AppCompatActivity {
 
                     leavingCursor.close();
 
-                String tramFromVenice = "SELECT t.trip_id,\n" +
+                    String moreTramFromVenice =
+                            "SELECT t.trip_id,\n" +
+                                    "       start_s.stop_name as departure_stop,\n" +
+                                    "\t   start_s.stop_id as departure_stop_id,\n" +
+                                    "       start_st.departure_time as departure_time,\n" +
+                                    "       direction_id as direction,\n" +
+                                    "       end_s.stop_name as arrival_stop,\n" +
+                                    "\t   end_s.stop_id as arrival_stop_id,\n" +
+                                    "       end_st.arrival_time as arrival_time,\n" +
+                                    "       r.route_short_name as route_short_name,\n" +
+                                    "       end_st.late_night as bus_late_night,\n" +
+                                    "       r.route_long_name as route_long_name\n" +
+                                    "FROM\n" +
+                                    "trips t INNER JOIN calendar c ON t.service_id = c.service_id\n" +
+                                    "        INNER JOIN routes r ON t.route_id = r.route_id\n" +
+                                    "        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id\n" +
+                                    "        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id\n" +
+                                    "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
+                                    "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
+                                    "WHERE " + dayForThisQuery + " = 1\n" +
+                                    "  and r.route_id in (" + routeForN1 + ", " + routeForN2 + ")\n" +
+                                    "  and departure_stop_id in (" + veniceStops + ")\n" + //For night buses
+                                    "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
+                                    "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" +   //Needed only because N1 and N2 are circular, so you could get paradoxical results
+                                    "  and end_s.stop_id in (" + sansovinoForN + ")\n" +
+                                    "  and bus_late_night IS NOT NULL\n" +
+                                    "order by start_st.departure_time asc";
+
+                    if(BuildConfig.DEBUG)
+                        Log.w("moreTramFromVenice", moreTramFromVenice);
+
+                    Cursor moreComingCursor = db.rawQuery(moreTramFromVenice, null);
+                    moreComingCursor.moveToFirst();
+                    if (moreComingCursor.getCount() > 0)
+                        try {
+                            do {
+                                String departureStop = moreComingCursor.getString(moreComingCursor.getColumnIndex("departure_stop"));
+                                String departureTime = moreComingCursor.getString(moreComingCursor.getColumnIndex("departure_time"));
+                                String arrivalStop = moreComingCursor.getString(moreComingCursor.getColumnIndex("arrival_stop"));
+                                String arrivalTime = moreComingCursor.getString(moreComingCursor.getColumnIndex("arrival_time"));
+                                String line = moreComingCursor.getString(moreComingCursor.getColumnIndex("route_short_name"));
+
+                                tramToMestreTimes.add(new Bus(dateFormatter.parse(departureTime),
+                                        line,
+                                        departureStop,
+                                        arrivalStop,
+                                        dateFormatter.parse(arrivalTime)
+                                ));
+                                //                    Log.i("Catchit", "Added a new item: " + departureStop + " " + departureTime + " " + line);
+
+                            } while (moreComingCursor.moveToNext());
+                        } catch (ParseException e) {
+                            Log.e("Catchit", "Uff, cheppalle");
+                        }
+
+                    moreComingCursor.close();
+
+                    String tramFromVenice = "SELECT t.trip_id,\n" +
                         "       start_s.stop_name as departure_stop,\n" +
                         "       start_s.stop_id as departure_stop_id,\n" +
                         "       start_st.departure_time as departure_time,\n" +
@@ -483,6 +610,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                         "  and departure_stop_id in (" + veniceStops + ")\n" +
                         "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" +   //Needed only because N1 and N2 are circular, so you could get paradoxical results
                         "  and end_s.stop_id in (" + sansovinoForN + ")\n" +
+                        "  and end_st.late_night IS NULL\n" +
                         "order by start_st.departure_time asc";
 
                     if(BuildConfig.DEBUG)
@@ -615,6 +743,87 @@ public class MainCatchitActivity extends AppCompatActivity {
                     }
 
                 comingTramCursor.close();
+
+                    String tramSansovinoToCentro = "SELECT t.trip_id,\n" +
+                            "       start_s.stop_name as departure_stop,\n" +
+                            "\t   start_s.stop_id as departure_stop_id,\n" +
+                            "       start_st.departure_time as departure_time,\n" +
+                            "       direction_id as direction,\n" +
+                            "       end_s.stop_name as arrival_stop,\n" +
+                            "\t   end_s.stop_id as arrival_stop_id,\n" +
+                            "       end_st.arrival_time as arrival_time,\n" +
+                            "       r.route_short_name as route_short_name,\n" +
+                            "       r.route_long_name as route_long_name\n" +
+                            "FROM\n" +
+                            "trips t INNER JOIN calendar c ON t.service_id = c.service_id\n" +
+                            "        INNER JOIN routes r ON t.route_id = r.route_id\n" +
+                            "        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id\n" +
+                            "        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id\n" +
+                            "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
+                            "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
+                            "WHERE " + dayForThisQuery + " = 1\n" +
+                            "  and r.route_id in (" + routeForT1MestreVe + ", " + routeFor12MestreVe + ")\n" +      //For ordinary buses
+                            "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
+                            "  and departure_stop_id = " + returningSansovino + "\n" +
+                            "  and end_s.stop_id in (" + cialdini + ")\n" +
+                            "  UNION " +
+                            "SELECT t.trip_id,\n" +
+                            "       start_s.stop_name as departure_stop,\n" +
+                            "\t   start_s.stop_id as departure_stop_id,\n" +
+                            "       start_st.departure_time as departure_time,\n" +
+                            "       direction_id as direction,\n" +
+                            "       end_s.stop_name as arrival_stop,\n" +
+                            "\t   end_s.stop_id as arrival_stop_id,\n" +
+                            "       end_st.arrival_time as arrival_time,\n" +
+                            "       r.route_short_name as route_short_name,\n" +
+                            "       r.route_long_name as route_long_name\n" +
+                            "FROM\n" +
+                            "trips t INNER JOIN calendar c ON t.service_id = c.service_id\n" +
+                            "        INNER JOIN routes r ON t.route_id = r.route_id\n" +
+                            "        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id\n" +
+                            "        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id\n" +
+                            "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
+                            "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
+                            "WHERE " + dayForThisQuery + " = 1\n" +
+                            "  and r.route_id in (" + routeForN1 + ", " + routeForN2 + ")\n" +
+                            "  and departure_stop_id in (" + sansovinoForN + ")\n" + //For night buses
+                            "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
+                            "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" +   //Needed only because N1 and N2 are circular, so you could get paradoxical results
+                            "  and end_s.stop_id in (" + cialdini + ")\n" +
+                            "order by start_st.departure_time asc";
+
+                    if(BuildConfig.DEBUG)
+                        Log.w("TramToVenice", tramSansovinoToCentro);
+
+                    Cursor leavingToCentroCursor = db.rawQuery(tramSansovinoToCentro, null);
+                    leavingToCentroCursor.moveToFirst();
+                    if (leavingToCentroCursor.getCount() > 0)
+                        try {
+                            do {
+                                String departureStop = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("departure_stop"));
+                                String departureTime = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("departure_time"));
+                                String arrivalStop = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("arrival_stop"));
+                                String arrivalTime = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("arrival_time"));
+                                String line = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("route_short_name"));
+
+                                tramSansovinoCentroTimes.add(new Bus(dateFormatter.parse(departureTime),
+                                        line,
+                                        departureStop,
+                                        arrivalStop,
+                                        dateFormatter.parse(arrivalTime)
+                                ));
+                                //                    Log.i("Catchit", "Added a new item: " + departureStop + " " + departureTime + " " + line);
+
+                            } while (leavingToCentroCursor.moveToNext());
+                        } catch (ParseException e) {
+                            Log.e("Catchit", "Uff, cheppalle");
+                        }
+
+                    leavingToCentroCursor.close();
+
+                    if(BuildConfig.DEBUG)
+                        Log.w("TramSansovinoToCentro", tramSansovinoToCentro);
+
                 }
                 db.close();
             }
@@ -639,9 +848,17 @@ public class MainCatchitActivity extends AppCompatActivity {
         return tramToMestreCityCenterTimes;
     }
 
-/*
- * Sorts lists starting with NOW
- */
+    public List<Bus> getTramCentroSansovinoTimes() {
+        return tramCentroSansovinoTimes;
+    }
+
+    public List<Bus> getTramSansovinoCentroTimes() {
+        return tramSansovinoCentroTimes;
+    }
+
+    /*
+     * Sorts lists starting with NOW
+     */
     private void sortAndFilterThoseLists(int weekDay) throws ParseException {
         List<Bus> passed = new LinkedList<Bus>();
         List<Bus> toPass = new LinkedList<Bus>();
