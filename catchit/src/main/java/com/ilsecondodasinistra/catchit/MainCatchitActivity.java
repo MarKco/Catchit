@@ -41,7 +41,7 @@ public class MainCatchitActivity extends AppCompatActivity {
     List<Bus> tramSansovinoCentroTimes = new LinkedList<>();
 
     public static final boolean DEBUGHOUR = true; //if true, custom departureTime below is set in the app,
-    public static final boolean DEBUGDAY = true; //if true, custom date below is set in the app,
+    public static final boolean DEBUGDAY = false; //if true, custom date below is set in the app,
     // regardless of real timestamp
     public static final int DEBUG_HOURS = 13;
     public static final int DEBUG_MINUTES = 33;
@@ -349,6 +349,8 @@ public class MainCatchitActivity extends AppCompatActivity {
                     cal.set(Calendar.MILLISECOND, DEBUG_MILLISECONDS);
                     now.setTime(cal.getTimeInMillis());
                 }
+                if(DEBUGDAY)
+                    now.setDate(debugDayOfTheWeek);
 
                 ArrayList<String> operators = new ArrayList<>();
                 operators.add(">");
@@ -391,8 +393,8 @@ public class MainCatchitActivity extends AppCompatActivity {
                                     "  and bus_late_night IS NOT NULL\n" +
                                     "order by start_st.departure_time asc";
 
-                    if(BuildConfig.DEBUG)
-                        Log.w("MoreTramToVenice", moreTramToVenice);
+//                    if(BuildConfig.DEBUG)
+//                        Log.w("MoreTramToVenice", moreTramToVenice);
 
                     Cursor moreLeavingCursor = db.rawQuery(moreTramToVenice, null);
                     moreLeavingCursor.moveToFirst();
@@ -526,8 +528,8 @@ public class MainCatchitActivity extends AppCompatActivity {
                                     "  and bus_late_night IS NOT NULL\n" +
                                     "order by start_st.departure_time asc";
 
-                    if(BuildConfig.DEBUG)
-                        Log.w("moreTramFromVenice", moreTramFromVenice);
+//                    if(BuildConfig.DEBUG)
+//                        Log.w("moreTramFromVenice", moreTramFromVenice);
 
                     Cursor moreComingCursor = db.rawQuery(moreTramFromVenice, null);
                     moreComingCursor.moveToFirst();
@@ -604,8 +606,8 @@ public class MainCatchitActivity extends AppCompatActivity {
                         "  and end_st.late_night IS NULL\n" +
                         "order by start_st.departure_time asc";
 
-                    if(BuildConfig.DEBUG)
-                        Log.w("TramFromVenice", tramFromVenice);
+//                    if(BuildConfig.DEBUG)
+//                        Log.w("TramFromVenice", tramFromVenice);
 
                 Cursor comingCursor = db.rawQuery(tramFromVenice, null);
                 comingCursor.moveToFirst();
@@ -656,8 +658,8 @@ public class MainCatchitActivity extends AppCompatActivity {
                         "  and departure_stop_id in (" + cialdini + ")\n" +
                         "order by start_st.departure_time asc\t";
 
-                if(BuildConfig.DEBUG)
-                    Log.w("TramToStation", tramToStation);
+//                if(BuildConfig.DEBUG)
+//                    Log.w("TramToStation", tramToStation);
 
                 Cursor leavingTramCursor = db.rawQuery(tramToStation, null);
                 leavingTramCursor.moveToFirst();
@@ -707,8 +709,8 @@ public class MainCatchitActivity extends AppCompatActivity {
                         "  and arrival_stop_id in (" + cialdini + ")\n" +
                         "order by start_st.departure_time asc\t";
 
-                if(BuildConfig.DEBUG)
-                    Log.w("tramFromStation", tramFromStation);
+//                if(BuildConfig.DEBUG)
+//                    Log.w("tramFromStation", tramFromStation);
 
                 Cursor comingTramCursor = db.rawQuery(tramFromStation, null);
                 comingTramCursor.moveToFirst();
@@ -783,8 +785,8 @@ public class MainCatchitActivity extends AppCompatActivity {
                             "  and end_s.stop_id in (" + cialdini + ")\n" +
                             "order by start_st.departure_time asc";
 
-                    if(BuildConfig.DEBUG)
-                        Log.w("TramToVenice", tramSansovinoToCentro);
+//                    if(BuildConfig.DEBUG)
+//                        Log.w("TramToVenice", tramSansovinoToCentro);
 
                     Cursor leavingToCentroCursor = db.rawQuery(tramSansovinoToCentro, null);
                     leavingToCentroCursor.moveToFirst();
@@ -812,8 +814,8 @@ public class MainCatchitActivity extends AppCompatActivity {
 
                     leavingToCentroCursor.close();
 
-                    if(BuildConfig.DEBUG)
-                        Log.w("TramSansovinoToCentro", tramSansovinoToCentro);
+//                    if(BuildConfig.DEBUG)
+//                        Log.w("TramSansovinoToCentro", tramSansovinoToCentro);
 
                 }
                 db.close();
