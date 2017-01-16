@@ -187,6 +187,26 @@ e così via
 
 Ecco le query per spostare ogni stop_time nell'orario corretto MA c'è un ma. Quale? Ho il sospetto che è quasi una certezza che così facendo si sposti una corsa dalla sera tardi del venerdì al mattino presto del venerdì stesso! Solo che non è facile modificare le query affinché vadano a modificare il trip_id (che è pure chiave) andando a prendere quello della corsa omologa del giorno successivo! Catzo! Questo potrebbe sminchiare non poco i notturni nel fine settimana. Da testare.
 
+Come risolvere il problema? L'ho fatto come fanno i veri informatici, aggiungendo un campo!
+Il campo in questione è late_night, nella tabella stop_times. Ora quindi andiamo ad estrarre dal DB, nell'ordine
+1- i bus di tipo late_night con orario SUCCESSIVO ad ora (se ce ne sono vuol dire che è notte, e li dobbiamo mostrare subito)
+2- i bus ordinari (late_night = null) con orario successivo ad ora
+3- i bus late_night con orario antecedente ad ora
+4- i bus normali con orario antecedente ad ora
+
+Ovviamente questo crea qualche problema di interleaving di valori, che dovremo andare a risolvere.
+Per poter utilizzare con profitto il campo late_night, i valori salvati nel DB vanno modificati come segue. Altrimenti con bus che partono alle ore 25, 26 e 27 di notte è difficile farci i conti...
+
+N.B. Andiamo anche a modificare le istanze con orari che iniziano con '24' modificandoli in '00'. Questo perché non vogliamo più usare come DateFormatter il formato kk:mm:ss, che prende le ore 01-24, bensì l'amico HH:mm:ss. Di conseguenza 24->00
+
+UPDATE stop_times
+SET arrival_time = REPLACE(arrival_time, '24:', '00:'), late_night = 1
+WHERE arrival_time LIKE '24:%';
+
+UPDATE stop_times
+SET departure_time = REPLACE(departure_time, '24:', '00:'), late_night = 1
+WHERE departure_time LIKE '24:%';
+
 UPDATE stop_times
 SET arrival_time = REPLACE(arrival_time, '25:', '01:'), late_night = 1
 WHERE arrival_time LIKE '25:%';

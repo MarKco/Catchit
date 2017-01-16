@@ -40,9 +40,10 @@ public class MainCatchitActivity extends AppCompatActivity {
     List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
     List<Bus> tramSansovinoCentroTimes = new LinkedList<>();
 
-    public static final boolean DEBUG = false; //if true, custom departureTime below is set in the app,
+    public static final boolean DEBUGHOUR = true; //if true, custom departureTime below is set in the app,
+    public static final boolean DEBUGDAY = true; //if true, custom date below is set in the app,
     // regardless of real timestamp
-    public static final int DEBUG_HOURS = 1;
+    public static final int DEBUG_HOURS = 13;
     public static final int DEBUG_MINUTES = 33;
     public static final int DEBUG_SECONDS = 0;
     public static final int DEBUG_MILLISECONDS = 0;
@@ -66,6 +67,7 @@ public class MainCatchitActivity extends AppCompatActivity {
     public static String stazioneMestre = "6074, 6073";
 
     int todayWeek;
+    int debugDayOfTheWeek = Calendar.SUNDAY;
 
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
@@ -89,15 +91,12 @@ public class MainCatchitActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         todayWeek = calendar.get(Calendar.DAY_OF_WEEK);
 
+        if(DEBUGDAY)
+            todayWeek = debugDayOfTheWeek;
+
         //add the Toolbar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-//        try {
-//            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        }
-//        catch(NullPointerException e) {
-//            Log.e("Catchit", "what's wrong with setDisplayHomeAsUpEnabled?");
-//        }
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         final TextView titleText = (TextView) findViewById(R.id.title);
 
@@ -178,12 +177,6 @@ public class MainCatchitActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        try {
-//            sortAndFilterThoseLists(todayWeek);
-//        }
-//        catch (ParseException e) {
-//            Log.i("catchIt", e.getStackTrace().toString());
-//        }
     }
 
     @Override
@@ -202,10 +195,8 @@ public class MainCatchitActivity extends AppCompatActivity {
         List<Fragment> fList = new ArrayList<Fragment>();
 
         for (int position = 1; position < 7; position++) {
-//            MainFragment thisFragment = new MainFragment();
             Bundle args = new Bundle();
             MainFragment thisFragment = new MainFragment();
-//            MainFragment thisFragment = MainFragment.newInstance(position);
             args.putInt(POSITION, position);
             thisFragment.setArguments(args);
             fList.add(thisFragment);
@@ -237,32 +228,32 @@ public class MainCatchitActivity extends AppCompatActivity {
         }
     }
 
-    public static class Database {
-
-        private static SQLiteDatabase db = null;
-        private static DaoSession daoSession = null;
-
-        public static SQLiteDatabase getDatabase(Context context) {
-            if (db == null) {
-                // As we are in development we will use the DevOpenHelper which drops the database on a schema update
-                //TODO: To be changed before we go live
-                DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(context, "actv.db", null);
-                // Access the database using the helper
-                db = helper.getWritableDatabase();
-            }
-            return db;
-        }
-
-        public static DaoSession getDaoSession(Context context) {
-
-            if (daoSession == null) {
-                // Construct the DaoMaster which brokers DAOs for the Domain Objects
-                DaoMaster daoMaster = new DaoMaster(getDatabase(context));
-                daoSession = daoMaster.newSession();
-            }
-
-            return daoSession;
-        }
+//    public static class Database {
+//
+//        private static SQLiteDatabase db = null;
+//        private static DaoSession daoSession = null;
+//
+//        public static SQLiteDatabase getDatabase(Context context) {
+//            if (db == null) {
+//                // As we are in development we will use the DevOpenHelper which drops the database on a schema update
+//                //TODO: To be changed before we go live
+//                DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(context, "actv.db", null);
+//                // Access the database using the helper
+//                db = helper.getWritableDatabase();
+//            }
+//            return db;
+//        }
+//
+//        public static DaoSession getDaoSession(Context context) {
+//
+//            if (daoSession == null) {
+//                // Construct the DaoMaster which brokers DAOs for the Domain Objects
+//                DaoMaster daoMaster = new DaoMaster(getDatabase(context));
+//                daoSession = daoMaster.newSession();
+//            }
+//
+//            return daoSession;
+//        }
 
         /**
          * Old method for database filling.
@@ -296,7 +287,7 @@ public class MainCatchitActivity extends AppCompatActivity {
 //            DbUtils.executeSqlStatementsInTx(Database.getDatabase(context), queries.toArray(new String[queries.size()]));
 //        }
 //
-    }
+//    }
 
     private void populateTimeTable() {
         final SQLiteDatabase db = getDatabase();
@@ -349,7 +340,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                  */
 
                 Date now = new Date();
-                if (DEBUG) {
+                if (DEBUGHOUR) {
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(now); //This date is a copy of present datetime (which actually is Linux Epoch)
                     cal.set(Calendar.HOUR_OF_DAY, DEBUG_HOURS); //We just change the hours, minutes, seconds
@@ -870,7 +861,7 @@ public class MainCatchitActivity extends AppCompatActivity {
         /**
          * DEBUG: Set specific departureTime, if needed
          */
-        if (DEBUG) {
+        if (DEBUGDAY) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(now); //This date is a copy of present datetime (which actually is Linux Epoch)
             cal.set(Calendar.HOUR_OF_DAY, DEBUG_HOURS); //We just change the hours, minutes, seconds
