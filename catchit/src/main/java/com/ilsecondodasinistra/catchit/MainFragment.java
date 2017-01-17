@@ -19,30 +19,10 @@ public class MainFragment extends Fragment {
 
     int todayWeek;
 
-    public static final MainFragment newInstance(int i) {
-        MainFragment f = new MainFragment();
-        Bundle bdl = new Bundle(1);
-        bdl.putInt(POSITION, i);
-        f.setArguments(bdl);
-        return f;
-    }
-
-    private SimpleDateFormat dateFormatter = new SimpleDateFormat("H.mm"); //DateFormatter four hours.minutes
-
-//    List<Bus> origLeavingTimes;
-//    List<Bus> origComingTimes;
-
     ListView timeTable;
     CustomAdapter leavingAdapter;
 
-    List<Bus> leavingTimes;
-    List<Bus> comingTimes;
-
-    List<Bus> tramLeavingTimes;
-    List<Bus> tramComingTimes;
-
-    List<Bus> tramCentroSansovinoTimes;
-    List<Bus> tramSansovinoCentroTimes;
+    List<Bus> times;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -66,15 +46,7 @@ public class MainFragment extends Fragment {
         }
         // If current day is Sunday, todayWeek=1
 
-//            populateTimes();
-        leavingTimes = ((MainCatchitActivity) getActivity()).getTramToVeniceTimes();
-        comingTimes = ((MainCatchitActivity) getActivity()).getTramToMestreTimes();
-        tramLeavingTimes = ((MainCatchitActivity) getActivity()).getTramToStationTimes();
-        tramComingTimes = ((MainCatchitActivity) getActivity()).getTramToMestreCityCenterTimes();
-        tramCentroSansovinoTimes = ((MainCatchitActivity) getActivity()).getTramCentroSansovinoTimes();
-        tramSansovinoCentroTimes = ((MainCatchitActivity) getActivity()).getTramSansovinoCentroTimes();
-
-        populateTimeTableOld();
+//        populateTimeTableOld();
     }
 
     private void saveToday(int todayWeek) {
@@ -93,37 +65,30 @@ public class MainFragment extends Fragment {
 
     private void populateTimeTableOld() {
 
-//        tramToVeniceTimes = new LinkedList<Bus>();
-//        tramToMestreTimes = new LinkedList<Bus>();
-//
-//        tramToStationTimes = new LinkedList<Bus>();
-//        tramToMestreCityCenterTimes = new LinkedList<Bus>();
-
-        //Preferences
-        final SharedPreferences settings = getActivity().getPreferences(0);
-
-//        int position = getArguments().getInt("position", 0);
         /**
          * In base all'attributo "position" capisce in quale tab siamo
          */
         int position = getArguments().getInt(POSITION, 0);
 
-        switch (position) {
-            case 1:
-                leavingAdapter = new CustomAdapter(getActivity(), R.layout.row, leavingTimes);
-                break;
-            case 2:
-                leavingAdapter = new CustomAdapter(getActivity(), R.layout.row, comingTimes);
-                break;
-            case 3:
-                leavingAdapter = new CustomAdapter(getActivity(), R.layout.row, tramLeavingTimes);
-                break;
-            case 4:
-                leavingAdapter = new CustomAdapter(getActivity(), R.layout.row, tramComingTimes);
-                break;
-        }
+        leavingAdapter = new CustomAdapter(getActivity(), R.layout.row, times);
         timeTable.setAdapter(leavingAdapter);
+    }
 
-//        Toast.makeText(getActivity().getBaseContext(), "Invocato onStart", Toast.LENGTH_SHORT).show();
+    public void populate(List<Bus> list) {
+        times = list;
+        leavingAdapter = new CustomAdapter(getActivity(), R.layout.row, list);
+        timeTable.setAdapter(leavingAdapter);
+    }
+
+    public boolean isPopulated() {
+        if(times != null && times.size() > 0)
+            return true;
+
+        return false;
+    }
+
+    public void show() {
+        if(timeTable.getAdapter() == null)
+            populate(times);
     }
 }

@@ -42,7 +42,7 @@ public class MainCatchitActivity extends AppCompatActivity {
     List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
     List<Bus> tramSansovinoCentroTimes = new LinkedList<>();
 
-    public static final boolean DEBUGHOUR = true; //if true, custom departureTime below is set in the app,
+    public static final boolean DEBUGHOUR = false; //if true, custom departureTime below is set in the app,
     public static final boolean DEBUGDAY = false; //if true, custom date below is set in the app,
     // regardless of real timestamp
     public static final int DEBUG_HOURS = 13;
@@ -50,26 +50,15 @@ public class MainCatchitActivity extends AppCompatActivity {
     public static final int DEBUG_SECONDS = 0;
     public static final int DEBUG_MILLISECONDS = 0;
 
-    public static String routeForT1MestreVe = "1022, 1024";
-    public static String routeForT1VeMestre = "1026, 1028";
-    public static String routeForT2MestreMa = "1114, 1115";
-    public static String routeForT2MaMestre = "1116, 1118, 1117, 1119";
-
-    public static String routeForN1 = "987, 988, 989, 990";
-    public static String routeForN2 = "991, 992";
-
-    public static String routeFor12MestreVe = "693, 694";
-    public static String routeFor12VeMestre = "691, 692";
-
-    public static String departingSansovino = "6061";
-    public static String returningSansovino = "6062";
-    public static String sansovinoForN = departingSansovino + ", " + returningSansovino;
-    public static String veniceStops = "510, 6084";
-    public static String cialdini = "6080, 6027, 6081";
-    public static String stazioneMestre = "6074, 6073";
-
+    TextView titleText;
     int todayWeek;
     int debugDayOfTheWeek = Calendar.SUNDAY;
+
+    String dayForQuery;
+    String tomorrowForQuery;
+    Date now;
+
+    List<Fragment> fList = new ArrayList<Fragment>();
 
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
@@ -100,37 +89,150 @@ public class MainCatchitActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        final TextView titleText = (TextView) findViewById(R.id.title);
-
-        List<Fragment> fragments = getFragments();
+        titleText = (TextView) findViewById(R.id.title);
 
         // Instantiate a ViewPager and a PagerAdapter.
         mPager = (ViewPager) findViewById(R.id.pager);
-        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), fragments);
+        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), getFragments());
         mPager.setAdapter(mPagerAdapter);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        tramToVeniceTimes = new LinkedList<>();
+        tramToMestreTimes = new LinkedList<>();
+
+        tramToStationTimes = new LinkedList<>();
+        tramToMestreCityCenterTimes = new LinkedList<>();
+
+        tramCentroSansovinoTimes = new LinkedList<>();
+        tramSansovinoCentroTimes = new LinkedList<>();
+
+        final Date now = new Date();
+        if (DEBUGHOUR) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(now); //This date is a copy of present datetime (which actually is Linux Epoch)
+            cal.set(Calendar.HOUR_OF_DAY, DEBUG_HOURS); //We just change the hours, minutes, seconds
+            cal.set(Calendar.MINUTE, DEBUG_MINUTES);
+            cal.set(Calendar.SECOND, DEBUG_SECONDS);
+            cal.set(Calendar.MILLISECOND, DEBUG_MILLISECONDS);
+            now.setTime(cal.getTimeInMillis());
+        }
+        if (DEBUGDAY)
+            now.setDate(debugDayOfTheWeek);
+
+        selectRightDayOfTheWeek();
 
         mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            public void onPageScrolled(final int position, float positionOffset, int positionOffsetPixels) {
                 try {
                     switch (position) {
                         case 0:
                             titleText.setText("Mestre -> Venezia");
+                            if(tramToVeniceTimes == null || tramToVeniceTimes.size() == 0 || !((MainFragment)fList.get(position)).isPopulated()) {
+                                Thread busPopulateThread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        tramToVeniceTimes = DatabaseHelper.getMoreTramToVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now);
+                                        tramToVeniceTimes.addAll(DatabaseHelper.getTramToVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+
+                                        ((MainFragment) fList.get(position)).populate(tramToVeniceTimes);
+                                    }
+                                });
+                                busPopulateThread.run();
+                            }
+                            else
+                                ((MainFragment)fList.get(position)).show();
                             break;
                         case 1:
                             titleText.setText("Venezia -> Mestre");
+                            if(!((MainFragment)fList.get(position)).isPopulated()) {
+                                Thread busPopulateThread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        tramToMestreTimes.addAll(DatabaseHelper.getMoreTramFromVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                                        tramToMestreTimes.addAll(DatabaseHelper.getTramFromVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+
+                                        ((MainFragment) fList.get(position)).populate(tramToMestreTimes);
+                                    }
+                                });
+                                busPopulateThread.run();
+                            }
+                            else
+                                ((MainFragment)fList.get(position)).show();
                             break;
                         case 2:
                             titleText.setText("Tram Centro -> Stazione");
+                            if(!((MainFragment)fList.get(position)).isPopulated()) {
+                                Thread busPopulateThread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        tramToStationTimes.addAll(DatabaseHelper.getTramToStation(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+
+                                        ((MainFragment) fList.get(position)).populate(tramToStationTimes);
+                                    }
+                                });
+                                busPopulateThread.run();
+                            }
+                            else
+                                ((MainFragment)fList.get(position)).show();
                             break;
                         case 3:
                             titleText.setText("Tram Stazione -> Centro");
+                            if(!((MainFragment)fList.get(position)).isPopulated()) {
+                                Thread busPopulateThread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        tramToMestreCityCenterTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+
+                                        ((MainFragment) fList.get(position)).populate(tramToMestreCityCenterTimes);
+                                    }
+                                });
+                                busPopulateThread.run();
+                            }
+                            else
+                                ((MainFragment)fList.get(position)).show();
                             break;
                         case 4:
                             titleText.setText("Tram Centro -> Sansovino");
+                            if(!((MainFragment)fList.get(position)).isPopulated()) {
+                                Thread busPopulateThread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        tramCentroSansovinoTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+
+                                        ((MainFragment) fList.get(position)).populate(tramCentroSansovinoTimes);
+                                    }
+                                });
+                                busPopulateThread.run();
+                            }
+                            else
+                                ((MainFragment)fList.get(position)).show();
                             break;
                         case 5:
                             titleText.setText("Tram Sansovino -> Centro");
+                            if(!((MainFragment)fList.get(position)).isPopulated()) {
+                                Thread busPopulateThread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToStation(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+
+                                        ((MainFragment) fList.get(position)).populate(tramSansovinoCentroTimes);
+                                    }
+                                });
+                                busPopulateThread.run();
+                            }
+                            else
+                                ((MainFragment)fList.get(position)).show();
                             break;
                     }
                 } catch (NullPointerException e) {
@@ -146,13 +248,8 @@ public class MainCatchitActivity extends AppCompatActivity {
             public void onPageScrollStateChanged(int state) {
             }
         });
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        populateTimeTable();
+//        populateTimeTable();
 
         //GreenDAO works: will we use it?
 //        ArrayList<calendar> calendarList = (ArrayList<calendar>) Database.getDaoSession(getApplicationContext()).getCalendarDao().queryBuilder().list();
@@ -187,14 +284,15 @@ public class MainCatchitActivity extends AppCompatActivity {
     }
 
     private List<Fragment> getFragments() {
-        List<Fragment> fList = new ArrayList<Fragment>();
 
-        for (int position = 1; position < 7; position++) {
-            Bundle args = new Bundle();
-            MainFragment thisFragment = new MainFragment();
-            args.putInt(POSITION, position);
-            thisFragment.setArguments(args);
-            fList.add(thisFragment);
+        if(fList == null || fList.size() == 0) {
+            for (int position = 1; position < 7; position++) {
+                Bundle args = new Bundle();
+                MainFragment thisFragment = new MainFragment();
+                args.putInt(POSITION, position);
+                thisFragment.setArguments(args);
+                fList.add(thisFragment);
+            }
         }
 
         return fList;
@@ -284,20 +382,8 @@ public class MainCatchitActivity extends AppCompatActivity {
 //        }
 //
 //    }
-    private void populateTimeTable() {
 
-        final String dayForQuery;
-        final String tomorrowForQuery;
-
-        tramToVeniceTimes = new LinkedList<>();
-        tramToMestreTimes = new LinkedList<>();
-
-        tramToStationTimes = new LinkedList<>();
-        tramToMestreCityCenterTimes = new LinkedList<>();
-
-        tramCentroSansovinoTimes = new LinkedList<>();
-        tramSansovinoCentroTimes = new LinkedList<>();
-
+    private void selectRightDayOfTheWeek() {
         switch (todayWeek) {
             case Calendar.SUNDAY:
                 dayForQuery = "c.sunday";
@@ -328,78 +414,6 @@ public class MainCatchitActivity extends AppCompatActivity {
                 tomorrowForQuery = "c.sunday";
                 break;
         }
-
-        Thread busPopulateThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                /**It seems tricky but it's not. By selecting from the database all the buses AFTER current timestamp
-                 * and then the ones BEFORE current timestamp, we avoid sorting objects which is slow and consuming
-                 */
-
-                Date now = new Date();
-                if (DEBUGHOUR) {
-                    Calendar cal = Calendar.getInstance();
-                    cal.setTime(now); //This date is a copy of present datetime (which actually is Linux Epoch)
-                    cal.set(Calendar.HOUR_OF_DAY, DEBUG_HOURS); //We just change the hours, minutes, seconds
-                    cal.set(Calendar.MINUTE, DEBUG_MINUTES);
-                    cal.set(Calendar.SECOND, DEBUG_SECONDS);
-                    cal.set(Calendar.MILLISECOND, DEBUG_MILLISECONDS);
-                    now.setTime(cal.getTimeInMillis());
-                }
-                if (DEBUGDAY)
-                    now.setDate(debugDayOfTheWeek);
-
-                ArrayList<String> operators = new ArrayList<>();
-                operators.add(">");
-                operators.add("<");
-
-                for (String operator : operators) {
-
-                    String dayForThisQuery;
-
-                    if (operators.indexOf(operator) == 0)
-                        dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                    else
-                        dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-
-                    tramToVeniceTimes = DatabaseHelper.getMoreTramToVenice(getApplicationContext(), dayForThisQuery, operator, now);
-                    tramToVeniceTimes.addAll(DatabaseHelper.getTramToVenice(getApplicationContext(), dayForThisQuery, operator, now));
-                    tramToMestreTimes = DatabaseHelper.getMoreTramFromVenice(getApplicationContext(), dayForThisQuery, operator, now);
-                    tramToMestreTimes.addAll(DatabaseHelper.getTramFromVenice(getApplicationContext(), dayForThisQuery, operator, now));
-                    tramToStationTimes = DatabaseHelper.getTramToStation(getApplicationContext(), dayForThisQuery, operator, now);
-                    tramToMestreCityCenterTimes = DatabaseHelper.getStationToSansovino(getApplicationContext(), dayForThisQuery, operator, now);
-                    tramSansovinoCentroTimes = DatabaseHelper.getSansovinoToStation(getApplicationContext(), dayForThisQuery, operator, now);
-
-                }
-            }
-        });
-
-        busPopulateThread.run();
-    }
-
-    public List<Bus> getTramToVeniceTimes() {
-        return tramToVeniceTimes;
-    }
-
-    public List<Bus> getTramToMestreTimes() {
-        return tramToMestreTimes;
-    }
-
-    public List<Bus> getTramToStationTimes() {
-        return tramToStationTimes;
-    }
-
-    public List<Bus> getTramToMestreCityCenterTimes() {
-        return tramToMestreCityCenterTimes;
-    }
-
-    public List<Bus> getTramCentroSansovinoTimes() {
-        return tramCentroSansovinoTimes;
-    }
-
-    public List<Bus> getTramSansovinoCentroTimes() {
-        return tramSansovinoCentroTimes;
     }
 
     /*
@@ -411,7 +425,7 @@ public class MainCatchitActivity extends AppCompatActivity {
 
         Bus saveItToBePutLast = null;
 
-        Date now = dateFormatter.parse(dateFormatter.format(new Date()));
+        now = dateFormatter.parse(dateFormatter.format(new Date()));
 
         /**
          * DEBUG: Set specific departureTime, if needed
