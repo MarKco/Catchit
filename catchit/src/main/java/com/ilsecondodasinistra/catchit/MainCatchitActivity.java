@@ -56,7 +56,7 @@ public class MainCatchitActivity extends AppCompatActivity {
 
     String dayForQuery;
     String tomorrowForQuery;
-    Date now;
+    final Date now = new Date();
 
     List<Fragment> fList = new ArrayList<Fragment>();
 
@@ -65,7 +65,6 @@ public class MainCatchitActivity extends AppCompatActivity {
      * and next wizard steps.
      */
     private ViewPager mPager;
-    SQLiteDatabase db;
 
     /**
      * The pager adapter, which provides the pages to the view pager widget.
@@ -101,16 +100,15 @@ public class MainCatchitActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        tramToVeniceTimes = new LinkedList<>();
-        tramToMestreTimes = new LinkedList<>();
+//        tramToVeniceTimes = new LinkedList<>();
+//        tramToMestreTimes = new LinkedList<>();
+//
+//        tramToStationTimes = new LinkedList<>();
+//        tramToMestreCityCenterTimes = new LinkedList<>();
+//
+//        tramCentroSansovinoTimes = new LinkedList<>();
+//        tramSansovinoCentroTimes = new LinkedList<>();
 
-        tramToStationTimes = new LinkedList<>();
-        tramToMestreCityCenterTimes = new LinkedList<>();
-
-        tramCentroSansovinoTimes = new LinkedList<>();
-        tramSansovinoCentroTimes = new LinkedList<>();
-
-        final Date now = new Date();
         if (DEBUGHOUR) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(now); //This date is a copy of present datetime (which actually is Linux Epoch)
@@ -132,15 +130,17 @@ public class MainCatchitActivity extends AppCompatActivity {
                     switch (position) {
                         case 0:
                             titleText.setText("Mestre -> Venezia");
-                            if(tramToVeniceTimes == null || tramToVeniceTimes.size() == 0 || !((MainFragment)fList.get(position)).isPopulated()) {
+                            if(!((MainFragment)fList.get(position)).isPopulated()) {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-
-                                        tramToVeniceTimes = DatabaseHelper.getMoreTramToVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now);
-                                        tramToVeniceTimes.addAll(DatabaseHelper.getTramToVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                                        if(tramToVeniceTimes == null || tramToVeniceTimes.size() == 0) {
+                                            tramToVeniceTimes = DatabaseHelper.getMoreTramToVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now);
+                                            tramToVeniceTimes.addAll(DatabaseHelper.getTramToVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                                        }
 
                                         ((MainFragment) fList.get(position)).populate(tramToVeniceTimes);
+                                        prefetchTimes(position + 1);
                                     }
                                 });
                                 busPopulateThread.run();
@@ -154,11 +154,13 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-
-                                        tramToMestreTimes.addAll(DatabaseHelper.getMoreTramFromVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
-                                        tramToMestreTimes.addAll(DatabaseHelper.getTramFromVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                                        if(tramToMestreTimes == null || tramToMestreTimes.size() == 0 ) {
+                                            tramToMestreTimes.addAll(DatabaseHelper.getMoreTramFromVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                                            tramToMestreTimes.addAll(DatabaseHelper.getTramFromVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                                        }
 
                                         ((MainFragment) fList.get(position)).populate(tramToMestreTimes);
+                                        prefetchTimes(position + 1);
                                     }
                                 });
                                 busPopulateThread.run();
@@ -172,10 +174,11 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-
-                                        tramToStationTimes.addAll(DatabaseHelper.getTramToStation(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                                        if(tramToStationTimes == null || tramToStationTimes.size() == 0)
+                                            tramToStationTimes.addAll(DatabaseHelper.getTramToStation(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
 
                                         ((MainFragment) fList.get(position)).populate(tramToStationTimes);
+                                        prefetchTimes(position + 1);
                                     }
                                 });
                                 busPopulateThread.run();
@@ -189,10 +192,11 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-
-                                        tramToMestreCityCenterTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                                        if(tramToMestreCityCenterTimes == null || tramToMestreCityCenterTimes.size() == 0)
+                                            tramToMestreCityCenterTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
 
                                         ((MainFragment) fList.get(position)).populate(tramToMestreCityCenterTimes);
+                                        prefetchTimes(position + 1);
                                     }
                                 });
                                 busPopulateThread.run();
@@ -206,10 +210,11 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-
-                                        tramCentroSansovinoTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                                        if(tramCentroSansovinoTimes == null || tramCentroSansovinoTimes.size() == 0)
+                                            tramCentroSansovinoTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
 
                                         ((MainFragment) fList.get(position)).populate(tramCentroSansovinoTimes);
+                                        prefetchTimes(position + 1);
                                     }
                                 });
                                 busPopulateThread.run();
@@ -223,8 +228,8 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-
-                                        tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToStation(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                                        if(tramSansovinoCentroTimes == null || tramSansovinoCentroTimes.size() == 0)
+                                            tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToStation(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
 
                                         ((MainFragment) fList.get(position)).populate(tramSansovinoCentroTimes);
                                     }
@@ -264,6 +269,65 @@ public class MainCatchitActivity extends AppCompatActivity {
 //            }
 //        }).run();
 
+    }
+
+    /**
+     * Pre-loads data for next Fragment
+     * @param position
+     */
+    private void prefetchTimes(int position) {
+        switch(position) {
+            case 0:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tramToVeniceTimes = DatabaseHelper.getMoreTramToVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now);
+                        tramToVeniceTimes.addAll(DatabaseHelper.getTramToVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                    }
+                }).run();
+                break;
+            case 1:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tramToMestreTimes.addAll(DatabaseHelper.getMoreTramFromVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                        tramToMestreTimes.addAll(DatabaseHelper.getTramFromVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                    }
+                }).run();
+                break;
+            case 2:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tramToStationTimes.addAll(DatabaseHelper.getTramToStation(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                    }
+                }).run();
+                break;
+            case 3:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tramToMestreCityCenterTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                    }
+                }).run();
+                break;
+            case 4:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tramCentroSansovinoTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                    }
+                }).run();
+                break;
+            case 5:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToStation(getApplicationContext(), dayForQuery, tomorrowForQuery, now));
+                    }
+                }).run();
+                break;
+        }
     }
 
     @Override
@@ -413,190 +477,6 @@ public class MainCatchitActivity extends AppCompatActivity {
                 dayForQuery = "c.saturday";
                 tomorrowForQuery = "c.sunday";
                 break;
-        }
-    }
-
-    /*
-     * Sorts lists starting with NOW
-     */
-    private void sortAndFilterThoseLists(int weekDay) throws ParseException {
-        List<Bus> passed = new LinkedList<Bus>();
-        List<Bus> toPass = new LinkedList<Bus>();
-
-        Bus saveItToBePutLast = null;
-
-        now = dateFormatter.parse(dateFormatter.format(new Date()));
-
-        /**
-         * DEBUG: Set specific departureTime, if needed
-         */
-        if (DEBUGDAY) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(now); //This date is a copy of present datetime (which actually is Linux Epoch)
-            cal.set(Calendar.HOUR_OF_DAY, DEBUG_HOURS); //We just change the hours, minutes, seconds
-            cal.set(Calendar.MINUTE, DEBUG_MINUTES);
-            cal.set(Calendar.SECOND, DEBUG_SECONDS);
-            cal.set(Calendar.MILLISECOND, DEBUG_MILLISECONDS);
-            Date wasNow = (Date) now.clone();
-            now.setTime(cal.getTimeInMillis());
-        }
-        /**
-         * End Debug Block
-         */
-
-        int sevenMinutes = 1000 * 60 * 7;
-
-        for (int i = 0; i < tramToVeniceTimes.size(); i++) {
-            if (tramToVeniceTimes.get(i).getDeparture().getTime() > (now.getTime() - sevenMinutes)) {
-                toPass.add(tramToVeniceTimes.get(i));
-                //If the bus has passed in last five minutes it should be grey
-                if (tramToVeniceTimes.get(i).getDeparture().getTime() < now.getTime()) {
-                    //					toPass.get(toPass.size()-1).setColor(50, 131, 139, 131);
-                    toPass.get(toPass.size() - 1).setColor(200, 205, 201, 201);
-                    toPass.get(toPass.size() - 1).setTextColor(255, 119, 136, 153);
-                    toPass.get(toPass.size() - 1).setToBePutLast(true);    //Questo bus al prossimo giro
-                    //dovrà finire in fondo alla lista
-                } else {
-                    toPass.get(toPass.size() - 1).resetColors();
-                    toPass.get(toPass.size() - 1).setToBePutLast(false);    //Non deve essere in fondo alla lista
-                }
-            } else {
-                if (tramToVeniceTimes.get(i).getToBePutLast()) {
-                    saveItToBePutLast = tramToVeniceTimes.get(i);            //Salviamolo per metterlo in fondo alla lista stavolta
-                    tramToVeniceTimes.get(i).setToBePutLast(false);            //D'ora in poi non deve più essere in fondo alla lista
-                } else {
-                    passed.add(tramToVeniceTimes.get(i));
-                    passed.get(passed.size() - 1).resetColors();
-                }
-            }
-        }
-
-        tramToVeniceTimes = new LinkedList<Bus>();
-        tramToVeniceTimes.addAll(toPass);
-        tramToVeniceTimes.addAll(passed);
-        if (saveItToBePutLast != null)    //Se c'è un bus salvato per essere messo in fondo
-        {
-            saveItToBePutLast.resetColors();
-            tramToVeniceTimes.add(saveItToBePutLast);
-            saveItToBePutLast = null;
-        }
-
-        toPass = new LinkedList<Bus>();
-        passed = new LinkedList<Bus>();
-
-        for (int i = 0; i < tramToMestreTimes.size(); i++) {
-            if (tramToMestreTimes.get(i).getDeparture().getTime() > (now.getTime() - sevenMinutes)) {
-                toPass.add(tramToMestreTimes.get(i));
-                //If the bus has passed in last five minutes it should be grey
-                if (tramToMestreTimes.get(i).getDeparture().getTime() < now.getTime()) {
-                    //					toPass.get(toPass.size()-1).setColor(50, 131, 139, 131);
-                    toPass.get(toPass.size() - 1).setColor(200, 205, 201, 201);
-                    toPass.get(toPass.size() - 1).setTextColor(255, 119, 136, 153);
-                    toPass.get(toPass.size() - 1).setToBePutLast(true);    //Questo bus al prossimo giro
-                    //dovrà finire in fondo alla lista
-                } else {
-                    toPass.get(toPass.size() - 1).resetColors();
-                    toPass.get(toPass.size() - 1).setToBePutLast(false);    //Non deve essere in fondo alla lista
-                }
-            } else {
-                if (tramToMestreTimes.get(i).getToBePutLast()) {
-                    saveItToBePutLast = tramToMestreTimes.get(i);            //Salviamolo per metterlo in fondo alla lista stavolta
-                    tramToMestreTimes.get(i).setToBePutLast(false);            //D'ora in poi non deve più essere in fondo alla lista
-                } else {
-                    passed.add(tramToMestreTimes.get(i));
-                    passed.get(passed.size() - 1).resetColors();
-                }
-            }
-        }
-
-        tramToMestreTimes = new LinkedList<Bus>();
-        tramToMestreTimes.addAll(toPass);
-        tramToMestreTimes.addAll(passed);
-        if (saveItToBePutLast != null)    //Se c'è un bus salvato per essere messo in fondo
-        {
-            saveItToBePutLast.resetColors();
-            tramToMestreTimes.add(saveItToBePutLast);
-            saveItToBePutLast = null;
-        }
-
-
-		/*
-         * TRAM
-		 */
-        toPass = new LinkedList<Bus>();
-        passed = new LinkedList<Bus>();
-
-        for (int i = 0; i < tramToStationTimes.size(); i++) {
-            if (tramToStationTimes.get(i).getDeparture().getTime() > (now.getTime())) { //No "sevenminutes", because tram is always on departureTime
-                toPass.add(tramToStationTimes.get(i));
-                //If the bus has passed in last five minutes it should be grey
-                if (tramToStationTimes.get(i).getDeparture().getTime() < now.getTime()) {
-                    //					toPass.get(toPass.size()-1).setColor(50, 131, 139, 131);
-                    toPass.get(toPass.size() - 1).setColor(200, 205, 201, 201);
-                    toPass.get(toPass.size() - 1).setTextColor(255, 119, 136, 153);
-                    toPass.get(toPass.size() - 1).setToBePutLast(true);    //Questo bus al prossimo giro
-                    //dovrà finire in fondo alla lista
-                } else {
-                    toPass.get(toPass.size() - 1).resetColors();
-                    toPass.get(toPass.size() - 1).setToBePutLast(false);    //Non deve essere in fondo alla lista
-                }
-            } else {
-                if (tramToStationTimes.get(i).getToBePutLast()) {
-                    saveItToBePutLast = tramToStationTimes.get(i);            //Salviamolo per metterlo in fondo alla lista stavolta
-                    tramToStationTimes.get(i).setToBePutLast(false);            //D'ora in poi non deve più essere in fondo alla lista
-                } else {
-                    passed.add(tramToStationTimes.get(i));
-                    passed.get(passed.size() - 1).resetColors();
-                }
-            }
-        }
-
-        tramToStationTimes = new LinkedList<Bus>();
-        tramToStationTimes.addAll(toPass);
-        tramToStationTimes.addAll(passed);
-        if (saveItToBePutLast != null)    //Se c'è un bus salvato per essere messo in fondo
-        {
-            saveItToBePutLast.resetColors();
-            tramToStationTimes.add(saveItToBePutLast);
-            saveItToBePutLast = null;
-        }
-
-        toPass = new LinkedList<Bus>();
-        passed = new LinkedList<Bus>();
-
-        for (int i = 0; i < tramToMestreCityCenterTimes.size(); i++) {
-            if (tramToMestreCityCenterTimes.get(i).getDeparture().getTime() > (now.getTime())) { //No "sevenminutes", because tram is always on departureTime
-                toPass.add(tramToMestreCityCenterTimes.get(i));
-                //If the bus has passed in last seven minutes it should be grey
-                if (tramToMestreCityCenterTimes.get(i).getDeparture().getTime() < now.getTime()) {
-                    //					toPass.get(toPass.size()-1).setColor(50, 131, 139, 131);
-                    toPass.get(toPass.size() - 1).setColor(200, 205, 201, 201);
-                    toPass.get(toPass.size() - 1).setTextColor(255, 119, 136, 153);
-                    toPass.get(toPass.size() - 1).setToBePutLast(true);    //Questo bus al prossimo giro
-                    //dovrà finire in fondo alla lista
-                } else {
-                    toPass.get(toPass.size() - 1).resetColors();
-                    toPass.get(toPass.size() - 1).setToBePutLast(false);    //Non deve essere in fondo alla lista
-                }
-            } else {
-                if (tramToMestreCityCenterTimes.get(i).getToBePutLast()) {
-                    saveItToBePutLast = tramToMestreCityCenterTimes.get(i);            //Salviamolo per metterlo in fondo alla lista stavolta
-                    tramToMestreCityCenterTimes.get(i).setToBePutLast(false);            //D'ora in poi non deve più essere in fondo alla lista
-                } else {
-                    passed.add(tramToMestreCityCenterTimes.get(i));
-                    passed.get(passed.size() - 1).resetColors();
-                }
-            }
-        }
-
-        tramToMestreCityCenterTimes = new LinkedList<Bus>();
-        tramToMestreCityCenterTimes.addAll(toPass);
-        tramToMestreCityCenterTimes.addAll(passed);
-        if (saveItToBePutLast != null)    //Se c'è un bus salvato per essere messo in fondo
-        {
-            saveItToBePutLast.resetColors();
-            tramToMestreCityCenterTimes.add(saveItToBePutLast);
-            saveItToBePutLast = null;
         }
     }
 
