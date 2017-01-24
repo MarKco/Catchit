@@ -1,8 +1,5 @@
 package com.ilsecondodasinistra.catchit;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,18 +11,12 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.ilsecondodasinistra.catchit.database.DaoMaster;
-import com.ilsecondodasinistra.catchit.database.DaoSession;
-
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-
-import static com.ilsecondodasinistra.catchit.DatabaseHelper.subtractMinutesFromDate;
 
 public class MainCatchitActivity extends AppCompatActivity {
 
@@ -42,11 +33,12 @@ public class MainCatchitActivity extends AppCompatActivity {
     List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
     List<Bus> tramSansovinoCentroTimes = new LinkedList<>();
 
-    public static final boolean DEBUGHOUR = true; //if true, custom departureTime below is set in the app,
+    public static final boolean DEBUGHOUR = false; //if true, custom departureTime below is set in the app,
     public static final boolean DEBUGDAY = false; //if true, custom date below is set in the app,
+
     // regardless of real timestamp
-    public static final int DEBUG_HOURS = 13;
-    public static final int DEBUG_MINUTES = 33;
+    public static final int DEBUG_HOURS = 23;
+    public static final int DEBUG_MINUTES = 55;
     public static final int DEBUG_SECONDS = 0;
     public static final int DEBUG_MILLISECONDS = 0;
 
@@ -56,6 +48,7 @@ public class MainCatchitActivity extends AppCompatActivity {
 
     String dayForQuery;
     String tomorrowForQuery;
+    String yesterdayForQuery;
     final Date now = new Date();
 
     List<Fragment> fList = new ArrayList<Fragment>();
@@ -100,15 +93,6 @@ public class MainCatchitActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-//        tramToVeniceTimes = new LinkedList<>();
-//        tramToMestreTimes = new LinkedList<>();
-//
-//        tramToStationTimes = new LinkedList<>();
-//        tramToMestreCityCenterTimes = new LinkedList<>();
-//
-//        tramCentroSansovinoTimes = new LinkedList<>();
-//        tramSansovinoCentroTimes = new LinkedList<>();
-
         if (DEBUGHOUR) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(now); //This date is a copy of present datetime (which actually is Linux Epoch)
@@ -141,16 +125,20 @@ public class MainCatchitActivity extends AppCompatActivity {
                                     public void run() {
                                         if(tramToVeniceTimes == null || tramToVeniceTimes.size() == 0) {
                                             String dayForThisQuery;
+                                            String yesterdayForThisQuery;
 
                                             for(String operator : operators) {
 
-                                                if (operators.indexOf(operator) == 0)
+                                                if (operators.indexOf(operator) == 0) {
                                                     dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                else
+                                                    yesterdayForThisQuery = yesterdayForQuery;
+                                                }
+                                                else {
                                                     dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                                    yesterdayForThisQuery = dayForQuery;
+                                                }
 
-                                                tramToVeniceTimes.addAll(DatabaseHelper.getMoreTramToVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
-                                                tramToVeniceTimes.addAll(DatabaseHelper.getTramToVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
+                                                tramToVeniceTimes.addAll(DatabaseHelper.getTramAndBusesToVenice(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                                             }
                                         }
 
@@ -171,16 +159,19 @@ public class MainCatchitActivity extends AppCompatActivity {
                                     public void run() {
                                         if (tramToMestreTimes == null || tramToMestreTimes.size() == 0) {
                                             String dayForThisQuery;
+                                            String yesterdayForThisQuery;
 
                                             for (String operator : operators) {
 
-                                                if (operators.indexOf(operator) == 0)
+                                                if (operators.indexOf(operator) == 0) {
                                                     dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                else
+                                                    yesterdayForThisQuery = yesterdayForQuery;
+                                                }
+                                                else {
                                                     dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-
-                                                tramToMestreTimes.addAll(DatabaseHelper.getMoreTramFromVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
-                                                tramToMestreTimes.addAll(DatabaseHelper.getTramFromVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
+                                                    yesterdayForThisQuery = dayForQuery;
+                                                }
+                                                tramToMestreTimes.addAll(DatabaseHelper.getTramAndBusesFromVenice(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                                             }
                                         }
                                         ((MainFragment) fList.get(position)).populate(tramToMestreTimes);
@@ -200,15 +191,19 @@ public class MainCatchitActivity extends AppCompatActivity {
                                     public void run() {
                                         if(tramToStationTimes == null || tramToStationTimes.size() == 0) {
                                             String dayForThisQuery;
+                                            String yesterdayForThisQuery;
 
                                             for (String operator : operators) {
 
-                                                if (operators.indexOf(operator) == 0)
+                                                if (operators.indexOf(operator) == 0) {
                                                     dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                else
+                                                    yesterdayForThisQuery = yesterdayForQuery;
+                                                }
+                                                else {
                                                     dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-
-                                                tramToStationTimes.addAll(DatabaseHelper.getTramToStation(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
+                                                    yesterdayForThisQuery = dayForQuery;
+                                                }
+                                                tramToStationTimes.addAll(DatabaseHelper.getTramToStation(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                                             }
                                         }
                                         ((MainFragment) fList.get(position)).populate(tramToStationTimes);
@@ -228,15 +223,19 @@ public class MainCatchitActivity extends AppCompatActivity {
                                     public void run() {
                                         if(tramToMestreCityCenterTimes == null || tramToMestreCityCenterTimes.size() == 0) {
                                             String dayForThisQuery;
+                                            String yesterdayForThisQuery;
 
                                             for (String operator : operators) {
 
-                                                if (operators.indexOf(operator) == 0)
+                                                if (operators.indexOf(operator) == 0) {
                                                     dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                else
+                                                    yesterdayForThisQuery = yesterdayForQuery;
+                                                }
+                                                else {
                                                     dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-                                                {
-                                                    tramToMestreCityCenterTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
+                                                    yesterdayForThisQuery = dayForQuery;
+                                                }                                                {
+                                                    tramToMestreCityCenterTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                                                 }
                                             }
                                         }
@@ -257,15 +256,20 @@ public class MainCatchitActivity extends AppCompatActivity {
                                     public void run() {
                                         if(tramCentroSansovinoTimes == null || tramCentroSansovinoTimes.size() == 0) {
                                             String dayForThisQuery;
+                                            String yesterdayForThisQuery;
 
                                             for (String operator : operators) {
 
-                                                if (operators.indexOf(operator) == 0)
+                                                if (operators.indexOf(operator) == 0) {
                                                     dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                else
+                                                    yesterdayForThisQuery = yesterdayForQuery;
+                                                }
+                                                else {
                                                     dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                                    yesterdayForThisQuery = dayForQuery;
+                                                }
 
-                                                tramCentroSansovinoTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
+                                                tramCentroSansovinoTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                                             }
                                         }
                                         ((MainFragment) fList.get(position)).populate(tramCentroSansovinoTimes);
@@ -285,15 +289,19 @@ public class MainCatchitActivity extends AppCompatActivity {
                                     public void run() {
                                         if(tramSansovinoCentroTimes == null || tramSansovinoCentroTimes.size() == 0) {
                                             String dayForThisQuery;
+                                            String yesterdayForThisQuery;
 
                                             for (String operator : operators) {
 
-                                                if (operators.indexOf(operator) == 0)
+                                                if (operators.indexOf(operator) == 0) {
                                                     dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                else
+                                                    yesterdayForThisQuery = yesterdayForQuery;
+                                                }
+                                                else {
                                                     dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-                                                {
-                                                    tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToStation(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
+                                                    yesterdayForThisQuery = dayForQuery;
+                                                }                                                {
+                                                    tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToStation(getApplicationContext(), yesterdayForThisQuery,  now, operator, dayForThisQuery));
                                                 }
                                             }
                                         }
@@ -353,16 +361,20 @@ public class MainCatchitActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         String dayForThisQuery;
+                        String yesterdayForThisQuery;
 
                         for(String operator : operators) {
 
-                            if (operators.indexOf(operator) == 0)
+                            if (operators.indexOf(operator) == 0) {
                                 dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                            else
+                                yesterdayForThisQuery = yesterdayForQuery;
+                            }
+                            else {
                                 dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                yesterdayForThisQuery = dayForQuery;
+                            }
 
-                            tramToVeniceTimes.addAll(DatabaseHelper.getMoreTramToVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
-                            tramToVeniceTimes.addAll(DatabaseHelper.getTramToVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
+                            tramToVeniceTimes.addAll(DatabaseHelper.getTramAndBusesToVenice(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                             }
                     }
                 }).run();
@@ -372,16 +384,20 @@ public class MainCatchitActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         String dayForThisQuery;
+                        String yesterdayForThisQuery;
 
                         for(String operator : operators) {
 
-                            if (operators.indexOf(operator) == 0)
+                            if (operators.indexOf(operator) == 0) {
                                 dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                            else
+                                yesterdayForThisQuery = yesterdayForQuery;
+                            }
+                            else {
                                 dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                yesterdayForThisQuery = dayForQuery;
+                            }
 
-                            tramToMestreTimes.addAll(DatabaseHelper.getMoreTramFromVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
-                            tramToMestreTimes.addAll(DatabaseHelper.getTramFromVenice(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
+                            tramToMestreTimes.addAll(DatabaseHelper.getTramAndBusesFromVenice(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                         }
                     }
                 }).run();
@@ -391,15 +407,20 @@ public class MainCatchitActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         String dayForThisQuery;
+                        String yesterdayForThisQuery;
 
                         for(String operator : operators) {
 
-                            if (operators.indexOf(operator) == 0)
+                            if (operators.indexOf(operator) == 0) {
                                 dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                            else
+                                yesterdayForThisQuery = yesterdayForQuery;
+                            }
+                            else {
                                 dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                yesterdayForThisQuery = dayForQuery;
+                            }
 
-                            tramToStationTimes.addAll(DatabaseHelper.getTramToStation(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
+                            tramToStationTimes.addAll(DatabaseHelper.getTramToStation(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                         }
                     }
                 }).run();
@@ -409,15 +430,20 @@ public class MainCatchitActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         String dayForThisQuery;
+                        String yesterdayForThisQuery;
 
                         for(String operator : operators) {
 
-                            if (operators.indexOf(operator) == 0)
+                            if (operators.indexOf(operator) == 0) {
                                 dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                            else
+                                yesterdayForThisQuery = yesterdayForQuery;
+                            }
+                            else {
                                 dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                yesterdayForThisQuery = dayForQuery;
+                            }
 
-                            tramToMestreCityCenterTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
+                            tramToMestreCityCenterTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                         }
                     }
                 }).run();
@@ -427,15 +453,20 @@ public class MainCatchitActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         String dayForThisQuery;
+                        String yesterdayForThisQuery;
 
                         for(String operator : operators) {
 
-                            if (operators.indexOf(operator) == 0)
+                            if (operators.indexOf(operator) == 0) {
                                 dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                            else
+                                yesterdayForThisQuery = yesterdayForQuery;
+                            }
+                            else {
                                 dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                yesterdayForThisQuery = dayForQuery;
+                            }
 
-                            tramCentroSansovinoTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
+                            tramCentroSansovinoTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                         }
                     }
                 }).run();
@@ -445,15 +476,20 @@ public class MainCatchitActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         String dayForThisQuery;
+                        String yesterdayForThisQuery;
 
                         for(String operator : operators) {
 
-                            if (operators.indexOf(operator) == 0)
+                            if (operators.indexOf(operator) == 0) {
                                 dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                            else
+                                yesterdayForThisQuery = yesterdayForQuery;
+                            }
+                            else {
                                 dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                yesterdayForThisQuery = dayForQuery;
+                            }
 
-                            tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToStation(getApplicationContext(), dayForQuery, tomorrowForQuery, now, operator, dayForThisQuery));
+                            tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToStation(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                         }
                     }
                 }).run();
@@ -583,30 +619,37 @@ public class MainCatchitActivity extends AppCompatActivity {
             case Calendar.SUNDAY:
                 dayForQuery = "c.sunday";
                 tomorrowForQuery = "c.monday";
+                yesterdayForQuery = "c.saturday";
                 break;
             case Calendar.MONDAY:
                 dayForQuery = "c.monday";
                 tomorrowForQuery = "c.wednesday";
+                yesterdayForQuery = "c.sunday";
                 break;
             case Calendar.TUESDAY:
                 dayForQuery = "c.tuesday";
                 tomorrowForQuery = "c.wednesday";
+                yesterdayForQuery = "c.monday";
                 break;
             case Calendar.WEDNESDAY:
                 dayForQuery = "c.wednesday";
                 tomorrowForQuery = "c.thursday";
+                yesterdayForQuery = "c.tuesday";
                 break;
             case Calendar.THURSDAY:
                 dayForQuery = "c.thursday";
                 tomorrowForQuery = "c.friday";
+                yesterdayForQuery = "c.wednesday";
                 break;
             case Calendar.FRIDAY:
                 dayForQuery = "c.friday";
                 tomorrowForQuery = "c.saturday";
+                yesterdayForQuery = "c.thursday";
                 break;
             default:
                 dayForQuery = "c.saturday";
                 tomorrowForQuery = "c.sunday";
+                yesterdayForQuery = "c.friday";
                 break;
         }
     }

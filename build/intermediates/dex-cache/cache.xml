@@ -16,7 +16,7 @@
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
-        sha1="b1e9129bc1d08647fb16a9b58e1df61c0a2cebd6">
+        sha1="92837f28f1841aa6fc7ba3bd94c215c6cd27722e">
         <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_4172d9e17a8ee9f0b2672ba97dd8cc1e6f07d1f0/classes.dex" />
     </item>
     <item
@@ -102,21 +102,21 @@
     </item>
     <item
         is-multidex="true"
-        jar="/home/marco/.android/build-cache/0e84bd6152d494ba2656f2748378cf5d53069edf/output/jars/classes.jar"
-        jumboMode="true"
-        optimize="true"
-        revision="25.0.2"
-        sha1="2a53c4f3518116b8c6aee0e477233f0f7da8616f">
-        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_c40f2cd6e52488b02c1af37dac368beb08eecec7/classes.dex" />
-    </item>
-    <item
-        is-multidex="true"
         jar="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/libs/libGoogleAnalyticsServices.jar"
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
         sha1="e887c6c9b31b39a39b0eaba981448b78902ea813">
         <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/2/libGoogleAnalyticsServices_2cb8844cd9d47994e5b0737f773865a7390f11c3/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/.android/build-cache/0e84bd6152d494ba2656f2748378cf5d53069edf/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="2a53c4f3518116b8c6aee0e477233f0f7da8616f">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_c40f2cd6e52488b02c1af37dac368beb08eecec7/classes.dex" />
     </item>
     <item
         is-multidex="true"
