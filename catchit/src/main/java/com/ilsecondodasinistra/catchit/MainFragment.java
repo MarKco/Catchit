@@ -1,11 +1,14 @@
 package com.ilsecondodasinistra.catchit;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.text.ParseException;
@@ -79,6 +82,21 @@ public class MainFragment extends Fragment {
             times = list;
             leavingAdapter = new CustomAdapter(getActivity(), R.layout.row, list);
             timeTable.setAdapter(leavingAdapter);
+            timeTable.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    new AlertDialog.Builder(getContext())
+                            .setTitle(times.get(position).getLine())
+                            .setMessage("Partenza da " + times.get(position).getDepartureStop() + " alle " + times.get(position).getDepartureString() + " e arrivo a " + times.get(position).getArrivalStop() + " alle " + times.get(position).getArrivalString())
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // continue with delete
+                                }
+                            })
+                            .setIcon(R.drawable.bus)
+                            .show();
+                }
+            });
         }
     }
 
