@@ -269,7 +269,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                                     yesterdayForThisQuery = dayForQuery;
                                                 }
 
-                                                tramCentroSansovinoTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
+                                                tramCentroSansovinoTimes.addAll(DatabaseHelper.getCenterToSansovino(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                                             }
                                         }
                                         ((MainFragment) fList.get(position)).populate(tramCentroSansovinoTimes);
@@ -301,7 +301,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                                     dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
                                                     yesterdayForThisQuery = dayForQuery;
                                                 }                                                {
-                                                    tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToStation(getApplicationContext(), yesterdayForThisQuery,  now, operator, dayForThisQuery));
+                                                    tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToCenter(getApplicationContext(), yesterdayForThisQuery,  now, operator, dayForThisQuery));
                                                 }
                                             }
                                         }
@@ -466,7 +466,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 yesterdayForThisQuery = dayForQuery;
                             }
 
-                            tramCentroSansovinoTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
+                            tramCentroSansovinoTimes.addAll(DatabaseHelper.getCenterToSansovino(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                         }
                     }
                 }).run();
@@ -489,7 +489,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 yesterdayForThisQuery = dayForQuery;
                             }
 
-                            tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToStation(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
+                            tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToCenter(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                         }
                     }
                 }).run();

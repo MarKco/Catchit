@@ -406,11 +406,11 @@ public class DatabaseHelper {
         return tramToStationTimes;
     }
 
-    public static List<Bus> getStationToSansovino(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+    public static List<Bus> getCenterToSansovino(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
 
         db = openDatabase(context);
 
-        List<Bus> tramToMestreCityCenterTimes = new LinkedList<>();
+        List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
 
         String tramFromStation = "SELECT t.trip_id,\n" +
                 "       start_s.stop_name as departure_stop,\n" +
@@ -429,10 +429,10 @@ public class DatabaseHelper {
                 "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
                 "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
                 "WHERE " + dayForThisQuery + " = 1\n" +
-                "  and r.route_id in (" + routeForT2MaMestre + ")\n" +
+                "  and r.route_id in (" + routeForT1MestreVe + ")\n" +
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
-                "  and departure_stop_id in (" + stazioneMestre + ")\n" +
-                "  and arrival_stop_id in (" + cialdini + ")\n" +
+                "  and departure_stop_id in (" + cialdini + ")\n" +
+                "  and arrival_stop_id in (" + departingSansovino + ")\n" +
                 "order by start_st.departure_time asc\t";
 
 //                if(BuildConfig.DEBUG)
@@ -449,7 +449,7 @@ public class DatabaseHelper {
                     String arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"));
                     String line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"));
 
-                    tramToMestreCityCenterTimes.add(new Bus(dateFormatter.parse(departureTime),
+                    tramCentroSansovinoTimes.add(new Bus(dateFormatter.parse(departureTime),
                             line,
                             departureStop,
                             arrivalStop,
@@ -464,10 +464,10 @@ public class DatabaseHelper {
         comingTramCursor.close();
         db.close();
 
-        return tramToMestreCityCenterTimes;
+        return tramCentroSansovinoTimes;
     }
 
-    public static List<Bus> getSansovinoToStation(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+    public static List<Bus> getSansovinoToCenter(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
 
         db = openDatabase(context);
 
@@ -476,13 +476,12 @@ public class DatabaseHelper {
         String tramSansovinoToCentro = "SELECT t.trip_id,\n" +
                 "       start_s.stop_name as departure_stop,\n" +
                 "\t   start_s.stop_id as departure_stop_id,\n" +
-                "       start_st.departure_time as departure_time,\n" +
+                "       start_st.departure_time,\n" +
                 "       direction_id as direction,\n" +
                 "       end_s.stop_name as arrival_stop,\n" +
                 "\t   end_s.stop_id as arrival_stop_id,\n" +
-                "       end_st.arrival_time as arrival_time,\n" +
-                "       r.route_short_name as route_short_name,\n" +
-                "       r.route_long_name as route_long_name\n" +
+                "       end_st.arrival_time,\n" +
+                "       r.route_short_name\n" +
                 "FROM\n" +
                 "trips t INNER JOIN calendar c ON t.service_id = c.service_id\n" +
                 "        INNER JOIN routes r ON t.route_id = r.route_id\n" +
@@ -491,35 +490,11 @@ public class DatabaseHelper {
                 "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
                 "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
                 "WHERE " + dayForThisQuery + " = 1\n" +
-                "  and r.route_id in (" + routeForT1MestreVe + ", " + routeFor12MestreVe + ")\n" +      //For ordinary buses
+                "  and r.route_id in (" + routeForT1VeMestre + ")\n" +
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
-                "  and departure_stop_id = " + returningSansovino + "\n" +
-                "  and end_s.stop_id in (" + cialdini + ")\n" +
-                "  UNION " +
-                "SELECT t.trip_id,\n" +
-                "       start_s.stop_name as departure_stop,\n" +
-                "\t   start_s.stop_id as departure_stop_id,\n" +
-                "       start_st.departure_time as departure_time,\n" +
-                "       direction_id as direction,\n" +
-                "       end_s.stop_name as arrival_stop,\n" +
-                "\t   end_s.stop_id as arrival_stop_id,\n" +
-                "       end_st.arrival_time as arrival_time,\n" +
-                "       r.route_short_name as route_short_name,\n" +
-                "       r.route_long_name as route_long_name\n" +
-                "FROM\n" +
-                "trips t INNER JOIN calendar c ON t.service_id = c.service_id\n" +
-                "        INNER JOIN routes r ON t.route_id = r.route_id\n" +
-                "        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id\n" +
-                "        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id\n" +
-                "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
-                "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
-                "WHERE " + dayForThisQuery + " = 1\n" +
-                "  and r.route_id in (" + routeForN1 + ", " + routeForN2 + ")\n" +
-                "  and departure_stop_id in (" + sansovinoForN + ")\n" + //For night buses
-                "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
-                "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" +   //Needed only because N1 and N2 are circular, so you could get paradoxical results
-                "  and end_s.stop_id in (" + cialdini + ")\n" +
-                "order by start_st.departure_time asc";
+                "  and departure_stop_id in (" + returningSansovino + ")\n" +
+                "  and arrival_stop_id in (" + cialdini + ")\n" +
+                "order by start_st.departure_time asc\t";
 
 //                if(BuildConfig.DEBUG)
 //                    Log.w("TramToVenice", tramSansovinoToCentro);
