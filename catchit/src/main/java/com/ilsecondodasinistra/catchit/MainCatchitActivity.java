@@ -235,7 +235,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                                     dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
                                                     yesterdayForThisQuery = dayForQuery;
                                                 }                                                {
-                                                    tramToMestreCityCenterTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
+                                                    tramToMestreCityCenterTimes.addAll(DatabaseHelper.getTramFromStation(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                                                 }
                                             }
                                         }
@@ -443,7 +443,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 yesterdayForThisQuery = dayForQuery;
                             }
 
-                            tramToMestreCityCenterTimes.addAll(DatabaseHelper.getStationToSansovino(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
+                            tramToMestreCityCenterTimes.addAll(DatabaseHelper.getTramFromStation(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                         }
                     }
                 }).run();
