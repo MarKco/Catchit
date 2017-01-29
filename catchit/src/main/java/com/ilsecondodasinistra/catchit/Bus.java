@@ -1,11 +1,14 @@
 package com.ilsecondodasinistra.catchit;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import android.graphics.Color;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Bus {
+public class Bus implements Serializable {
 	private Date departure;
 	private String lineNumber;
     private String departureStop;
@@ -188,5 +191,4 @@ public class Bus {
 //				" saturdays? " + this.saturdays +
 //				" sundays? " + this.sundays;
 	}
-	
 }

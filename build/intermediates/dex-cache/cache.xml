@@ -16,7 +16,7 @@
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
-        sha1="381cd90e12710699fcfe8e9bbd43e929b67a0f9a">
+        sha1="630f62fc2cf9b3519c126787f33abc2b4d3826b6">
         <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_4172d9e17a8ee9f0b2672ba97dd8cc1e6f07d1f0/classes.dex" />
     </item>
     <item

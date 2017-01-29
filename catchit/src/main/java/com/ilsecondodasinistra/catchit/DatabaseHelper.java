@@ -1,6 +1,5 @@
 package com.ilsecondodasinistra.catchit;
 
-import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -8,7 +7,6 @@ import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +28,9 @@ public class DatabaseHelper {
     public static String routeFor12MestreVe = "551";
     public static String routeFor12VeMestre = "550";
 
+    public static String routeFor15AirportStation = "566, 567";
+    public static String routeFor15StationAirport = "568, 569";
+
     public static String departingSansovino = "6061";
     public static String returningSansovino = "6062";
     public static String sansovinoForN = departingSansovino + ", " + returningSansovino;
@@ -37,6 +38,10 @@ public class DatabaseHelper {
     public static String veniceStopsFor12 = "501";
     public static String cialdini = "6080, 6027, 6081";
     public static String stazioneMestre = "6074, 6073";
+    public static String stazioneMestreFor15 = "613";
+    public static String viaHermadaStreetSide = "172";
+    public static String viaHermadaCanalSide = "1172";
+    public static String airport = "3626";
 
     static SimpleDateFormat databaseHourFormatter = new SimpleDateFormat("HH:mm:ss"); //DateFormatter four hours.minutes.seconds
     static private SimpleDateFormat dateFormatter = new SimpleDateFormat("HH:mm:ss"); //DateFormatter four hours.minutes.seconds
@@ -45,7 +50,8 @@ public class DatabaseHelper {
 
     private static SQLiteDatabase openDatabase(Context context) {
         MyDatabase dbHelper = new MyDatabase(context);
-        return dbHelper.getReadableDatabase();
+        dbHelper.setForcedUpgrade();
+        return dbHelper.getWritableDatabase();
     }
 
     public static SQLiteDatabase getDb() {
@@ -251,8 +257,8 @@ public class DatabaseHelper {
                 "  and end_st.late_night IS NOT NULL\n" +
                 "order by start_st.departure_time asc";
 
-                    if(BuildConfig.DEBUG)
-                        Log.w("TramFromVenice", tramFromVenice);
+//                    if(BuildConfig.DEBUG)
+//                        Log.w("TramFromVenice", tramFromVenice);
 
             Cursor comingCursor = db.rawQuery(tramFromVenice, null);
             comingCursor.moveToFirst();
@@ -531,6 +537,250 @@ public class DatabaseHelper {
 
         return tramSansovinoCentroTimes;
 
+    }
+
+    public static List<Bus> getHermadaToStation(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+
+        db = openDatabase(context);
+
+        List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
+
+        String tramFromStation = "SELECT t.trip_id,\n" +
+                "       start_s.stop_name as departure_stop,\n" +
+                "\t   start_s.stop_id as departure_stop_id,\n" +
+                "       start_st.departure_time,\n" +
+                "       direction_id as direction,\n" +
+                "       end_s.stop_name as arrival_stop,\n" +
+                "\t   end_s.stop_id as arrival_stop_id,\n" +
+                "       end_st.arrival_time,\n" +
+                "       r.route_short_name\n" +
+                "FROM\n" +
+                "trips t INNER JOIN calendar c ON t.service_id = c.service_id\n" +
+                "        INNER JOIN routes r ON t.route_id = r.route_id\n" +
+                "        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id\n" +
+                "        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id\n" +
+                "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
+                "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
+                "WHERE " + dayForThisQuery + " = 1\n" +
+                "  and r.route_id in (" + routeFor15AirportStation + ")\n" +
+                "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
+                "  and departure_stop_id = " + viaHermadaStreetSide + "\n" +
+                "  and arrival_stop_id = " + stazioneMestreFor15 + "\n" +
+                "order by start_st.departure_time asc\t";
+
+//                if(BuildConfig.DEBUG)
+//                    Log.w("tramFromStation", tramFromStation);
+
+        Cursor comingTramCursor = db.rawQuery(tramFromStation, null);
+        comingTramCursor.moveToFirst();
+        if (comingTramCursor.getCount() > 0)
+            try {
+                do {
+                    String departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"));
+                    String departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"));
+                    String arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"));
+                    String arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"));
+                    String line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"));
+
+                    tramCentroSansovinoTimes.add(new Bus(dateFormatter.parse(departureTime),
+                            line,
+                            departureStop,
+                            arrivalStop,
+                            dateFormatter.parse(arrivalTime)
+                    ));
+
+                } while (comingTramCursor.moveToNext());
+            } catch (ParseException e) {
+                Log.e("Catchit", "Uff, cheppalle");
+            }
+
+        comingTramCursor.close();
+        db.close();
+
+        return tramCentroSansovinoTimes;
+    }
+
+    public static List<Bus> getStationToHermada(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+
+        db = openDatabase(context);
+
+        List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
+
+        String tramFromStation = "SELECT t.trip_id,\n" +
+                "       start_s.stop_name as departure_stop,\n" +
+                "\t   start_s.stop_id as departure_stop_id,\n" +
+                "       start_st.departure_time,\n" +
+                "       direction_id as direction,\n" +
+                "       end_s.stop_name as arrival_stop,\n" +
+                "\t   end_s.stop_id as arrival_stop_id,\n" +
+                "       end_st.arrival_time,\n" +
+                "       r.route_short_name\n" +
+                "FROM\n" +
+                "trips t INNER JOIN calendar c ON t.service_id = c.service_id\n" +
+                "        INNER JOIN routes r ON t.route_id = r.route_id\n" +
+                "        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id\n" +
+                "        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id\n" +
+                "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
+                "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
+                "WHERE " + dayForThisQuery + " = 1\n" +
+                "  and r.route_id in (" + routeFor15StationAirport + ")\n" +
+                "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
+                "  and departure_stop_id = " + stazioneMestreFor15 + "\n" +
+                "  and arrival_stop_id = " + viaHermadaCanalSide + "\n" +
+                "order by start_st.departure_time asc\t";
+
+//                if(BuildConfig.DEBUG)
+//                    Log.w("tramFromStation", tramFromStation);
+
+        Cursor comingTramCursor = db.rawQuery(tramFromStation, null);
+        comingTramCursor.moveToFirst();
+        if (comingTramCursor.getCount() > 0)
+            try {
+                do {
+                    String departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"));
+                    String departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"));
+                    String arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"));
+                    String arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"));
+                    String line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"));
+
+                    tramCentroSansovinoTimes.add(new Bus(dateFormatter.parse(departureTime),
+                            line,
+                            departureStop,
+                            arrivalStop,
+                            dateFormatter.parse(arrivalTime)
+                    ));
+
+                } while (comingTramCursor.moveToNext());
+            } catch (ParseException e) {
+                Log.e("Catchit", "Uff, cheppalle");
+            }
+
+        comingTramCursor.close();
+        db.close();
+
+        return tramCentroSansovinoTimes;
+    }
+
+    public static List<Bus> getHermadaToAirport(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+
+        db = openDatabase(context);
+
+        List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
+
+        String tramFromStation = "SELECT t.trip_id,\n" +
+                "       start_s.stop_name as departure_stop,\n" +
+                "\t   start_s.stop_id as departure_stop_id,\n" +
+                "       start_st.departure_time,\n" +
+                "       direction_id as direction,\n" +
+                "       end_s.stop_name as arrival_stop,\n" +
+                "\t   end_s.stop_id as arrival_stop_id,\n" +
+                "       end_st.arrival_time,\n" +
+                "       r.route_short_name\n" +
+                "FROM\n" +
+                "trips t INNER JOIN calendar c ON t.service_id = c.service_id\n" +
+                "        INNER JOIN routes r ON t.route_id = r.route_id\n" +
+                "        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id\n" +
+                "        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id\n" +
+                "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
+                "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
+                "WHERE " + dayForThisQuery + " = 1\n" +
+                "  and r.route_id in (" + routeFor15StationAirport + ")\n" +
+                "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
+                "  and departure_stop_id in (" + viaHermadaCanalSide + ")\n" +
+                "  and arrival_stop_id in (" + airport + ")\n" +
+                "order by start_st.departure_time asc\t";
+
+//                if(BuildConfig.DEBUG)
+//                    Log.w("tramFromStation", tramFromStation);
+
+        Cursor comingTramCursor = db.rawQuery(tramFromStation, null);
+        comingTramCursor.moveToFirst();
+        if (comingTramCursor.getCount() > 0)
+            try {
+                do {
+                    String departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"));
+                    String departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"));
+                    String arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"));
+                    String arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"));
+                    String line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"));
+
+                    tramCentroSansovinoTimes.add(new Bus(dateFormatter.parse(departureTime),
+                            line,
+                            departureStop,
+                            arrivalStop,
+                            dateFormatter.parse(arrivalTime)
+                    ));
+
+                } while (comingTramCursor.moveToNext());
+            } catch (ParseException e) {
+                Log.e("Catchit", "Uff, cheppalle");
+            }
+
+        comingTramCursor.close();
+        db.close();
+
+        return tramCentroSansovinoTimes;
+    }
+
+    public static List<Bus> getAirportToHermada(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+
+        db = openDatabase(context);
+
+        List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
+
+        String tramFromStation = "SELECT t.trip_id,\n" +
+                "       start_s.stop_name as departure_stop,\n" +
+                "\t   start_s.stop_id as departure_stop_id,\n" +
+                "       start_st.departure_time,\n" +
+                "       direction_id as direction,\n" +
+                "       end_s.stop_name as arrival_stop,\n" +
+                "\t   end_s.stop_id as arrival_stop_id,\n" +
+                "       end_st.arrival_time,\n" +
+                "       r.route_short_name\n" +
+                "FROM\n" +
+                "trips t INNER JOIN calendar c ON t.service_id = c.service_id\n" +
+                "        INNER JOIN routes r ON t.route_id = r.route_id\n" +
+                "        INNER JOIN stop_times start_st ON t.trip_id = start_st.trip_id\n" +
+                "        INNER JOIN stops start_s ON start_st.stop_id = start_s.stop_id\n" +
+                "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
+                "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
+                "WHERE " + dayForThisQuery + " = 1\n" +
+                "  and r.route_id in (" + routeFor15AirportStation + ")\n" +
+                "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
+                "  and departure_stop_id in (" + airport + ")\n" +
+                "  and arrival_stop_id in (" + viaHermadaStreetSide + ")\n" +
+                "order by start_st.departure_time asc\t";
+
+                if(BuildConfig.DEBUG)
+                    Log.w("tramFromStation", tramFromStation);
+
+        Cursor comingTramCursor = db.rawQuery(tramFromStation, null);
+        comingTramCursor.moveToFirst();
+        if (comingTramCursor.getCount() > 0)
+            try {
+                do {
+                    String departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"));
+                    String departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"));
+                    String arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"));
+                    String arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"));
+                    String line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"));
+
+                    tramCentroSansovinoTimes.add(new Bus(dateFormatter.parse(departureTime),
+                            line,
+                            departureStop,
+                            arrivalStop,
+                            dateFormatter.parse(arrivalTime)
+                    ));
+
+                } while (comingTramCursor.moveToNext());
+            } catch (ParseException e) {
+                Log.e("Catchit", "Uff, cheppalle");
+            }
+
+        comingTramCursor.close();
+        db.close();
+
+        return tramCentroSansovinoTimes;
     }
 
     /*
