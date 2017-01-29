@@ -5,11 +5,22 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -67,6 +78,42 @@ public class MainCatchitActivity extends AppCompatActivity {
     private ViewPager mPager;
 
     /**
+     * Navigation drawer
+     */
+    private ListView mDrawerList;
+    private DrawerLayout mDrawerLayout;
+    private String mActivityTitle;
+
+    //First We Declare Titles And Icons For Our Navigation Drawer List View
+    //This Icons And Titles Are holded in an Array as you can see
+
+    int ICONS[] = {
+            R.drawable.ic_directions_subway_black_24dp,
+            R.drawable.ic_directions_subway_black_24dp,
+            R.drawable.ic_directions_subway_black_24dp,
+            R.drawable.ic_directions_subway_black_24dp,
+            R.drawable.ic_directions_subway_black_24dp,
+            R.drawable.ic_directions_subway_black_24dp,
+            R.drawable.ic_directions_bus_black_24dp,
+            R.drawable.ic_directions_bus_black_24dp,
+            R.drawable.ic_directions_bus_black_24dp,
+            R.drawable.ic_directions_bus_black_24dp};
+
+    RecyclerView mRecyclerView;                           // Declaring RecyclerView
+    RecyclerView.Adapter mAdapter;                        // Declaring Adapter For Recycler View
+    RecyclerView.LayoutManager mLayoutManager;            // Declaring Layout Manager as a linear layout manager
+    DrawerLayout Drawer;                                  // Declaring DrawerLayout
+
+    ActionBarDrawerToggle mDrawerToggle;
+
+    //Similarly we Create a String Resource for the name and email in the header view
+    //And we also create a int resource for profile picture in the header view
+
+    String NAME = "Akash Bangad";
+    String EMAIL = "akash.bangad@android4devs.com";
+    int PROFILE = R.drawable.ic_directions_bus_black_24dp;
+
+    /**
      * The pager adapter, which provides the pages to the view pager widget.
      */
     private PagerAdapter mPagerAdapter;
@@ -76,15 +123,62 @@ public class MainCatchitActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pager);
 
+        //add the Toolbar
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        /* Actions for Navigation Drawer */
+        String TITLES[]= {
+            getString(R.string.mestre_venezia),
+                    getString(R.string.venezia_mestre),
+                    getString(R.string.centro_stazione),
+                    getString(R.string.stazione_centro),
+                    getString(R.string.centro_casa),
+                    getString(R.string.casa_centro),
+                    getString(R.string.casa_stazione),
+                    getString(R.string.stazione_casa),
+                    getString(R.string.casa_aeroporto),
+                    getString(R.string.aeroporto_casa)};
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.navigationDrawer); // Assigning the RecyclerView Object to the xml View
+        mRecyclerView.setHasFixedSize(true);                            // Letting the system know that the list objects are of fixed size
+
+        mAdapter = new NavigationAdapter(TITLES,ICONS,NAME,EMAIL,PROFILE);       // Creating the Adapter of MyAdapter class(which we are going to see in a bit)
+        // And passing the titles,icons,header view name, header view email,
+        // and header view profile picture
+
+        mRecyclerView.setAdapter(mAdapter);                              // Setting the adapter to RecyclerView
+        mLayoutManager = new LinearLayoutManager(this);                 // Creating a layout Manager
+        mRecyclerView.setLayoutManager(mLayoutManager);                 // Setting the layout Manager
+
+        Drawer = (DrawerLayout) findViewById(R.id.drawer_layout);        // Drawer object Assigned to the view
+        mDrawerToggle = new ActionBarDrawerToggle(this,Drawer,toolbar,R.string.drawer_open,R.string.drawer_close){
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                // code here will execute once the drawer is opened( As I dont want anything happened whe drawer is
+                // open I am not going to put anything here)
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                // Code here will execute once drawer is closed
+            }
+
+
+
+        }; // Drawer Toggle Object Made
+        Drawer.setDrawerListener(mDrawerToggle); // Drawer Listener set to the Drawer toggle
+        mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
+
         Calendar calendar = Calendar.getInstance();
         todayWeek = calendar.get(Calendar.DAY_OF_WEEK);
 
         if (DEBUGDAY)
             todayWeek = debugDayOfTheWeek;
 
-        //add the Toolbar
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         titleText = (TextView) findViewById(R.id.title);
 
@@ -92,27 +186,15 @@ public class MainCatchitActivity extends AppCompatActivity {
         mPager = (ViewPager) findViewById(R.id.pager);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), getFragments());
         mPager.setAdapter(mPagerAdapter);
+
+        /* Actions for Navigation Drawer */
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
-
-//        populateTimeTable();
-
-        //GreenDAO works: will we use it?
-//        ArrayList<calendar> calendarList = (ArrayList<calendar>) Database.getDaoSession(getApplicationContext()).getCalendarDao().queryBuilder().list();
-
-//        testQuery();
-
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                if (Database.getDaoSession(getApplicationContext()).getRoutesDao().count() == 0)
-//                    Database.fillCacheTables(PagerActivity.this);
-//            }
-//        }).run();
 
         reloadBusAndTrams();
     }
@@ -143,7 +225,7 @@ public class MainCatchitActivity extends AppCompatActivity {
 
                     switch (position) {
                         case 0:
-                            titleText.setText("Mestre -> Venezia");
+                            titleText.setText(getString(R.string.mestre_venezia));
                             if(!((MainFragment)fList.get(position)).isPopulated()) {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
@@ -177,7 +259,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 ((MainFragment)fList.get(position)).show();
                             break;
                         case 1:
-                            titleText.setText("Venezia -> Mestre");
+                            titleText.setText(getString(R.string.venezia_mestre));
                             if(!((MainFragment)fList.get(position)).isPopulated()) {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
@@ -209,7 +291,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 ((MainFragment)fList.get(position)).show();
                             break;
                         case 2:
-                            titleText.setText("Tram Centro -> Stazione");
+                            titleText.setText(getString(R.string.centro_stazione));
                             if(!((MainFragment)fList.get(position)).isPopulated()) {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
@@ -241,7 +323,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 ((MainFragment)fList.get(position)).show();
                             break;
                         case 3:
-                            titleText.setText("Tram Stazione -> Centro");
+                            titleText.setText(getString(R.string.stazione_centro));
                             if(!((MainFragment)fList.get(position)).isPopulated()) {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
@@ -274,7 +356,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 ((MainFragment)fList.get(position)).show();
                             break;
                         case 4:
-                            titleText.setText("Tram Centro -> Sansovino");
+                            titleText.setText(getString(R.string.centro_casa));
                             if(!((MainFragment)fList.get(position)).isPopulated()) {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
@@ -307,7 +389,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 ((MainFragment)fList.get(position)).show();
                             break;
                         case 5:
-                            titleText.setText("Tram Sansovino -> Centro");
+                            titleText.setText(getString(R.string.casa_centro));
                             if(!((MainFragment)fList.get(position)).isPopulated()) {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
@@ -339,7 +421,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 ((MainFragment)fList.get(position)).show();
                             break;
                         case 6:
-                            titleText.setText("Bus Hermada -> Stazione");
+                            titleText.setText(getString(R.string.casa_stazione));
                             if(!((MainFragment)fList.get(position)).isPopulated()) {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
@@ -371,7 +453,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 ((MainFragment)fList.get(position)).show();
                             break;
                         case 7:
-                            titleText.setText("Bus Stazione -> Hermada");
+                            titleText.setText(getString(R.string.stazione_casa));
                             if(!((MainFragment)fList.get(position)).isPopulated()) {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
@@ -403,7 +485,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 ((MainFragment)fList.get(position)).show();
                             break;
                         case 8:
-                            titleText.setText("Bus Hermada -> Aeroporto");
+                            titleText.setText(getString(R.string.casa_aeroporto));
                             if(!((MainFragment)fList.get(position)).isPopulated()) {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
@@ -435,7 +517,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                 ((MainFragment)fList.get(position)).show();
                             break;
                         case 9:
-                            titleText.setText("Bus Aeroporto -> Hermada");
+                            titleText.setText(getString(R.string.aeroporto_casa));
                             if(!((MainFragment)fList.get(position)).isPopulated()) {
                                 Thread busPopulateThread = new Thread(new Runnable() {
                                     @Override
@@ -781,68 +863,6 @@ public class MainCatchitActivity extends AppCompatActivity {
             return this.fragments.size();
         }
     }
-
-//    public static class Database {
-//
-//        private static SQLiteDatabase db = null;
-//        private static DaoSession daoSession = null;
-//
-//        public static SQLiteDatabase getDatabase(Context context) {
-//            if (db == null) {
-//                // As we are in development we will use the DevOpenHelper which drops the database on a schema update
-//                //TODO: To be changed before we go live
-//                DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(context, "actv.db", null);
-//                // Access the database using the helper
-//                db = helper.getWritableDatabase();
-//            }
-//            return db;
-//        }
-//
-//        public static DaoSession getDaoSession(Context context) {
-//
-//            if (daoSession == null) {
-//                // Construct the DaoMaster which brokers DAOs for the Domain Objects
-//                DaoMaster daoMaster = new DaoMaster(getDatabase(context));
-//                daoSession = daoMaster.newSession();
-//            }
-//
-//            return daoSession;
-//        }
-
-    /**
-     * Old method for database filling.
-     * Now we use another one, but I keep this as reference
-     *
-     * @param context
-     */
-//        public static void fillCacheTables(Context context) {
-//
-//            List<String> queries = new ArrayList<String>();
-//            BufferedReader br = null;
-//
-//            try {
-//                AssetManager assetManager = context.getAssets();
-//                String query;
-////                br = new BufferedReader(new InputStreamReader(assetManager.open("queries.sql")));
-//                br = new BufferedReader(new InputStreamReader(assetManager.open("actv_without_shapes_only_insert.sql")));
-//                while ((query = br.readLine()) != null) {
-//                    queries.add(query);
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } finally {
-//                try {
-//                    if (br != null)
-//                        br.close();
-//                } catch (IOException ex) {
-//                    ex.printStackTrace();
-//                }
-//            }
-//
-//            DbUtils.executeSqlStatementsInTx(Database.getDatabase(context), queries.toArray(new String[queries.size()]));
-//        }
-//
-//    }
 
     private void selectRightDayOfTheWeek() {
         switch (todayWeek) {

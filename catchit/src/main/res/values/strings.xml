@@ -6,5 +6,18 @@
     <string name="hello_world">Hello world!</string>
     <string name="sortItOutLabel">Ordina</string>
     <string name="title_activity_pager">PagerActivity</string>
+    <string name="drawer_open">Catchit - piglia il bus!</string>
+    <string name="drawer_close">Chiudi il menu</string>
 
+    <!-- Labels for pager elements -->
+    <string name="mestre_venezia">Tram Mestre -> Venezia</string>
+    <string name="venezia_mestre">Tram Venezia -> Mestre</string>
+    <string name="centro_stazione">Tram Centro -> Stazione</string>
+    <string name="stazione_centro">Tram Stazione -> Centro</string>
+    <string name="centro_casa">Tram Centro -> Casa</string>
+    <string name="casa_centro">Tram Casa -> Centro</string>
+    <string name="casa_stazione">Bus Casa -> Stazione</string>
+    <string name="stazione_casa">Bus Stazione -> Casa</string>
+    <string name="casa_aeroporto">Bus Casa -> Aeroporto</string>
+    <string name="aeroporto_casa">Bus Aeroporto -> Casa</string>
 </resources>
