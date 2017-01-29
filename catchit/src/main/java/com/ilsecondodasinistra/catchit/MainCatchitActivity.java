@@ -1,6 +1,5 @@
 package com.ilsecondodasinistra.catchit;
 
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,16 +15,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -82,9 +80,6 @@ public class MainCatchitActivity extends AppCompatActivity {
     /**
      * Navigation drawer
      */
-    private ListView mDrawerList;
-    private DrawerLayout mDrawerLayout;
-    private String mActivityTitle;
 
     //First We Declare Titles And Icons For Our Navigation Drawer List View
     //This Icons And Titles Are holded in an Array as you can see
@@ -154,25 +149,36 @@ public class MainCatchitActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);                 // Setting the layout Manager
 
         Drawer = (DrawerLayout) findViewById(R.id.drawer_layout);        // Drawer object Assigned to the view
-        mDrawerToggle = new ActionBarDrawerToggle(this,Drawer,toolbar,R.string.drawer_open,R.string.drawer_close){
+        mDrawerToggle = new ActionBarDrawerToggle(this,
+                                                Drawer,
+                                                toolbar,
+                                                R.string.drawer_open,
+                                                R.string.drawer_close){
 
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
                 // code here will execute once the drawer is opened( As I dont want anything happened whe drawer is
                 // open I am not going to put anything here)
+                Toast.makeText(MainCatchitActivity.this, "aperto", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
                 // Code here will execute once drawer is closed
+                Toast.makeText(MainCatchitActivity.this, "chiuso", Toast.LENGTH_SHORT).show();
             }
 
         }; // Drawer Toggle Object Made
 
-        Drawer.setDrawerListener(mDrawerToggle); // Drawer Listener set to the Drawer toggle
-        mDrawerToggle.syncState();               // Finally we set the drawer toggle sync State
+        Drawer.addDrawerListener(mDrawerToggle); // Drawer Listener set to the Drawer toggle
+        Drawer.post(new Runnable() {
+            @Override
+            public void run() {
+                mDrawerToggle.syncState();
+            }
+        });
 
         Calendar calendar = Calendar.getInstance();
         todayWeek = calendar.get(Calendar.DAY_OF_WEEK);
@@ -227,6 +233,7 @@ public class MainCatchitActivity extends AppCompatActivity {
         /* Actions for Navigation Drawer */
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
     }
 
     @Override
@@ -235,6 +242,43 @@ public class MainCatchitActivity extends AppCompatActivity {
 
         reloadBusAndTrams();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        if (item.getItemId() == android.R.id.home) {
+            if(Drawer.isDrawerOpen(Gravity.LEFT)) {
+                Drawer.closeDrawer(Gravity.LEFT);
+            }else{
+                Drawer.openDrawer(Gravity.LEFT);
+            }
+
+        }else if (item.getItemId()== R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+//    @Override
+//    protected void onPostCreate(Bundle savedInstanceState) {
+//        super.onPostCreate(savedInstanceState);
+//        mDrawerToggle.syncState();
+//
+//        mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                .openDrawer(GravityCompat.START);
+//            }
+//        });
+//    }
 
     private void reloadBusAndTrams() {
         if (DEBUGHOUR) {

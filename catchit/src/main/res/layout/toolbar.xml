@@ -9,7 +9,7 @@
     android:layout_height="@dimen/abc_action_bar_default_height_material"
     android:minHeight="?attr/actionBarSize"
     android:background="#FFA500"
-    android:gravity="left">
+    android:gravity="start">
 
     <TextView
         android:layout_width="match_parent"
