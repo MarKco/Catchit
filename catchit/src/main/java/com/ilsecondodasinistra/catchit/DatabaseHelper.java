@@ -34,6 +34,7 @@ public class DatabaseHelper {
     public static String returningSansovino = "6062";
     public static String sansovinoForN = departingSansovino + ", " + returningSansovino;
     public static String veniceStops = "510, 6084";
+    public static String veniceStopsFor12 = "501";
     public static String cialdini = "6080, 6027, 6081";
     public static String stazioneMestre = "6074, 6073";
 
@@ -82,7 +83,7 @@ public class DatabaseHelper {
                 "  and r.route_id in (" + routeForT1MestreVe + ", " + routeFor12MestreVe + ")\n" +      //For ordinary buses
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id = " + departingSansovino + "\n" +
-                "  and end_s.stop_id in (" + veniceStops + ")\n" +
+                "  and end_s.stop_id in (" + veniceStops + ", " + veniceStopsFor12 + ")\n" +
                 "  UNION " +
                 "SELECT t.trip_id,\n" +
                 "       start_s.stop_name as departure_stop,\n" +
@@ -136,8 +137,8 @@ public class DatabaseHelper {
                 "  and end_st.late_night IS NOT NULL\n" +
                 "order by start_st.departure_time asc";
 
-            if (BuildConfig.DEBUG)
-                Log.w("TramToVenice", tramToVenice);
+//            if (BuildConfig.DEBUG)
+//                Log.w("TramToVenice", tramToVenice);
 
         Cursor leavingCursor = db.rawQuery(tramToVenice, null);
         leavingCursor.moveToFirst();
@@ -195,7 +196,7 @@ public class DatabaseHelper {
                 "WHERE " + dayForThisQuery + " = 1\n" +
                 "  and r.route_id in (" + routeForT1VeMestre + ", " + routeFor12VeMestre + ")\n" +      //For ordinary buses
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
-                "  and departure_stop_id in (" + veniceStops + ")\n" +
+                "  and departure_stop_id in (" + veniceStops + ", " + veniceStopsFor12 + ")\n" +
                 "  and end_s.stop_id = " + returningSansovino + "\n" +
                 " UNION " +
                 " SELECT t.trip_id, \n" +
@@ -250,8 +251,8 @@ public class DatabaseHelper {
                 "  and end_st.late_night IS NOT NULL\n" +
                 "order by start_st.departure_time asc";
 
-//                    if(BuildConfig.DEBUG)
-//                        Log.w("TramFromVenice", tramFromVenice);
+                    if(BuildConfig.DEBUG)
+                        Log.w("TramFromVenice", tramFromVenice);
 
             Cursor comingCursor = db.rawQuery(tramFromVenice, null);
             comingCursor.moveToFirst();
@@ -269,7 +270,7 @@ public class DatabaseHelper {
                                 departureStop,
                                 arrivalStop,
                                 dateFormatter.parse(arrivalTime)));
-                        Log.i("Catchit", "Added a new item: " + departureStop + " " + departureTime + " " + line);
+//                        Log.i("Catchit", "Added a new item: " + departureStop + " " + departureTime + " " + line);
 
                     } while (comingCursor.moveToNext());
                 } catch (ParseException e) {
