@@ -1,5 +1,6 @@
 package com.ilsecondodasinistra.catchit;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -20,7 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,7 +81,7 @@ public class MainCatchitActivity extends AppCompatActivity {
      * Navigation drawer
      */
 
-    //First We Declare Titles And Icons For Our Navigation Drawer List View
+    //First We Declare Titles And Icons For Our Navigation mDrawerLayout List View
     //This Icons And Titles Are holded in an Array as you can see
 
     int ICONS[] = {
@@ -99,9 +99,7 @@ public class MainCatchitActivity extends AppCompatActivity {
     RecyclerView mRecyclerView;                           // Declaring RecyclerView
     RecyclerView.Adapter mAdapter;                        // Declaring Adapter For Recycler View
     RecyclerView.LayoutManager mLayoutManager;            // Declaring Layout Manager as a linear layout manager
-    DrawerLayout Drawer;                                  // Declaring DrawerLayout
-
-    ActionBarDrawerToggle mDrawerToggle;
+    DrawerLayout mDrawerLayout;                                  // Declaring DrawerLayout
 
     //Similarly we Create a String Resource for the name and email in the header view
     //And we also create a int resource for profile picture in the header view
@@ -124,7 +122,7 @@ public class MainCatchitActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        /* Actions for Navigation Drawer */
+        /* Actions for Navigation mDrawerLayout */
         String TITLES[]= {
             getString(R.string.mestre_venezia),
                     getString(R.string.venezia_mestre),
@@ -148,37 +146,7 @@ public class MainCatchitActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(this);                 // Creating a layout Manager
         mRecyclerView.setLayoutManager(mLayoutManager);                 // Setting the layout Manager
 
-        Drawer = (DrawerLayout) findViewById(R.id.drawer_layout);        // Drawer object Assigned to the view
-        mDrawerToggle = new ActionBarDrawerToggle(this,
-                                                Drawer,
-                                                toolbar,
-                                                R.string.drawer_open,
-                                                R.string.drawer_close){
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                // code here will execute once the drawer is opened( As I dont want anything happened whe drawer is
-                // open I am not going to put anything here)
-                Toast.makeText(MainCatchitActivity.this, "aperto", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-                // Code here will execute once drawer is closed
-                Toast.makeText(MainCatchitActivity.this, "chiuso", Toast.LENGTH_SHORT).show();
-            }
-
-        }; // Drawer Toggle Object Made
-
-        Drawer.addDrawerListener(mDrawerToggle); // Drawer Listener set to the Drawer toggle
-        Drawer.post(new Runnable() {
-            @Override
-            public void run() {
-                mDrawerToggle.syncState();
-            }
-        });
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);        // mDrawerLayout object Assigned to the view
 
         Calendar calendar = Calendar.getInstance();
         todayWeek = calendar.get(Calendar.DAY_OF_WEEK);
@@ -186,7 +154,11 @@ public class MainCatchitActivity extends AppCompatActivity {
         if (DEBUGDAY)
             todayWeek = debugDayOfTheWeek;
 
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        if (Build.VERSION.SDK_INT >= 18) {
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);    //  Required API level 18 :(
+        }
         titleText = (TextView) findViewById(R.id.title);
 
         final GestureDetector mGestureDetector = new GestureDetector(MainCatchitActivity.this, new GestureDetector.SimpleOnGestureListener() {
@@ -201,11 +173,12 @@ public class MainCatchitActivity extends AppCompatActivity {
             public boolean onInterceptTouchEvent(RecyclerView recyclerView, MotionEvent motionEvent) {
                 View child = recyclerView.findChildViewUnder(motionEvent.getX(),motionEvent.getY());
 
+                int position;
                 if(child!=null && mGestureDetector.onTouchEvent(motionEvent)){
-                    Drawer.closeDrawers();
-//                    Toast.makeText(MainActivity.this,"The Item Clicked is: "+recyclerView.getChildPosition(child),Toast.LENGTH_SHORT).show();
-                    int position = recyclerView.getChildPosition(child);
-                    if(position > 1)
+                    mDrawerLayout.closeDrawers();
+//                    Toast.makeText(MainCatchitActivity.this,"The Item Clicked is: "+recyclerView.getChildPosition(child),Toast.LENGTH_SHORT).show();
+                    position = recyclerView.getChildPosition(child);
+                    if(position > 0)
                         mPager.setCurrentItem(position - 1);
                     return true;
                 }
@@ -230,7 +203,7 @@ public class MainCatchitActivity extends AppCompatActivity {
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager(), getFragments());
         mPager.setAdapter(mPagerAdapter);
 
-        /* Actions for Navigation Drawer */
+        /* Actions for Navigation mDrawerLayout */
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
@@ -256,10 +229,10 @@ public class MainCatchitActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         if (item.getItemId() == android.R.id.home) {
-            if(Drawer.isDrawerOpen(Gravity.LEFT)) {
-                Drawer.closeDrawer(Gravity.LEFT);
+            if(mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
+                mDrawerLayout.closeDrawer(Gravity.LEFT);
             }else{
-                Drawer.openDrawer(Gravity.LEFT);
+                mDrawerLayout.openDrawer(Gravity.LEFT);
             }
 
         }else if (item.getItemId()== R.id.action_settings) {
@@ -267,18 +240,12 @@ public class MainCatchitActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-//    @Override
-//    protected void onPostCreate(Bundle savedInstanceState) {
-//        super.onPostCreate(savedInstanceState);
-//        mDrawerToggle.syncState();
-//
-//        mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                .openDrawer(GravityCompat.START);
-//            }
-//        });
-//    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+    }
+
 
     private void reloadBusAndTrams() {
         if (DEBUGHOUR) {
@@ -899,7 +866,11 @@ public class MainCatchitActivity extends AppCompatActivity {
         if (mPager.getCurrentItem() == 0) {
             // If the user is currently looking at the first step, allow the system to handle the
             // Back button. This calls finish() on this activity and pops the back stack.
-            super.onBackPressed();
+            if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                mDrawerLayout.closeDrawer(GravityCompat.START);
+            } else {
+                super.onBackPressed();
+            }
         } else {
             // Otherwise, select the previous step.
             mPager.setCurrentItem(mPager.getCurrentItem() - 1);

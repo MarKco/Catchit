@@ -11,9 +11,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.LinkedList;
 import java.util.List;
 
 public class MainFragment extends Fragment {
@@ -31,6 +28,7 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         timeTable = (ListView) rootView.findViewById(R.id.timeTable);
+        setHasOptionsMenu(true);
         return rootView;
     }
 

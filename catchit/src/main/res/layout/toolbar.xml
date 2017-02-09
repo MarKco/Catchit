@@ -6,8 +6,7 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/abc_action_bar_default_height_material"
-    android:minHeight="?attr/actionBarSize"
+    android:layout_height="wrap_content"
     android:background="#FFA500"
     android:gravity="start">
 
