@@ -353,13 +353,29 @@ public class MainCatchitActivity extends AppCompatActivity {
             operators.add(">");
             operators.add("<");
 
+            /**
+             * If we're forcing refresh, we must start from scratch
+             */
+            if(forceRefresh) {
+                busHermadaToAirport = new LinkedList<>();
+                busStationToHermadaTimes = new LinkedList<>();
+                busHermadaToStationTimes = new LinkedList<>();
+                tramSansovinoCentroTimes = new LinkedList<>();
+                tramCentroSansovinoTimes = new LinkedList<>();
+                tramToMestreCityCenterTimes = new LinkedList<>();
+                tramToStationTimes = new LinkedList<>();
+                tramToMestreTimes = new LinkedList<>();
+                tramToVeniceTimes = new LinkedList<>();
+                busAirportToHermada = new LinkedList<>();
+            }
+
             switch (position) {
                 case 0:
                     if(forceRefresh || !((MainFragment)fList.get(position)).isPopulated()) {
                         Thread busPopulateThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                if(tramToVeniceTimes == null || tramToVeniceTimes.size() == 0) {
+                                if(forceRefresh || (tramToVeniceTimes == null || tramToVeniceTimes.size() == 0)) {
                                     String dayForThisQuery;
                                     String yesterdayForThisQuery;
 
@@ -395,7 +411,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                         Thread busPopulateThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                if (tramToMestreTimes == null || tramToMestreTimes.size() == 0) {
+                                if (forceRefresh || (tramToMestreTimes == null || tramToMestreTimes.size() == 0)) {
                                     String dayForThisQuery;
                                     String yesterdayForThisQuery;
 
@@ -409,6 +425,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                             dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
                                             yesterdayForThisQuery = dayForQuery;
                                         }
+
                                         tramToMestreTimes.addAll(DatabaseHelper.getTramAndBusesFromVenice(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                                     }
                                 }
@@ -429,7 +446,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                         Thread busPopulateThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                if(tramToStationTimes == null || tramToStationTimes.size() == 0) {
+                                if(forceRefresh || (tramToStationTimes == null || tramToStationTimes.size() == 0)) {
                                     String dayForThisQuery;
                                     String yesterdayForThisQuery;
 
@@ -443,6 +460,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                                             dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
                                             yesterdayForThisQuery = dayForQuery;
                                         }
+
                                         tramToStationTimes.addAll(DatabaseHelper.getTramToStation(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                                     }
                                 }
@@ -463,7 +481,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                         Thread busPopulateThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                if(tramToMestreCityCenterTimes == null || tramToMestreCityCenterTimes.size() == 0) {
+                                if(forceRefresh || (tramToMestreCityCenterTimes == null || tramToMestreCityCenterTimes.size() == 0)) {
                                     String dayForThisQuery;
                                     String yesterdayForThisQuery;
 
@@ -498,7 +516,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                         Thread busPopulateThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                if(tramCentroSansovinoTimes == null || tramCentroSansovinoTimes.size() == 0) {
+                                if(forceRefresh || (tramCentroSansovinoTimes == null || tramCentroSansovinoTimes.size() == 0)) {
                                     String dayForThisQuery;
                                     String yesterdayForThisQuery;
 
@@ -512,7 +530,6 @@ public class MainCatchitActivity extends AppCompatActivity {
                                             dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
                                             yesterdayForThisQuery = dayForQuery;
                                         }
-
                                         tramCentroSansovinoTimes.addAll(DatabaseHelper.getCenterToSansovino(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
                                     }
                                 }
@@ -533,7 +550,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                         Thread busPopulateThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                if(tramSansovinoCentroTimes == null || tramSansovinoCentroTimes.size() == 0) {
+                                if(forceRefresh || (tramSansovinoCentroTimes == null || tramSansovinoCentroTimes.size() == 0)) {
                                     String dayForThisQuery;
                                     String yesterdayForThisQuery;
 
@@ -567,7 +584,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                         Thread busPopulateThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                if(busHermadaToStationTimes == null || busHermadaToStationTimes.size() == 0) {
+                                if(forceRefresh || (busHermadaToStationTimes == null || busHermadaToStationTimes.size() == 0)) {
                                     String dayForThisQuery;
                                     String yesterdayForThisQuery;
 
@@ -601,7 +618,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                         Thread busPopulateThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                if(busStationToHermadaTimes == null || busStationToHermadaTimes.size() == 0) {
+                                if(forceRefresh || (busStationToHermadaTimes == null || busStationToHermadaTimes.size() == 0)) {
                                     String dayForThisQuery;
                                     String yesterdayForThisQuery;
 
@@ -635,7 +652,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                         Thread busPopulateThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                if(busHermadaToAirport == null || busHermadaToAirport.size() == 0) {
+                                if(forceRefresh || (busHermadaToAirport == null || busHermadaToAirport.size() == 0)) {
                                     String dayForThisQuery;
                                     String yesterdayForThisQuery;
 
@@ -669,7 +686,7 @@ public class MainCatchitActivity extends AppCompatActivity {
                         Thread busPopulateThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                if(busAirportToHermada == null || busAirportToHermada.size() == 0) {
+                                if(forceRefresh || (busAirportToHermada == null || busAirportToHermada.size() == 0)) {
                                     String dayForThisQuery;
                                     String yesterdayForThisQuery;
 
