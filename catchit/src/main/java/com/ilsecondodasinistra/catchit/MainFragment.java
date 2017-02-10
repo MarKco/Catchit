@@ -93,7 +93,7 @@ public class MainFragment extends Fragment {
     }
 
     public void populate(List<Bus> list, boolean force) {
-        if(timeTable.getAdapter() == null) { //If we already have an adapter, we don't need another. Or do we???
+        if(force || timeTable.getAdapter() == null) { //If we already have an adapter, we don't need another. Or do we???
             times = list;
             leavingAdapter = new CustomAdapter(getActivity(), R.layout.row, list);
             timeTable.setAdapter(leavingAdapter);

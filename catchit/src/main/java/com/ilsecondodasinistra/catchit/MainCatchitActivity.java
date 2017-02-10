@@ -323,6 +323,18 @@ public class MainCatchitActivity extends AppCompatActivity {
      */
     public void reloadSingleFragmentDataFromFragment(MainFragment fragment) {
         refreshDateTime();  //We update the "now" variable
+
+        //Code for debugging reload. Just put the time you wand and uncomment. It will be passed only upon refresh.
+//        now = new Date();
+//
+//        Calendar cal = Calendar.getInstance();
+//        cal.setTime(now); //This date is a copy of present datetime (which actually is Linux Epoch)
+//        cal.set(Calendar.HOUR_OF_DAY, 1); //We just change the hours, minutes, seconds
+//        cal.set(Calendar.MINUTE, 29);
+//        cal.set(Calendar.SECOND, 00);
+//        cal.set(Calendar.MILLISECOND, 00);
+//        now.setTime(cal.getTimeInMillis());
+
         final int position = fList.indexOf(fragment);
         if(fList.contains(fragment)) {
             reloadSingleFragmentData(position, true);    //This is called when the user swipes down the list for refreshing, so we force refresh!
