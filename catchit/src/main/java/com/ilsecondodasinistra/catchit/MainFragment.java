@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ public class MainFragment extends Fragment {
     ListView timeTable;
     CustomAdapter leavingAdapter;
 
+    private SwipeRefreshLayout swipeContainer;
     List<Bus> times;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -29,7 +31,22 @@ public class MainFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         timeTable = (ListView) rootView.findViewById(R.id.timeTable);
         setHasOptionsMenu(true);
+        swipeContainer = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeContainer);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                // Make sure you call swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully.
+                ((MainCatchitActivity)getActivity()).reloadSingleFragmentDataFromFragment(MainFragment.this);
+            }
+        });
         return rootView;
+    }
+
+    public void setRefresingForFragment(boolean refresingForFragment) {
+        swipeContainer.setRefreshing(false);
     }
 
     @Override
@@ -75,7 +92,7 @@ public class MainFragment extends Fragment {
         timeTable.setAdapter(leavingAdapter);
     }
 
-    public void populate(List<Bus> list) {
+    public void populate(List<Bus> list, boolean force) {
         if(timeTable.getAdapter() == null) { //If we already have an adapter, we don't need another. Or do we???
             times = list;
             leavingAdapter = new CustomAdapter(getActivity(), R.layout.row, list);
@@ -107,6 +124,6 @@ public class MainFragment extends Fragment {
 
     public void show() {
         if(timeTable.getAdapter() == null)
-            populate(times);
+            populate(times, false);
     }
 }

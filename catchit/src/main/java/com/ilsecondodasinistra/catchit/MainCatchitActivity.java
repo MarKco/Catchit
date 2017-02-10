@@ -9,7 +9,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,7 +21,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -67,7 +65,7 @@ public class MainCatchitActivity extends AppCompatActivity {
     String dayForQuery;
     String tomorrowForQuery;
     String yesterdayForQuery;
-    final Date now = new Date();
+    Date now = new Date();
 
     List<Fragment> fList = new ArrayList<Fragment>();
 
@@ -246,8 +244,9 @@ public class MainCatchitActivity extends AppCompatActivity {
         super.onPostCreate(savedInstanceState);
     }
 
+    public void refreshDateTime() {
+        now = new Date();
 
-    private void reloadBusAndTrams() {
         if (DEBUGHOUR) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(now); //This date is a copy of present datetime (which actually is Linux Epoch)
@@ -263,342 +262,47 @@ public class MainCatchitActivity extends AppCompatActivity {
 
         selectRightDayOfTheWeek();
 
+    }
+
+    private void reloadBusAndTrams() {
+
+        refreshDateTime();
+
         mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(final int position, float positionOffset, int positionOffsetPixels) {
-                try {
-                    final ArrayList<String> operators = new ArrayList<>();
-                    operators.add(">");
-                    operators.add("<");
-
-                    switch (position) {
-                        case 0:
-                            titleText.setText(getString(R.string.mestre_venezia));
-                            if(!((MainFragment)fList.get(position)).isPopulated()) {
-                                Thread busPopulateThread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(tramToVeniceTimes == null || tramToVeniceTimes.size() == 0) {
-                                            String dayForThisQuery;
-                                            String yesterdayForThisQuery;
-
-                                            for(String operator : operators) {
-
-                                                if (operators.indexOf(operator) == 0) {
-                                                    dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                    yesterdayForThisQuery = yesterdayForQuery;
-                                                }
-                                                else {
-                                                    dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-                                                    yesterdayForThisQuery = dayForQuery;
-                                                }
-
-                                                tramToVeniceTimes.addAll(DatabaseHelper.getTramAndBusesToVenice(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
-                                            }
-                                        }
-
-                                        ((MainFragment) fList.get(position)).populate(tramToVeniceTimes);
-                                        prefetchTimes(position + 1);
-                                    }
-                                });
-                                busPopulateThread.run();
-                            }
-                            else
-                                ((MainFragment)fList.get(position)).show();
-                            break;
-                        case 1:
-                            titleText.setText(getString(R.string.venezia_mestre));
-                            if(!((MainFragment)fList.get(position)).isPopulated()) {
-                                Thread busPopulateThread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (tramToMestreTimes == null || tramToMestreTimes.size() == 0) {
-                                            String dayForThisQuery;
-                                            String yesterdayForThisQuery;
-
-                                            for (String operator : operators) {
-
-                                                if (operators.indexOf(operator) == 0) {
-                                                    dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                    yesterdayForThisQuery = yesterdayForQuery;
-                                                }
-                                                else {
-                                                    dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-                                                    yesterdayForThisQuery = dayForQuery;
-                                                }
-                                                tramToMestreTimes.addAll(DatabaseHelper.getTramAndBusesFromVenice(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
-                                            }
-                                        }
-                                        ((MainFragment) fList.get(position)).populate(tramToMestreTimes);
-                                        prefetchTimes(position + 1);
-                                    }
-                                });
-                                busPopulateThread.run();
-                            }
-                            else
-                                ((MainFragment)fList.get(position)).show();
-                            break;
-                        case 2:
-                            titleText.setText(getString(R.string.centro_stazione));
-                            if(!((MainFragment)fList.get(position)).isPopulated()) {
-                                Thread busPopulateThread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(tramToStationTimes == null || tramToStationTimes.size() == 0) {
-                                            String dayForThisQuery;
-                                            String yesterdayForThisQuery;
-
-                                            for (String operator : operators) {
-
-                                                if (operators.indexOf(operator) == 0) {
-                                                    dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                    yesterdayForThisQuery = yesterdayForQuery;
-                                                }
-                                                else {
-                                                    dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-                                                    yesterdayForThisQuery = dayForQuery;
-                                                }
-                                                tramToStationTimes.addAll(DatabaseHelper.getTramToStation(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
-                                            }
-                                        }
-                                        ((MainFragment) fList.get(position)).populate(tramToStationTimes);
-                                        prefetchTimes(position + 1);
-                                    }
-                                });
-                                busPopulateThread.run();
-                            }
-                            else
-                                ((MainFragment)fList.get(position)).show();
-                            break;
-                        case 3:
-                            titleText.setText(getString(R.string.stazione_centro));
-                            if(!((MainFragment)fList.get(position)).isPopulated()) {
-                                Thread busPopulateThread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(tramToMestreCityCenterTimes == null || tramToMestreCityCenterTimes.size() == 0) {
-                                            String dayForThisQuery;
-                                            String yesterdayForThisQuery;
-
-                                            for (String operator : operators) {
-
-                                                if (operators.indexOf(operator) == 0) {
-                                                    dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                    yesterdayForThisQuery = yesterdayForQuery;
-                                                }
-                                                else {
-                                                    dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-                                                    yesterdayForThisQuery = dayForQuery;
-                                                }                                                {
-                                                    tramToMestreCityCenterTimes.addAll(DatabaseHelper.getTramFromStation(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
-                                                }
-                                            }
-                                        }
-                                        ((MainFragment) fList.get(position)).populate(tramToMestreCityCenterTimes);
-                                        prefetchTimes(position + 1);
-                                    }
-                                });
-                                busPopulateThread.run();
-                            }
-                            else
-                                ((MainFragment)fList.get(position)).show();
-                            break;
-                        case 4:
-                            titleText.setText(getString(R.string.centro_casa));
-                            if(!((MainFragment)fList.get(position)).isPopulated()) {
-                                Thread busPopulateThread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(tramCentroSansovinoTimes == null || tramCentroSansovinoTimes.size() == 0) {
-                                            String dayForThisQuery;
-                                            String yesterdayForThisQuery;
-
-                                            for (String operator : operators) {
-
-                                                if (operators.indexOf(operator) == 0) {
-                                                    dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                    yesterdayForThisQuery = yesterdayForQuery;
-                                                }
-                                                else {
-                                                    dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-                                                    yesterdayForThisQuery = dayForQuery;
-                                                }
-
-                                                tramCentroSansovinoTimes.addAll(DatabaseHelper.getCenterToSansovino(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
-                                            }
-                                        }
-                                        ((MainFragment) fList.get(position)).populate(tramCentroSansovinoTimes);
-                                        prefetchTimes(position + 1);
-                                    }
-                                });
-                                busPopulateThread.run();
-                            }
-                            else
-                                ((MainFragment)fList.get(position)).show();
-                            break;
-                        case 5:
-                            titleText.setText(getString(R.string.casa_centro));
-                            if(!((MainFragment)fList.get(position)).isPopulated()) {
-                                Thread busPopulateThread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(tramSansovinoCentroTimes == null || tramSansovinoCentroTimes.size() == 0) {
-                                            String dayForThisQuery;
-                                            String yesterdayForThisQuery;
-
-                                            for (String operator : operators) {
-
-                                                if (operators.indexOf(operator) == 0) {
-                                                    dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                    yesterdayForThisQuery = yesterdayForQuery;
-                                                }
-                                                else {
-                                                    dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-                                                    yesterdayForThisQuery = dayForQuery;
-                                                }                                                {
-                                                    tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToCenter(getApplicationContext(), yesterdayForThisQuery,  now, operator, dayForThisQuery));
-                                                }
-                                            }
-                                        }
-                                        ((MainFragment) fList.get(position)).populate(tramSansovinoCentroTimes);
-                                    }
-                                });
-                                busPopulateThread.run();
-                            }
-                            else
-                                ((MainFragment)fList.get(position)).show();
-                            break;
-                        case 6:
-                            titleText.setText(getString(R.string.casa_stazione));
-                            if(!((MainFragment)fList.get(position)).isPopulated()) {
-                                Thread busPopulateThread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(busHermadaToStationTimes == null || busHermadaToStationTimes.size() == 0) {
-                                            String dayForThisQuery;
-                                            String yesterdayForThisQuery;
-
-                                            for (String operator : operators) {
-
-                                                if (operators.indexOf(operator) == 0) {
-                                                    dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                    yesterdayForThisQuery = yesterdayForQuery;
-                                                }
-                                                else {
-                                                    dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-                                                    yesterdayForThisQuery = dayForQuery;
-                                                }                                                {
-                                                    busHermadaToStationTimes.addAll(DatabaseHelper.getHermadaToStation(getApplicationContext(), yesterdayForThisQuery,  now, operator, dayForThisQuery));
-                                                }
-                                            }
-                                        }
-                                        ((MainFragment) fList.get(position)).populate(busHermadaToStationTimes);
-                                    }
-                                });
-                                busPopulateThread.run();
-                            }
-                            else
-                                ((MainFragment)fList.get(position)).show();
-                            break;
-                        case 7:
-                            titleText.setText(getString(R.string.stazione_casa));
-                            if(!((MainFragment)fList.get(position)).isPopulated()) {
-                                Thread busPopulateThread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(busStationToHermadaTimes == null || busStationToHermadaTimes.size() == 0) {
-                                            String dayForThisQuery;
-                                            String yesterdayForThisQuery;
-
-                                            for (String operator : operators) {
-
-                                                if (operators.indexOf(operator) == 0) {
-                                                    dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                    yesterdayForThisQuery = yesterdayForQuery;
-                                                }
-                                                else {
-                                                    dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-                                                    yesterdayForThisQuery = dayForQuery;
-                                                }                                                {
-                                                    busStationToHermadaTimes.addAll(DatabaseHelper.getStationToHermada(getApplicationContext(), yesterdayForThisQuery,  now, operator, dayForThisQuery));
-                                                }
-                                            }
-                                        }
-                                        ((MainFragment) fList.get(position)).populate(busStationToHermadaTimes);
-                                    }
-                                });
-                                busPopulateThread.run();
-                            }
-                            else
-                                ((MainFragment)fList.get(position)).show();
-                            break;
-                        case 8:
-                            titleText.setText(getString(R.string.casa_aeroporto));
-                            if(!((MainFragment)fList.get(position)).isPopulated()) {
-                                Thread busPopulateThread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(busHermadaToAirport == null || busHermadaToAirport.size() == 0) {
-                                            String dayForThisQuery;
-                                            String yesterdayForThisQuery;
-
-                                            for (String operator : operators) {
-
-                                                if (operators.indexOf(operator) == 0) {
-                                                    dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                    yesterdayForThisQuery = yesterdayForQuery;
-                                                }
-                                                else {
-                                                    dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-                                                    yesterdayForThisQuery = dayForQuery;
-                                                }                                                {
-                                                    busHermadaToAirport.addAll(DatabaseHelper.getHermadaToAirport(getApplicationContext(), yesterdayForThisQuery,  now, operator, dayForThisQuery));
-                                                }
-                                            }
-                                        }
-                                        ((MainFragment) fList.get(position)).populate(busHermadaToAirport);
-                                    }
-                                });
-                                busPopulateThread.run();
-                            }
-                            else
-                                ((MainFragment)fList.get(position)).show();
-                            break;
-                        case 9:
-                            titleText.setText(getString(R.string.aeroporto_casa));
-                            if(!((MainFragment)fList.get(position)).isPopulated()) {
-                                Thread busPopulateThread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(busAirportToHermada == null || busAirportToHermada.size() == 0) {
-                                            String dayForThisQuery;
-                                            String yesterdayForThisQuery;
-
-                                            for (String operator : operators) {
-
-                                                if (operators.indexOf(operator) == 0) {
-                                                    dayForThisQuery = dayForQuery; //We want the timetable of next buses today
-                                                    yesterdayForThisQuery = yesterdayForQuery;
-                                                }
-                                                else {
-                                                    dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
-                                                    yesterdayForThisQuery = dayForQuery;
-                                                }                                                {
-                                                    busAirportToHermada.addAll(DatabaseHelper.getAirportToHermada(getApplicationContext(), yesterdayForThisQuery,  now, operator, dayForThisQuery));
-                                                }
-                                            }
-                                        }
-                                        ((MainFragment) fList.get(position)).populate(busAirportToHermada);
-                                    }
-                                });
-                                busPopulateThread.run();
-                            }
-                            else
-                                ((MainFragment)fList.get(position)).show();
-                            break;
-                    }
-                } catch (NullPointerException e) {
-                    Log.e("Catchit", "I wonder why" + e.getStackTrace().toString());
+                reloadSingleFragmentData(position, false);  //We don't want to force reload, of course
+                switch(position) {
+                    case 0:
+                        titleText.setText(getString(R.string.mestre_venezia));
+                        break;
+                    case 1:
+                        titleText.setText(getString(R.string.venezia_mestre));
+                        break;
+                    case 2:
+                        titleText.setText(getString(R.string.centro_stazione));
+                        break;
+                    case 3:
+                        titleText.setText(getString(R.string.stazione_centro));
+                        break;
+                    case 4:
+                        titleText.setText(getString(R.string.centro_casa));
+                        break;
+                    case 5:
+                        titleText.setText(getString(R.string.casa_centro));
+                        break;
+                    case 6:
+                        titleText.setText(getString(R.string.casa_stazione));
+                        break;
+                    case 7:
+                        titleText.setText(getString(R.string.stazione_casa));
+                        break;
+                    case 8:
+                        titleText.setText(getString(R.string.casa_aeroporto));
+                        break;
+                    case 9:
+                        titleText.setText(getString(R.string.aeroporto_casa));
+                        break;
                 }
             }
 
@@ -613,10 +317,400 @@ public class MainCatchitActivity extends AppCompatActivity {
     }
 
     /**
+     * This gets called by the fragment when the user swipes down to refresh
+     * @param fragment
+     * TODO: Use an interface and a callback, calling this method directly is shit!
+     */
+    public void reloadSingleFragmentDataFromFragment(MainFragment fragment) {
+        refreshDateTime();  //We update the "now" variable
+        final int position = fList.indexOf(fragment);
+        if(fList.contains(fragment)) {
+            reloadSingleFragmentData(position, true);    //This is called when the user swipes down the list for refreshing, so we force refresh!
+        }
+
+        /**
+         * After having reloaded "the important one", we reload the others as well
+         */
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for(int i = 0; i < fList.size(); i++) {
+                    if(i != position)
+                        reloadSingleFragmentData(i, true);
+                }
+            }
+        }).run();
+    }
+
+    /**
+     * Reloads the single data of a fragment
+     * @param position  the position of the fragment
+     * @param forceRefresh  whether we want the data to be refreshed even though a fragment is already there and filled up
+     */
+    private void reloadSingleFragmentData(final int position, final boolean forceRefresh) {
+        try {
+            final ArrayList<String> operators = new ArrayList<>();
+            operators.add(">");
+            operators.add("<");
+
+            switch (position) {
+                case 0:
+                    if(forceRefresh || !((MainFragment)fList.get(position)).isPopulated()) {
+                        Thread busPopulateThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(tramToVeniceTimes == null || tramToVeniceTimes.size() == 0) {
+                                    String dayForThisQuery;
+                                    String yesterdayForThisQuery;
+
+                                    for(String operator : operators) {
+
+                                        if (operators.indexOf(operator) == 0) {
+                                            dayForThisQuery = dayForQuery; //We want the timetable of next buses today
+                                            yesterdayForThisQuery = yesterdayForQuery;
+                                        }
+                                        else {
+                                            dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                            yesterdayForThisQuery = dayForQuery;
+                                        }
+
+                                        tramToVeniceTimes.addAll(DatabaseHelper.getTramAndBusesToVenice(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
+                                    }
+                                }
+
+                                ((MainFragment) fList.get(position)).populate(tramToVeniceTimes, forceRefresh);
+                                prefetchTimes(position + 1);
+                                ((MainFragment)fList.get(position)).setRefresingForFragment(false);
+                            }
+                        });
+                        busPopulateThread.run();
+                    }
+                    else {
+                        ((MainFragment) fList.get(position)).show();
+                        ((MainFragment) fList.get(position)).setRefresingForFragment(false);
+                    }
+                    break;
+                case 1:
+                    if(forceRefresh || !((MainFragment)fList.get(position)).isPopulated()) {
+                        Thread busPopulateThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (tramToMestreTimes == null || tramToMestreTimes.size() == 0) {
+                                    String dayForThisQuery;
+                                    String yesterdayForThisQuery;
+
+                                    for (String operator : operators) {
+
+                                        if (operators.indexOf(operator) == 0) {
+                                            dayForThisQuery = dayForQuery; //We want the timetable of next buses today
+                                            yesterdayForThisQuery = yesterdayForQuery;
+                                        }
+                                        else {
+                                            dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                            yesterdayForThisQuery = dayForQuery;
+                                        }
+                                        tramToMestreTimes.addAll(DatabaseHelper.getTramAndBusesFromVenice(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
+                                    }
+                                }
+                                ((MainFragment) fList.get(position)).populate(tramToMestreTimes, forceRefresh);
+                                prefetchTimes(position + 1);
+                                ((MainFragment)fList.get(position)).setRefresingForFragment(false);
+                            }
+                        });
+                        busPopulateThread.run();
+                    }
+                    else {
+                        ((MainFragment) fList.get(position)).show();
+                        ((MainFragment)fList.get(position)).setRefresingForFragment(false);
+                    }
+                    break;
+                case 2:
+                    if(forceRefresh || !((MainFragment)fList.get(position)).isPopulated()) {
+                        Thread busPopulateThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(tramToStationTimes == null || tramToStationTimes.size() == 0) {
+                                    String dayForThisQuery;
+                                    String yesterdayForThisQuery;
+
+                                    for (String operator : operators) {
+
+                                        if (operators.indexOf(operator) == 0) {
+                                            dayForThisQuery = dayForQuery; //We want the timetable of next buses today
+                                            yesterdayForThisQuery = yesterdayForQuery;
+                                        }
+                                        else {
+                                            dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                            yesterdayForThisQuery = dayForQuery;
+                                        }
+                                        tramToStationTimes.addAll(DatabaseHelper.getTramToStation(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
+                                    }
+                                }
+                                ((MainFragment) fList.get(position)).populate(tramToStationTimes, forceRefresh);
+                                prefetchTimes(position + 1);
+                                ((MainFragment)fList.get(position)).setRefresingForFragment(false);
+                            }
+                        });
+                        busPopulateThread.run();
+                    }
+                    else {
+                        ((MainFragment) fList.get(position)).show();
+                        ((MainFragment) fList.get(position)).setRefresingForFragment(false);
+                    }
+                    break;
+                case 3:
+                    if(forceRefresh || !((MainFragment)fList.get(position)).isPopulated()) {
+                        Thread busPopulateThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(tramToMestreCityCenterTimes == null || tramToMestreCityCenterTimes.size() == 0) {
+                                    String dayForThisQuery;
+                                    String yesterdayForThisQuery;
+
+                                    for (String operator : operators) {
+
+                                        if (operators.indexOf(operator) == 0) {
+                                            dayForThisQuery = dayForQuery; //We want the timetable of next buses today
+                                            yesterdayForThisQuery = yesterdayForQuery;
+                                        }
+                                        else {
+                                            dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                            yesterdayForThisQuery = dayForQuery;
+                                        }                                                {
+                                            tramToMestreCityCenterTimes.addAll(DatabaseHelper.getTramFromStation(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
+                                        }
+                                    }
+                                }
+                                ((MainFragment) fList.get(position)).populate(tramToMestreCityCenterTimes, forceRefresh);
+                                prefetchTimes(position + 1);
+                                ((MainFragment)fList.get(position)).setRefresingForFragment(false);
+                            }
+                        });
+                        busPopulateThread.run();
+                    }
+                    else {
+                        ((MainFragment) fList.get(position)).show();
+                        ((MainFragment)fList.get(position)).setRefresingForFragment(false);
+                    }
+                    break;
+                case 4:
+                    if(forceRefresh || !((MainFragment)fList.get(position)).isPopulated()) {
+                        Thread busPopulateThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(tramCentroSansovinoTimes == null || tramCentroSansovinoTimes.size() == 0) {
+                                    String dayForThisQuery;
+                                    String yesterdayForThisQuery;
+
+                                    for (String operator : operators) {
+
+                                        if (operators.indexOf(operator) == 0) {
+                                            dayForThisQuery = dayForQuery; //We want the timetable of next buses today
+                                            yesterdayForThisQuery = yesterdayForQuery;
+                                        }
+                                        else {
+                                            dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                            yesterdayForThisQuery = dayForQuery;
+                                        }
+
+                                        tramCentroSansovinoTimes.addAll(DatabaseHelper.getCenterToSansovino(getApplicationContext(), yesterdayForThisQuery, now, operator, dayForThisQuery));
+                                    }
+                                }
+                                ((MainFragment) fList.get(position)).populate(tramCentroSansovinoTimes, forceRefresh);
+                                prefetchTimes(position + 1);
+                                ((MainFragment)fList.get(position)).setRefresingForFragment(false);
+                            }
+                        });
+                        busPopulateThread.run();
+                    }
+                    else {
+                        ((MainFragment) fList.get(position)).show();
+                        ((MainFragment) fList.get(position)).setRefresingForFragment(false);
+                    }
+                    break;
+                case 5:
+                    if(forceRefresh || !((MainFragment)fList.get(position)).isPopulated()) {
+                        Thread busPopulateThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(tramSansovinoCentroTimes == null || tramSansovinoCentroTimes.size() == 0) {
+                                    String dayForThisQuery;
+                                    String yesterdayForThisQuery;
+
+                                    for (String operator : operators) {
+
+                                        if (operators.indexOf(operator) == 0) {
+                                            dayForThisQuery = dayForQuery; //We want the timetable of next buses today
+                                            yesterdayForThisQuery = yesterdayForQuery;
+                                        }
+                                        else {
+                                            dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                            yesterdayForThisQuery = dayForQuery;
+                                        }                                                {
+                                            tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToCenter(getApplicationContext(), yesterdayForThisQuery,  now, operator, dayForThisQuery));
+                                        }
+                                    }
+                                }
+                                ((MainFragment) fList.get(position)).populate(tramSansovinoCentroTimes, forceRefresh);
+                                ((MainFragment)fList.get(position)).setRefresingForFragment(false);
+                            }
+                        });
+                        busPopulateThread.run();
+                    }
+                    else {
+                        ((MainFragment) fList.get(position)).show();
+                        ((MainFragment) fList.get(position)).setRefresingForFragment(false);
+                    }
+                    break;
+                case 6:
+                    if(forceRefresh || !((MainFragment)fList.get(position)).isPopulated()) {
+                        Thread busPopulateThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(busHermadaToStationTimes == null || busHermadaToStationTimes.size() == 0) {
+                                    String dayForThisQuery;
+                                    String yesterdayForThisQuery;
+
+                                    for (String operator : operators) {
+
+                                        if (operators.indexOf(operator) == 0) {
+                                            dayForThisQuery = dayForQuery; //We want the timetable of next buses today
+                                            yesterdayForThisQuery = yesterdayForQuery;
+                                        }
+                                        else {
+                                            dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                            yesterdayForThisQuery = dayForQuery;
+                                        }                                                {
+                                            busHermadaToStationTimes.addAll(DatabaseHelper.getHermadaToStation(getApplicationContext(), yesterdayForThisQuery,  now, operator, dayForThisQuery));
+                                        }
+                                    }
+                                }
+                                ((MainFragment) fList.get(position)).populate(busHermadaToStationTimes, forceRefresh);
+                                ((MainFragment)fList.get(position)).setRefresingForFragment(false);
+                            }
+                        });
+                        busPopulateThread.run();
+                    }
+                    else {
+                        ((MainFragment) fList.get(position)).show();
+                        ((MainFragment) fList.get(position)).setRefresingForFragment(false);
+                    }
+                    break;
+                case 7:
+                    if(forceRefresh || !((MainFragment)fList.get(position)).isPopulated()) {
+                        Thread busPopulateThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(busStationToHermadaTimes == null || busStationToHermadaTimes.size() == 0) {
+                                    String dayForThisQuery;
+                                    String yesterdayForThisQuery;
+
+                                    for (String operator : operators) {
+
+                                        if (operators.indexOf(operator) == 0) {
+                                            dayForThisQuery = dayForQuery; //We want the timetable of next buses today
+                                            yesterdayForThisQuery = yesterdayForQuery;
+                                        }
+                                        else {
+                                            dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                            yesterdayForThisQuery = dayForQuery;
+                                        }                                                {
+                                            busStationToHermadaTimes.addAll(DatabaseHelper.getStationToHermada(getApplicationContext(), yesterdayForThisQuery,  now, operator, dayForThisQuery));
+                                        }
+                                    }
+                                }
+                                ((MainFragment) fList.get(position)).populate(busStationToHermadaTimes, forceRefresh);
+                                ((MainFragment)fList.get(position)).setRefresingForFragment(false);
+                            }
+                        });
+                        busPopulateThread.run();
+                    }
+                    else {
+                        ((MainFragment) fList.get(position)).show();
+                        ((MainFragment) fList.get(position)).setRefresingForFragment(false);
+                    }
+                    break;
+                case 8:
+                    if(forceRefresh || !((MainFragment)fList.get(position)).isPopulated()) {
+                        Thread busPopulateThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(busHermadaToAirport == null || busHermadaToAirport.size() == 0) {
+                                    String dayForThisQuery;
+                                    String yesterdayForThisQuery;
+
+                                    for (String operator : operators) {
+
+                                        if (operators.indexOf(operator) == 0) {
+                                            dayForThisQuery = dayForQuery; //We want the timetable of next buses today
+                                            yesterdayForThisQuery = yesterdayForQuery;
+                                        }
+                                        else {
+                                            dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                            yesterdayForThisQuery = dayForQuery;
+                                        }                                                {
+                                            busHermadaToAirport.addAll(DatabaseHelper.getHermadaToAirport(getApplicationContext(), yesterdayForThisQuery,  now, operator, dayForThisQuery));
+                                        }
+                                    }
+                                }
+                                ((MainFragment) fList.get(position)).populate(busHermadaToAirport, forceRefresh);
+                                ((MainFragment)fList.get(position)).setRefresingForFragment(false);
+                            }
+                        });
+                        busPopulateThread.run();
+                    }
+                    else {
+                        ((MainFragment) fList.get(position)).show();
+                        ((MainFragment) fList.get(position)).setRefresingForFragment(false);
+                    }
+                    break;
+                case 9:
+                    if(forceRefresh || !((MainFragment)fList.get(position)).isPopulated()) {
+                        Thread busPopulateThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(busAirportToHermada == null || busAirportToHermada.size() == 0) {
+                                    String dayForThisQuery;
+                                    String yesterdayForThisQuery;
+
+                                    for (String operator : operators) {
+
+                                        if (operators.indexOf(operator) == 0) {
+                                            dayForThisQuery = dayForQuery; //We want the timetable of next buses today
+                                            yesterdayForThisQuery = yesterdayForQuery;
+                                        }
+                                        else {
+                                            dayForThisQuery = tomorrowForQuery; //And remote buses tomorrow
+                                            yesterdayForThisQuery = dayForQuery;
+                                        }                                                {
+                                            busAirportToHermada.addAll(DatabaseHelper.getAirportToHermada(getApplicationContext(), yesterdayForThisQuery,  now, operator, dayForThisQuery));
+                                        }
+                                    }
+                                }
+                                ((MainFragment) fList.get(position)).populate(busAirportToHermada, forceRefresh);
+                                ((MainFragment)fList.get(position)).setRefresingForFragment(false);
+                            }
+                        });
+                        busPopulateThread.run();
+                    }
+                    else {
+                        ((MainFragment) fList.get(position)).show();
+                        ((MainFragment) fList.get(position)).setRefresingForFragment(false);
+                    }
+                    break;
+            }
+        } catch (NullPointerException e) {
+            Log.e("Catchit", "I wonder why" + e.getStackTrace().toString());
+        }
+    }
+
+    /**
      * Pre-loads data for next Fragment
      * @param position
      */
     private void prefetchTimes(int position) {
+        if(true)
+            return;
 
         final ArrayList<String> operators = new ArrayList<>();
         operators.add(">");
@@ -955,32 +1049,4 @@ public class MainCatchitActivity extends AppCompatActivity {
                 break;
         }
     }
-
-    /** We don't need it anymore since we get information from the database **/
-//    private boolean busIsGoodForToday(Bus thisBus, int weekDay) {
-////		Log.i("CatchIt", "Il bus passa di sabato? " + thisBus.doesItPassOnSaturdays() + " e oggi è il " + weekDay);
-//
-//        switch (weekDay) {
-//            case 1:        //sunday
-//                if (thisBus.doesItPassOnSundays())    //Al momento non ho ancora inserito
-//                    //gli autobus della domenica
-//                    return true;
-//                break;
-//            case 2:        //workdays
-//            case 3:
-//            case 4:
-//            case 5:
-//            case 6:
-//                if (thisBus.doesItPassOnWorkdays())
-//                    return true;
-//                break;
-//            case 7:        //saturday
-//                if (thisBus.doesItPassOnSaturdays())
-//                    return true;
-//                break;
-//        }
-//
-//        return false;
-//    }
-
 }
