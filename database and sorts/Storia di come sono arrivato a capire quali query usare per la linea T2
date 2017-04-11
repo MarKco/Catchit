@@ -102,7 +102,7 @@ Lancio tutte le query e vedo quali stops e stop_times abbiamo in gioco
 
 Proviamo a togliere tutto tranne quelle
 
-1- delete from stops where stop_id not in (6081, 6074, 6073, 6084, 6062, 6080, 6027, 6061, 6084, 510);
+1- delete from stops where stop_id not in (6081, 6074, 6073, 6084, 6062, 6080, 6027, 6061, 6084, 510, 501, 613, 172, 1172, 3626);
 2- delete from stop_times where stop_times.stop_id not in (select stop_id from stops);
 
 Siamo a 7.9Mb
@@ -247,3 +247,8 @@ UPDATE stop_times
 SET departure_time = REPLACE(departure_time, '29:', '05:'), late_night = 1
 WHERE departure_time LIKE '29:%';
 
+Tipicamente quando aggiorni il database ti cambiano un po' di ID delle linee. Poco male, puoi recuperarle così
+
+select  route_short_name, route_long_name, route_id, route_desc from routes where route_short_name = "15";
+
+dove 15 è il nome della linea. Mettendoci T1, T2, 12L, N1, N2 etc. puoi recuperare i vari nuovi ID delle linee e metterli in DatabaseHelper.java

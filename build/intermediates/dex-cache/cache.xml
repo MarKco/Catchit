@@ -7,7 +7,7 @@
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
-        sha1="e5f71185df67aee09f286a4bf2315851e6e217e1">
+        sha1="f6765ba1100d1573ef68ab2fb438a3e4fa5d57f1">
         <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_4172d9e17a8ee9f0b2672ba97dd8cc1e6f07d1f0/classes.dex" />
     </item>
     <item
@@ -21,6 +21,42 @@
     </item>
     <item
         is-multidex="true"
+        jar="/home/marco/.android/build-cache/336bc349bb35cc8f5a01e91ac659723593b84a2d/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="052f5f840f21174a3ecf6544130194e2652cbb73">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_bc11d1c3b4a153d6c6274f0fd00d477d9252ea82/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/.android/build-cache/611cbbc0071a0c810a8a04dfc403cbc2790e5dc4/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="d7c42c80f6509b9ea4db28ca7859ffae08ec5741">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_634b03b3082185a50f525019718525fa8613d2ac/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/.android/build-cache/fa6f17c62b7c7fecbbb0216e1b3540510a7b5357/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="6ef31f1555bb4cc513ec8d52711365a8b89f3600">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_bd05cea8c39fec60837abc77d10247ff90deefe2/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/.android/build-cache/7520227e69f42fd1b3e37ff86631ae38cf44f397/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="da27a32db6af8954ee8061537c7d476fcb1df46f">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_026aa3e245bc135f3e6d78ed172182f62ca31c96/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
         jar="/home/marco/.gradle/caches/modules-2/files-2.1/de.greenrobot/greendao/1.3.7/dda08161d004c4df96938da6909f1c2b96cd33c8/greendao-1.3.7.jar"
         jumboMode="true"
         optimize="false"
@@ -39,11 +75,20 @@
     </item>
     <item
         is-multidex="true"
+        jar="/home/marco/.android/build-cache/c0731a2d1bba69ff095a3bfac21df38b38b387d2/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="45f697922e6f072daa12f8a2995dc77ab03c11da">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_0be5d93fe254a993ad9427f0db3c7182ae3e2422/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
         jar="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
         jumboMode="true"
         optimize="true"
         revision="25.0.2"
-        sha1="53cb4a17c5d4c95f850e380ef5abdec49b36d8d5">
+        sha1="510aa6efc159983dfbffa676a0dae37568c0a46f">
         <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run_e2783089bfcda754ab205e78ce5f73068e9d387a/classes.dex" />
     </item>
     <item
@@ -57,6 +102,15 @@
     </item>
     <item
         is-multidex="true"
+        jar="/home/marco/.android/build-cache/553a8b5206b4eb47c13d7d1c4e8795bbcc2d2802/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="d4cf6227dd6a2ceff0f7dcf0c324380b7abf2c28">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_c8cbc41e5d28298c9139f0396f3d73b9bd380d0b/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
         jar="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/libs/libGoogleAnalyticsServices.jar"
         jumboMode="false"
         optimize="true"
@@ -66,12 +120,39 @@
     </item>
     <item
         is-multidex="true"
+        jar="/home/marco/.android/build-cache/e370dd4039e465d9b0b4726d812107b227e7e37a/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="4a26a1154d053ab11aaf4c3967c42a4d66390991">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_67d3281b6b523294ff7c043171b7e83f8b6eca29/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
         jar="/home/marco/.gradle/caches/modules-2/files-2.1/de.greenrobot/greendao/1.3.7/dda08161d004c4df96938da6909f1c2b96cd33c8/greendao-1.3.7.jar"
         jumboMode="false"
         optimize="true"
         revision="25.0.2"
         sha1="dda08161d004c4df96938da6909f1c2b96cd33c8">
         <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/greendao-1.3.7_de3cd6c355f866b005d3e3c114ffd6f0bdd94765/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/Android/Sdk/extras/android/m2repository/com/android/support/support-annotations/25.3.1/support-annotations-25.3.1.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="bf8841d29fa39e077730e7a91222c2ce269fa7c9">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/support-annotations-25.3.1_6d1c499151eb1d79b5490208a3e7de17543dc491/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/.android/build-cache/3058fdebb10cc6f81f65585049fad7e3b7c069c2/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="95519720620b553f63afc789beba9ad582807f7c">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_24ea53e153d92c0f91f22bda84f710ece9ca8f99/classes.dex" />
     </item>
     <item
         is-multidex="true"
@@ -90,6 +171,15 @@
         revision="25.0.2"
         sha1="dda08161d004c4df96938da6909f1c2b96cd33c8">
         <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/greendao-1.3.7_de3cd6c355f866b005d3e3c114ffd6f0bdd94765/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/.android/build-cache/c9516b07c22eb10cb2c6ade75af6f0ca6f55716a/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="150252b33b00274cc868578ade018fda0d43a3eb">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_57426eaf61ece0be4b6c27623518e613ec48a4c4/classes.dex" />
     </item>
     <item
         is-multidex="true"
@@ -108,6 +198,33 @@
         revision="25.0.2"
         sha1="ac6948cce36f694f3eb3d73a135e298dc4b3527a">
         <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_ed6cfcc90e99776282107569e4aa0db5b3038ffc/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/.android/build-cache/6eff33593cd81ce5c71f9fcb2f69fdcffc100135/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="efb8cb62d47d157c29d1521daac7eefd4cb881ee">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_1e82fcabeffa7594c6dbf091684a7e02bd9c0f12/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/.android/build-cache/cebebf23e09eb67894124e509b22ddac9f58c002/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="47635644d0d5c103c1dd8360549eb9ba3225c7d3">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_1572824b36c46d4e5bd612264176b620b110ef30/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/marco/.android/build-cache/2dea21a593275c831341d6e45db6815f480f5253/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="38789e20ace9ab7dbd00554bd2673ab424478d3b">
+        <dex dex="/home/marco/workspace/AndroidStudioProjects/CatchIt/catchit/build/intermediates/transforms/dex/debug/folders/1000/10/classes_82eafd97d9ac92e9d83446908ae66a73ceb43d57/classes.dex" />
     </item>
 
 </items>
