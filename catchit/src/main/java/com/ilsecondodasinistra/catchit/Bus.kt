@@ -10,11 +10,8 @@ import android.os.Parcelable
 
 class Bus(var departure: Date?, lineNumber: String, var departureStop: String?, var arrivalStop: String?, var arrival: Date?) : Serializable {
     var line: String = ""
-        private set
     var color: Int = 0
-        private set
     var textColor: Int = 0
-        private set
     var toBePutLast: Boolean = false
     private val dateFormatter = SimpleDateFormat("H:mm")
     private val dateFormatterForComparison = SimpleDateFormat("kk:mm")

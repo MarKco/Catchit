@@ -57,7 +57,6 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'de.hdodenhof:circleimageview:1.3.0'
     compile 'com.android.support:design:26.1.0'
-    compile 'de.greenrobot:greendao:1.3.7'
 //     compile files('libs/libGoogleAnalyticsServices.jar')
     compile 'com.readystatesoftware.sqliteasset:sqliteassethelper:+'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"

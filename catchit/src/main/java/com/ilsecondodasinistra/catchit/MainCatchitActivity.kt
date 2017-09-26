@@ -255,8 +255,8 @@ class MainCatchitActivity : AppCompatActivity() {
         //        cal.set(Calendar.MILLISECOND, 00);
         //        now.setTime(cal.getTimeInMillis());
 
-        val position = fList!!.indexOf(fragment)
-        if (fList!!.contains(fragment)) {
+        val position = fList.indexOf(fragment)
+        if (fList.contains(fragment)) {
             reloadSingleFragmentData(position, true)    //This is called when the user swipes down the list for refreshing, so we force refresh!
         }
 
@@ -264,7 +264,7 @@ class MainCatchitActivity : AppCompatActivity() {
          * After having reloaded "the important one", we reload the others as well
          */
         Thread(Runnable {
-            for (i in fList!!.indices) {
+            for (i in fList.indices) {
                 if (i != position)
                     reloadSingleFragmentData(i, true)
             }
@@ -300,9 +300,9 @@ class MainCatchitActivity : AppCompatActivity() {
             }
 
             when (position) {
-                0 -> if (forceRefresh || !(fList!![position] as MainFragment).isPopulated) {
+                0 -> if (forceRefresh || !(fList[position] as MainFragment).isPopulated) {
                     val busPopulateThread = Thread(Runnable {
-                        if (forceRefresh || tramToVeniceTimes == null || tramToVeniceTimes!!.size == 0) {
+                        if (forceRefresh || tramToVeniceTimes == null || tramToVeniceTimes.size == 0) {
                             var dayForThisQuery: String
                             var yesterdayForThisQuery: String
 
@@ -316,22 +316,22 @@ class MainCatchitActivity : AppCompatActivity() {
                                     yesterdayForThisQuery = dayForQuery
                                 }
 
-                                tramToVeniceTimes!!.addAll(DatabaseHelper.getTramAndBusesToVenice(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                                tramToVeniceTimes.addAll(DatabaseHelper.getTramAndBusesToVenice(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                             }
                         }
 
-                        (fList!![position] as MainFragment).populate(tramToVeniceTimes, forceRefresh)
+                        (fList[position] as MainFragment).populate(tramToVeniceTimes, forceRefresh)
                         prefetchTimes(position + 1)
-                        (fList!![position] as MainFragment).setRefresingForFragment(false)
+                        (fList[position] as MainFragment).setRefresingForFragment(false)
                     })
                     busPopulateThread.run()
                 } else {
-                    (fList!![position] as MainFragment).show()
-                    (fList!![position] as MainFragment).setRefresingForFragment(false)
+                    (fList[position] as MainFragment).show()
+                    (fList[position] as MainFragment).setRefresingForFragment(false)
                 }
-                1 -> if (forceRefresh || !(fList!![position] as MainFragment).isPopulated) {
+                1 -> if (forceRefresh || !(fList[position] as MainFragment).isPopulated) {
                     val busPopulateThread = Thread(Runnable {
-                        if (forceRefresh || tramToMestreTimes == null || tramToMestreTimes!!.size == 0) {
+                        if (forceRefresh || tramToMestreTimes == null || tramToMestreTimes.size == 0) {
                             var dayForThisQuery: String
                             var yesterdayForThisQuery: String
 
@@ -345,21 +345,21 @@ class MainCatchitActivity : AppCompatActivity() {
                                     yesterdayForThisQuery = dayForQuery
                                 }
 
-                                tramToMestreTimes!!.addAll(DatabaseHelper.getTramAndBusesFromVenice(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                                tramToMestreTimes.addAll(DatabaseHelper.getTramAndBusesFromVenice(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                             }
                         }
-                        (fList!![position] as MainFragment).populate(tramToMestreTimes, forceRefresh)
+                        (fList[position] as MainFragment).populate(tramToMestreTimes, forceRefresh)
                         prefetchTimes(position + 1)
-                        (fList!![position] as MainFragment).setRefresingForFragment(false)
+                        (fList[position] as MainFragment).setRefresingForFragment(false)
                     })
                     busPopulateThread.run()
                 } else {
-                    (fList!![position] as MainFragment).show()
-                    (fList!![position] as MainFragment).setRefresingForFragment(false)
+                    (fList[position] as MainFragment).show()
+                    (fList[position] as MainFragment).setRefresingForFragment(false)
                 }
-                2 -> if (forceRefresh || !(fList!![position] as MainFragment).isPopulated) {
+                2 -> if (forceRefresh || !(fList[position] as MainFragment).isPopulated) {
                     val busPopulateThread = Thread(Runnable {
-                        if (forceRefresh || tramToStationTimes == null || tramToStationTimes!!.size == 0) {
+                        if (forceRefresh || tramToStationTimes == null || tramToStationTimes.size == 0) {
                             var dayForThisQuery: String
                             var yesterdayForThisQuery: String
 
@@ -373,22 +373,22 @@ class MainCatchitActivity : AppCompatActivity() {
                                     yesterdayForThisQuery = dayForQuery
                                 }
 
-                                tramToStationTimes!!.addAll(DatabaseHelper.getTramToStation(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                                tramToStationTimes.addAll(DatabaseHelper.getTramToStation(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                             }
                         }
-                        (fList!![position] as MainFragment).populate(tramToStationTimes, forceRefresh)
+                        (fList[position] as MainFragment).populate(tramToStationTimes, forceRefresh)
                         prefetchTimes(position + 1)
-                        (fList!![position] as MainFragment).setRefresingForFragment(false)
+                        (fList[position] as MainFragment).setRefresingForFragment(false)
                     })
                     busPopulateThread.run()
                 } else {
-                    (fList!![position] as MainFragment).show()
-                    (fList!![position] as MainFragment).setRefresingForFragment(false)
+                    (fList[position] as MainFragment).show()
+                    (fList[position] as MainFragment).setRefresingForFragment(false)
                 }
-                3 -> if (forceRefresh || !(fList!![position] as MainFragment).isPopulated) {
+                3 -> if (forceRefresh || !(fList[position] as MainFragment).isPopulated) {
                     val busPopulateThread = Thread(object : Runnable {
                         override fun run() {
-                            if (forceRefresh || tramToMestreCityCenterTimes == null || tramToMestreCityCenterTimes!!.size == 0) {
+                            if (forceRefresh || tramToMestreCityCenterTimes == null || tramToMestreCityCenterTimes.size == 0) {
                                 var dayForThisQuery: String
                                 var yesterdayForThisQuery: String
 
@@ -401,22 +401,22 @@ class MainCatchitActivity : AppCompatActivity() {
                                         dayForThisQuery = tomorrowForQuery //And remote buses tomorrow
                                         yesterdayForThisQuery = dayForQuery
                                     }
-                                    run({ tramToMestreCityCenterTimes!!.addAll(DatabaseHelper.getTramFromStation(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery)) })
+                                    run({ tramToMestreCityCenterTimes.addAll(DatabaseHelper.getTramFromStation(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery)) })
                                 }
                             }
-                            (fList!![position] as MainFragment).populate(tramToMestreCityCenterTimes, forceRefresh)
+                            (fList[position] as MainFragment).populate(tramToMestreCityCenterTimes, forceRefresh)
                             prefetchTimes(position + 1)
-                            (fList!![position] as MainFragment).setRefresingForFragment(false)
+                            (fList[position] as MainFragment).setRefresingForFragment(false)
                         }
                     })
                     busPopulateThread.run()
                 } else {
-                    (fList!![position] as MainFragment).show()
-                    (fList!![position] as MainFragment).setRefresingForFragment(false)
+                    (fList[position] as MainFragment).show()
+                    (fList[position] as MainFragment).setRefresingForFragment(false)
                 }
-                4 -> if (forceRefresh || !(fList!![position] as MainFragment).isPopulated) {
+                4 -> if (forceRefresh || !(fList[position] as MainFragment).isPopulated) {
                     val busPopulateThread = Thread(Runnable {
-                        if (forceRefresh || tramCentroSansovinoTimes == null || tramCentroSansovinoTimes!!.size == 0) {
+                        if (forceRefresh || tramCentroSansovinoTimes == null || tramCentroSansovinoTimes.size == 0) {
                             var dayForThisQuery: String
                             var yesterdayForThisQuery: String
 
@@ -429,22 +429,22 @@ class MainCatchitActivity : AppCompatActivity() {
                                     dayForThisQuery = tomorrowForQuery //And remote buses tomorrow
                                     yesterdayForThisQuery = dayForQuery
                                 }
-                                tramCentroSansovinoTimes!!.addAll(DatabaseHelper.getCenterToSansovino(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                                tramCentroSansovinoTimes.addAll(DatabaseHelper.getCenterToSansovino(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                             }
                         }
-                        (fList!![position] as MainFragment).populate(tramCentroSansovinoTimes, forceRefresh)
+                        (fList[position] as MainFragment).populate(tramCentroSansovinoTimes, forceRefresh)
                         prefetchTimes(position + 1)
-                        (fList!![position] as MainFragment).setRefresingForFragment(false)
+                        (fList[position] as MainFragment).setRefresingForFragment(false)
                     })
                     busPopulateThread.run()
                 } else {
-                    (fList!![position] as MainFragment).show()
-                    (fList!![position] as MainFragment).setRefresingForFragment(false)
+                    (fList[position] as MainFragment).show()
+                    (fList[position] as MainFragment).setRefresingForFragment(false)
                 }
-                5 -> if (forceRefresh || !(fList!![position] as MainFragment).isPopulated) {
+                5 -> if (forceRefresh || !(fList[position] as MainFragment).isPopulated) {
                     val busPopulateThread = Thread(object : Runnable {
                         override fun run() {
-                            if (forceRefresh || tramSansovinoCentroTimes == null || tramSansovinoCentroTimes!!.size == 0) {
+                            if (forceRefresh || tramSansovinoCentroTimes == null || tramSansovinoCentroTimes.size == 0) {
                                 var dayForThisQuery: String
                                 var yesterdayForThisQuery: String
 
@@ -457,22 +457,22 @@ class MainCatchitActivity : AppCompatActivity() {
                                         dayForThisQuery = tomorrowForQuery //And remote buses tomorrow
                                         yesterdayForThisQuery = dayForQuery
                                     }
-                                    run({ tramSansovinoCentroTimes!!.addAll(DatabaseHelper.getSansovinoToCenter(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery)) })
+                                    run({ tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToCenter(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery)) })
                                 }
                             }
-                            (fList!![position] as MainFragment).populate(tramSansovinoCentroTimes, forceRefresh)
-                            (fList!![position] as MainFragment).setRefresingForFragment(false)
+                            (fList[position] as MainFragment).populate(tramSansovinoCentroTimes, forceRefresh)
+                            (fList[position] as MainFragment).setRefresingForFragment(false)
                         }
                     })
                     busPopulateThread.run()
                 } else {
-                    (fList!![position] as MainFragment).show()
-                    (fList!![position] as MainFragment).setRefresingForFragment(false)
+                    (fList[position] as MainFragment).show()
+                    (fList[position] as MainFragment).setRefresingForFragment(false)
                 }
-                6 -> if (forceRefresh || !(fList!![position] as MainFragment).isPopulated) {
+                6 -> if (forceRefresh || !(fList[position] as MainFragment).isPopulated) {
                     val busPopulateThread = Thread(object : Runnable {
                         override fun run() {
-                            if (forceRefresh || busHermadaToStationTimes == null || busHermadaToStationTimes!!.size == 0) {
+                            if (forceRefresh || busHermadaToStationTimes == null || busHermadaToStationTimes.size == 0) {
                                 var dayForThisQuery: String
                                 var yesterdayForThisQuery: String
 
@@ -485,22 +485,22 @@ class MainCatchitActivity : AppCompatActivity() {
                                         dayForThisQuery = tomorrowForQuery //And remote buses tomorrow
                                         yesterdayForThisQuery = dayForQuery
                                     }
-                                    run({ busHermadaToStationTimes!!.addAll(DatabaseHelper.getHermadaToStation(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery)) })
+                                    run({ busHermadaToStationTimes.addAll(DatabaseHelper.getHermadaToStation(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery)) })
                                 }
                             }
-                            (fList!![position] as MainFragment).populate(busHermadaToStationTimes, forceRefresh)
-                            (fList!![position] as MainFragment).setRefresingForFragment(false)
+                            (fList[position] as MainFragment).populate(busHermadaToStationTimes, forceRefresh)
+                            (fList[position] as MainFragment).setRefresingForFragment(false)
                         }
                     })
                     busPopulateThread.run()
                 } else {
-                    (fList!![position] as MainFragment).show()
-                    (fList!![position] as MainFragment).setRefresingForFragment(false)
+                    (fList[position] as MainFragment).show()
+                    (fList[position] as MainFragment).setRefresingForFragment(false)
                 }
-                7 -> if (forceRefresh || !(fList!![position] as MainFragment).isPopulated) {
+                7 -> if (forceRefresh || !(fList[position] as MainFragment).isPopulated) {
                     val busPopulateThread = Thread(object : Runnable {
                         override fun run() {
-                            if (forceRefresh || busStationToHermadaTimes == null || busStationToHermadaTimes!!.size == 0) {
+                            if (forceRefresh || busStationToHermadaTimes == null || busStationToHermadaTimes.size == 0) {
                                 var dayForThisQuery: String
                                 var yesterdayForThisQuery: String
 
@@ -513,22 +513,22 @@ class MainCatchitActivity : AppCompatActivity() {
                                         dayForThisQuery = tomorrowForQuery //And remote buses tomorrow
                                         yesterdayForThisQuery = dayForQuery
                                     }
-                                    run({ busStationToHermadaTimes!!.addAll(DatabaseHelper.getStationToHermada(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery)) })
+                                    run({ busStationToHermadaTimes.addAll(DatabaseHelper.getStationToHermada(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery)) })
                                 }
                             }
-                            (fList!![position] as MainFragment).populate(busStationToHermadaTimes, forceRefresh)
-                            (fList!![position] as MainFragment).setRefresingForFragment(false)
+                            (fList[position] as MainFragment).populate(busStationToHermadaTimes, forceRefresh)
+                            (fList[position] as MainFragment).setRefresingForFragment(false)
                         }
                     })
                     busPopulateThread.run()
                 } else {
-                    (fList!![position] as MainFragment).show()
-                    (fList!![position] as MainFragment).setRefresingForFragment(false)
+                    (fList[position] as MainFragment).show()
+                    (fList[position] as MainFragment).setRefresingForFragment(false)
                 }
-                8 -> if (forceRefresh || !(fList!![position] as MainFragment).isPopulated) {
+                8 -> if (forceRefresh || !(fList[position] as MainFragment).isPopulated) {
                     val busPopulateThread = Thread(object : Runnable {
                         override fun run() {
-                            if (forceRefresh || busHermadaToAirport == null || busHermadaToAirport!!.size == 0) {
+                            if (forceRefresh || busHermadaToAirport == null || busHermadaToAirport.size == 0) {
                                 var dayForThisQuery: String
                                 var yesterdayForThisQuery: String
 
@@ -541,22 +541,22 @@ class MainCatchitActivity : AppCompatActivity() {
                                         dayForThisQuery = tomorrowForQuery //And remote buses tomorrow
                                         yesterdayForThisQuery = dayForQuery
                                     }
-                                    run({ busHermadaToAirport!!.addAll(DatabaseHelper.getHermadaToAirport(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery)) })
+                                    run({ busHermadaToAirport.addAll(DatabaseHelper.getHermadaToAirport(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery)) })
                                 }
                             }
-                            (fList!![position] as MainFragment).populate(busHermadaToAirport, forceRefresh)
-                            (fList!![position] as MainFragment).setRefresingForFragment(false)
+                            (fList[position] as MainFragment).populate(busHermadaToAirport, forceRefresh)
+                            (fList[position] as MainFragment).setRefresingForFragment(false)
                         }
                     })
                     busPopulateThread.run()
                 } else {
-                    (fList!![position] as MainFragment).show()
-                    (fList!![position] as MainFragment).setRefresingForFragment(false)
+                    (fList[position] as MainFragment).show()
+                    (fList[position] as MainFragment).setRefresingForFragment(false)
                 }
-                9 -> if (forceRefresh || !(fList!![position] as MainFragment).isPopulated) {
+                9 -> if (forceRefresh || !(fList[position] as MainFragment).isPopulated) {
                     val busPopulateThread = Thread(object : Runnable {
                         override fun run() {
-                            if (forceRefresh || busAirportToHermada == null || busAirportToHermada!!.size == 0) {
+                            if (forceRefresh || busAirportToHermada == null || busAirportToHermada.size == 0) {
                                 var dayForThisQuery: String
                                 var yesterdayForThisQuery: String
 
@@ -569,17 +569,17 @@ class MainCatchitActivity : AppCompatActivity() {
                                         dayForThisQuery = tomorrowForQuery //And remote buses tomorrow
                                         yesterdayForThisQuery = dayForQuery
                                     }
-                                    run({ busAirportToHermada!!.addAll(DatabaseHelper.getAirportToHermada(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery)) })
+                                    run({ busAirportToHermada.addAll(DatabaseHelper.getAirportToHermada(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery)) })
                                 }
                             }
-                            (fList!![position] as MainFragment).populate(busAirportToHermada, forceRefresh)
-                            (fList!![position] as MainFragment).setRefresingForFragment(false)
+                            (fList[position] as MainFragment).populate(busAirportToHermada, forceRefresh)
+                            (fList[position] as MainFragment).setRefresingForFragment(false)
                         }
                     })
                     busPopulateThread.run()
                 } else {
-                    (fList!![position] as MainFragment).show()
-                    (fList!![position] as MainFragment).setRefresingForFragment(false)
+                    (fList[position] as MainFragment).show()
+                    (fList[position] as MainFragment).setRefresingForFragment(false)
                 }
             }
         } catch (e: NullPointerException) {
@@ -615,7 +615,7 @@ class MainCatchitActivity : AppCompatActivity() {
                         yesterdayForThisQuery = dayForQuery
                     }
 
-                    tramToVeniceTimes!!.addAll(DatabaseHelper.getTramAndBusesToVenice(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                    tramToVeniceTimes.addAll(DatabaseHelper.getTramAndBusesToVenice(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                 }
             }).run()
             1 -> Thread(Runnable {
@@ -632,7 +632,7 @@ class MainCatchitActivity : AppCompatActivity() {
                         yesterdayForThisQuery = dayForQuery
                     }
 
-                    tramToMestreTimes!!.addAll(DatabaseHelper.getTramAndBusesFromVenice(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                    tramToMestreTimes.addAll(DatabaseHelper.getTramAndBusesFromVenice(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                 }
             }).run()
             2 -> Thread(Runnable {
@@ -649,7 +649,7 @@ class MainCatchitActivity : AppCompatActivity() {
                         yesterdayForThisQuery = dayForQuery
                     }
 
-                    tramToStationTimes!!.addAll(DatabaseHelper.getTramToStation(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                    tramToStationTimes.addAll(DatabaseHelper.getTramToStation(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                 }
             }).run()
             3 -> Thread(Runnable {
@@ -666,7 +666,7 @@ class MainCatchitActivity : AppCompatActivity() {
                         yesterdayForThisQuery = dayForQuery
                     }
 
-                    tramToMestreCityCenterTimes!!.addAll(DatabaseHelper.getTramFromStation(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                    tramToMestreCityCenterTimes.addAll(DatabaseHelper.getTramFromStation(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                 }
             }).run()
             4 -> Thread(Runnable {
@@ -683,7 +683,7 @@ class MainCatchitActivity : AppCompatActivity() {
                         yesterdayForThisQuery = dayForQuery
                     }
 
-                    tramCentroSansovinoTimes!!.addAll(DatabaseHelper.getCenterToSansovino(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                    tramCentroSansovinoTimes.addAll(DatabaseHelper.getCenterToSansovino(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                 }
             }).run()
             5 -> Thread(Runnable {
@@ -700,7 +700,7 @@ class MainCatchitActivity : AppCompatActivity() {
                         yesterdayForThisQuery = dayForQuery
                     }
 
-                    tramSansovinoCentroTimes!!.addAll(DatabaseHelper.getSansovinoToCenter(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                    tramSansovinoCentroTimes.addAll(DatabaseHelper.getSansovinoToCenter(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                 }
             }).run()
             6 -> Thread(Runnable {
@@ -717,7 +717,7 @@ class MainCatchitActivity : AppCompatActivity() {
                         yesterdayForThisQuery = dayForQuery
                     }
 
-                    busHermadaToStationTimes!!.addAll(DatabaseHelper.getHermadaToStation(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                    busHermadaToStationTimes.addAll(DatabaseHelper.getHermadaToStation(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                 }
             }).run()
             7 -> Thread(Runnable {
@@ -734,7 +734,7 @@ class MainCatchitActivity : AppCompatActivity() {
                         yesterdayForThisQuery = dayForQuery
                     }
 
-                    busStationToHermadaTimes!!.addAll(DatabaseHelper.getStationToHermada(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                    busStationToHermadaTimes.addAll(DatabaseHelper.getStationToHermada(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                 }
             }).run()
             8 -> Thread(Runnable {
@@ -751,7 +751,7 @@ class MainCatchitActivity : AppCompatActivity() {
                         yesterdayForThisQuery = dayForQuery
                     }
 
-                    busHermadaToAirport!!.addAll(DatabaseHelper.getHermadaToAirport(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                    busHermadaToAirport.addAll(DatabaseHelper.getHermadaToAirport(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                 }
             }).run()
             9 -> Thread(Runnable {
@@ -768,7 +768,7 @@ class MainCatchitActivity : AppCompatActivity() {
                         yesterdayForThisQuery = dayForQuery
                     }
 
-                    busAirportToHermada!!.addAll(DatabaseHelper.getAirportToHermada(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
+                    busAirportToHermada.addAll(DatabaseHelper.getAirportToHermada(applicationContext, yesterdayForThisQuery, now, operator, dayForThisQuery))
                 }
             }).run()
         }
@@ -796,14 +796,14 @@ class MainCatchitActivity : AppCompatActivity() {
     private val fragments: List<Fragment>
         get() {
 
-            if (fList == null || fList!!.size == 0) {
+            if (fList == null || fList.size == 0) {
                 for (position in 1..10) {
                     val args = Bundle()
                     val thisFragment = MainFragment()
                     args.putInt(POSITION, position)
                     thisFragment.arguments = args
                     thisFragment.retainInstance = true
-                    fList!!.add(thisFragment)
+                    fList.add(thisFragment)
                 }
             }
 
