@@ -17,19 +17,19 @@ import java.util.List;
 
 public class DatabaseHelper {
 
-    public static String routeForT1MestreVe = "807, 808";
-    public static String routeForT1VeMestre = "809, 810";
-    public static String routeForT2MestreMa = "856";
-    public static String routeForT2MaMestre = "857, 858";
+    public static String routeForT1MestreVe = "732, 733";
+    public static String routeForT1VeMestre = "734, 735";
+    public static String routeForT2MestreMa = "781";
+    public static String routeForT2MaMestre = "782, 783";
 
-    public static String routeForN1 = "787";
-    public static String routeForN2 = "788";
+    public static String routeForN1 = "712, 713";
+    public static String routeForN2 = "714";
 
-    public static String routeFor12MestreVe = "611";
-    public static String routeFor12VeMestre = "620";
+    public static String routeFor12MestreVe = "534";
+    public static String routeFor12VeMestre = "533";
 
-    public static String routeFor15AirportStation = "626, 627";
-    public static String routeFor15StationAirport = "628, 629";
+    public static String routeFor15AirportStation = "549, 550";
+    public static String routeFor15StationAirport = "551, 552";
 
     public static String departingSansovino = "6061";
     public static String returningSansovino = "6062";
