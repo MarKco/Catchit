@@ -1,74 +1,69 @@
-package com.ilsecondodasinistra.catchit;
+package com.ilsecondodasinistra.catchit
 
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
+import android.content.Context
+import android.database.Cursor
+import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.LinkedList
 
 /**
  * Created by marco on 17/01/17.
  */
 
-public class DatabaseHelper {
+object DatabaseHelper {
 
-    public static String routeForT1MestreVe = "732, 733";
-    public static String routeForT1VeMestre = "734, 735";
-    public static String routeForT2MestreMa = "781";
-    public static String routeForT2MaMestre = "782, 783";
+    val routeForT1MestreVe = "732, 733"
+    val routeForT1VeMestre = "734, 735"
+    val routeForT2MestreMa = "781"
+    val routeForT2MaMestre = "782, 783"
 
-    public static String routeForN1 = "712, 713";
-    public static String routeForN2 = "714";
+    val routeForN1 = "712, 713"
+    val routeForN2 = "714"
 
-    public static String routeFor12MestreVe = "534";
-    public static String routeFor12VeMestre = "533";
+    val routeFor12MestreVe = "534"
+    val routeFor12VeMestre = "533"
 
-    public static String routeFor15AirportStation = "549, 550";
-    public static String routeFor15StationAirport = "551, 552";
+    val routeFor15AirportStation = "549, 550"
+    val routeFor15StationAirport = "551, 552"
 
-    public static String departingSansovino = "6061";
-    public static String returningSansovino = "6062";
-    public static String sansovinoForN = departingSansovino + ", " + returningSansovino;
-    public static String veniceStops = "510, 6084";
-    public static String veniceStopsFor12 = "501";
-    public static String cialdini = "6080, 6027, 6081";
-    public static String stazioneMestre = "6074, 6073";
-    public static String stazioneMestreFor15 = "613";
-    public static String viaHermadaStreetSide = "172";
-    public static String viaHermadaCanalSide = "1172";
-    public static String airport = "3626";
+    val departingSansovino = "6061"
+    val returningSansovino = "6062"
+    val sansovinoForN = departingSansovino + ", " + returningSansovino
+    val veniceStops = "510, 6084"
+    val veniceStopsFor12 = "501"
+    val cialdini = "6080, 6027, 6081"
+    val stazioneMestre = "6074, 6073"
+    val stazioneMestreFor15 = "613"
+    val viaHermadaStreetSide = "172"
+    val viaHermadaCanalSide = "1172"
+    val airport = "3626"
 
-    static SimpleDateFormat databaseHourFormatter = new SimpleDateFormat("HH:mm:ss"); //DateFormatter four hours.minutes.seconds
-    static private SimpleDateFormat dateFormatter = new SimpleDateFormat("HH:mm:ss"); //DateFormatter four hours.minutes.seconds
+    internal var databaseHourFormatter = SimpleDateFormat("HH:mm:ss") //DateFormatter four hours.minutes.seconds
+    private val dateFormatter = SimpleDateFormat("HH:mm:ss") //DateFormatter four hours.minutes.seconds
 
-    static SQLiteDatabase db;
+    lateinit var db: SQLiteDatabase
 
-    private static SQLiteDatabase openDatabase(Context context) {
-        MyDatabase dbHelper = new MyDatabase(context);
-        dbHelper.setForcedUpgrade();
-        return dbHelper.getWritableDatabase();
+    private fun openDatabase(context: Context): SQLiteDatabase {
+        val dbHelper = MyDatabase(context)
+        dbHelper.setForcedUpgrade()
+        return dbHelper.writableDatabase
     }
 
-    public static SQLiteDatabase getDb() {
-        return db;
+    private fun closeDatabase(db: SQLiteDatabase) {
+        db.close()
     }
 
-    private static void closeDatabase(SQLiteDatabase db) {
-        db.close();
-    }
+    fun getTramAndBusesToVenice(context: Context, yesterdayForQuery: String, now: Date, operator: String, dayForThisQuery: String): List<Bus> {
 
-    public static List<Bus> getTramAndBusesToVenice(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+        db = openDatabase(context)
 
-        db = openDatabase(context);
+        val tramToVeniceTimes = LinkedList<Bus>()
 
-        List<Bus> tramToVeniceTimes = new LinkedList<>();
-
-        String tramToVenice = "SELECT t.trip_id,\n" +
+        val tramToVenice = "SELECT t.trip_id,\n" +
                 "       start_s.stop_name as departure_stop,\n" +
                 "\t   start_s.stop_id as departure_stop_id,\n" +
                 "       start_st.departure_time as departure_time,\n" +
@@ -86,7 +81,8 @@ public class DatabaseHelper {
                 "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
                 "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
                 "WHERE " + dayForThisQuery + " = 1\n" +
-                "  and r.route_id in (" + routeForT1MestreVe + ", " + routeFor12MestreVe + ")\n" +      //For ordinary buses
+                "  and r.route_id in (" + routeForT1MestreVe + ", " + routeFor12MestreVe + ")\n" + //For ordinary buses
+
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id = " + departingSansovino + "\n" +
                 "  and end_s.stop_id in (" + veniceStops + ", " + veniceStopsFor12 + ")\n" +
@@ -111,8 +107,10 @@ public class DatabaseHelper {
                 "WHERE " + dayForThisQuery + " = 1\n" +
                 "  and r.route_id in (" + routeForN1 + ", " + routeForN2 + ")\n" +
                 "  and departure_stop_id in (" + sansovinoForN + ")\n" + //For night buses
+
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
-                "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" +   //Needed only because N1 and N2 are circular, so you could get paradoxical results
+                "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" + //Needed only because N1 and N2 are circular, so you could get paradoxical results
+
                 "  and end_s.stop_id in (" + veniceStops + ")\n" +
                 "  and end_st.late_night IS NULL\n" +
                 " UNION " +
@@ -125,7 +123,7 @@ public class DatabaseHelper {
                 "\t   end_s.stop_id as arrival_stop_id,\n" +
                 "       end_st.arrival_time as arrival_time,\n" +
                 "       r.route_short_name as route_short_name,\n" +
-//                "       end_st.late_night as bus_late_night,\n" +
+                //                "       end_st.late_night as bus_late_night,\n" +
                 "       r.route_long_name as route_long_name\n" +
                 "FROM\n" +
                 "trips t INNER JOIN calendar c ON t.service_id = c.service_id\n" +
@@ -137,52 +135,54 @@ public class DatabaseHelper {
                 "WHERE " + yesterdayForQuery + " = 1\n" +
                 "  and r.route_id in (" + routeForN1 + ", " + routeForN2 + ")\n" +
                 "  and departure_stop_id in (" + sansovinoForN + ")\n" + //For night buses
+
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
-                "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" +   //Needed only because N1 and N2 are circular, so you could get paradoxical results
+                "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" + //Needed only because N1 and N2 are circular, so you could get paradoxical results
+
                 "  and end_s.stop_id in (" + veniceStops + ")\n" +
                 "  and end_st.late_night IS NOT NULL\n" +
-                "order by start_st.departure_time asc";
+                "order by start_st.departure_time asc"
 
-//            if (BuildConfig.DEBUG)
-//                Log.w("TramToVenice", tramToVenice);
+        //            if (BuildConfig.DEBUG)
+        //                Log.w("TramToVenice", tramToVenice);
 
-        Cursor leavingCursor = db.rawQuery(tramToVenice, null);
-        leavingCursor.moveToFirst();
-        if (leavingCursor.getCount() > 0)
+        val leavingCursor = db.rawQuery(tramToVenice, null)
+        leavingCursor.moveToFirst()
+        if (leavingCursor.count > 0)
             try {
                 do {
-                    String departureStop = leavingCursor.getString(leavingCursor.getColumnIndex("departure_stop"));
-                    String departureTime = leavingCursor.getString(leavingCursor.getColumnIndex("departure_time"));
-                    String arrivalStop = leavingCursor.getString(leavingCursor.getColumnIndex("arrival_stop"));
-                    String arrivalTime = leavingCursor.getString(leavingCursor.getColumnIndex("arrival_time"));
-                    String line = leavingCursor.getString(leavingCursor.getColumnIndex("route_short_name"));
+                    val departureStop = leavingCursor.getString(leavingCursor.getColumnIndex("departure_stop"))
+                    val departureTime = leavingCursor.getString(leavingCursor.getColumnIndex("departure_time"))
+                    val arrivalStop = leavingCursor.getString(leavingCursor.getColumnIndex("arrival_stop"))
+                    val arrivalTime = leavingCursor.getString(leavingCursor.getColumnIndex("arrival_time"))
+                    val line = leavingCursor.getString(leavingCursor.getColumnIndex("route_short_name"))
 
-                    tramToVeniceTimes.add(new Bus(dateFormatter.parse(departureTime),
+                    tramToVeniceTimes.add(Bus(dateFormatter.parse(departureTime),
                             line,
                             departureStop,
                             arrivalStop,
                             dateFormatter.parse(arrivalTime)
-                    ));
+                    ))
                     //                    Log.i("Catchit", "Added a new item: " + departureStop + " " + departureTime + " " + line);
 
-                } while (leavingCursor.moveToNext());
-            } catch (ParseException e) {
-                Log.e("Catchit", "Uff, cheppalle");
+                } while (leavingCursor.moveToNext())
+            } catch (e: ParseException) {
+                Log.e("Catchit", "Uff, cheppalle")
             }
 
-        leavingCursor.close();
-        db.close();
+        leavingCursor.close()
+        db.close()
 
-        return tramToVeniceTimes;
+        return tramToVeniceTimes
     }
 
-    public static List<Bus> getTramAndBusesFromVenice(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+    fun getTramAndBusesFromVenice(context: Context, yesterdayForQuery: String, now: Date, operator: String, dayForThisQuery: String): List<Bus> {
 
-        db = openDatabase(context);
+        db = openDatabase(context)
 
-        List<Bus> tramToMestreTimes = new LinkedList<>();
+        val tramToMestreTimes = LinkedList<Bus>()
 
-        String tramFromVenice = "SELECT t.trip_id,\n" +
+        val tramFromVenice = "SELECT t.trip_id,\n" +
                 "       start_s.stop_name as departure_stop,\n" +
                 "       start_s.stop_id as departure_stop_id,\n" +
                 "       start_st.departure_time as departure_time,\n" +
@@ -200,7 +200,8 @@ public class DatabaseHelper {
                 "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
                 "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
                 "WHERE " + dayForThisQuery + " = 1\n" +
-                "  and r.route_id in (" + routeForT1VeMestre + ", " + routeFor12VeMestre + ")\n" +      //For ordinary buses
+                "  and r.route_id in (" + routeForT1VeMestre + ", " + routeFor12VeMestre + ")\n" + //For ordinary buses
+
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id in (" + veniceStops + ", " + veniceStopsFor12 + ")\n" +
                 "  and end_s.stop_id = " + returningSansovino + "\n" +
@@ -223,10 +224,12 @@ public class DatabaseHelper {
                 "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
                 "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
                 "WHERE " + dayForThisQuery + " = 1\n" +
-                "  and r.route_id in (" + routeForN1 + ", " + routeForN2 + ")\n" +   //For night buses
+                "  and r.route_id in (" + routeForN1 + ", " + routeForN2 + ")\n" + //For night buses
+
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id in (" + veniceStops + ")\n" +
-                "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" +   //Needed only because N1 and N2 are circular, so you could get paradoxical results
+                "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" + //Needed only because N1 and N2 are circular, so you could get paradoxical results
+
                 "  and end_s.stop_id in (" + sansovinoForN + ")\n" +
                 "  and end_st.late_night IS NULL\n" +
                 " UNION " +
@@ -239,7 +242,7 @@ public class DatabaseHelper {
                 "\t   end_s.stop_id as arrival_stop_id,\n" +
                 "       end_st.arrival_time as arrival_time,\n" +
                 "       r.route_short_name as route_short_name,\n" +
-//                "       end_st.late_night as bus_late_night,\n" +
+                //                "       end_st.late_night as bus_late_night,\n" +
                 "       r.route_long_name as route_long_name\n" +
                 "FROM\n" +
                 "trips t INNER JOIN calendar c ON t.service_id = c.service_id\n" +
@@ -251,52 +254,54 @@ public class DatabaseHelper {
                 "WHERE " + yesterdayForQuery + " = 1\n" +
                 "  and r.route_id in (" + routeForN1 + ", " + routeForN2 + ")\n" +
                 "  and departure_stop_id in (" + veniceStops + ")\n" + //For night buses
+
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
-                "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" +   //Needed only because N1 and N2 are circular, so you could get paradoxical results
+                "  and DATETIME(start_st.departure_time) < DATETIME(end_st.arrival_time)\n" + //Needed only because N1 and N2 are circular, so you could get paradoxical results
+
                 "  and end_s.stop_id in (" + sansovinoForN + ")\n" +
                 "  and end_st.late_night IS NOT NULL\n" +
-                "order by start_st.departure_time asc";
+                "order by start_st.departure_time asc"
 
-//                    if(BuildConfig.DEBUG)
-//                        Log.w("TramFromVenice", tramFromVenice);
+        //                    if(BuildConfig.DEBUG)
+        //                        Log.w("TramFromVenice", tramFromVenice);
 
-            Cursor comingCursor = db.rawQuery(tramFromVenice, null);
-            comingCursor.moveToFirst();
-            if (comingCursor.getCount() > 0)
-                try {
-                    do {
-                        String departureStop = comingCursor.getString(comingCursor.getColumnIndex("departure_stop"));
-                        String departureTime = comingCursor.getString(comingCursor.getColumnIndex("departure_time"));
-                        String arrivalTime = comingCursor.getString(comingCursor.getColumnIndex("arrival_time"));
-                        String arrivalStop = comingCursor.getString(comingCursor.getColumnIndex("arrival_stop"));
-                        String line = comingCursor.getString(comingCursor.getColumnIndex("short_name"));
+        val comingCursor = db.rawQuery(tramFromVenice, null)
+        comingCursor.moveToFirst()
+        if (comingCursor.count > 0)
+            try {
+                do {
+                    val departureStop = comingCursor.getString(comingCursor.getColumnIndex("departure_stop"))
+                    val departureTime = comingCursor.getString(comingCursor.getColumnIndex("departure_time"))
+                    val arrivalTime = comingCursor.getString(comingCursor.getColumnIndex("arrival_time"))
+                    val arrivalStop = comingCursor.getString(comingCursor.getColumnIndex("arrival_stop"))
+                    val line = comingCursor.getString(comingCursor.getColumnIndex("short_name"))
 
-                        tramToMestreTimes.add(new Bus(dateFormatter.parse(departureTime),
-                                line,
-                                departureStop,
-                                arrivalStop,
-                                dateFormatter.parse(arrivalTime)));
-//                        Log.i("Catchit", "Added a new item: " + departureStop + " " + departureTime + " " + line);
+                    tramToMestreTimes.add(Bus(dateFormatter.parse(departureTime),
+                            line,
+                            departureStop,
+                            arrivalStop,
+                            dateFormatter.parse(arrivalTime)))
+                    //                        Log.i("Catchit", "Added a new item: " + departureStop + " " + departureTime + " " + line);
 
-                    } while (comingCursor.moveToNext());
-                } catch (ParseException e) {
-                    Log.e("Catchit", "Uff, cheppalle");
-                }
+                } while (comingCursor.moveToNext())
+            } catch (e: ParseException) {
+                Log.e("Catchit", "Uff, cheppalle")
+            }
 
-            comingCursor.close();
-        db.close();
+        comingCursor.close()
+        db.close()
 
-        return tramToMestreTimes;
+        return tramToMestreTimes
     }
 
-    public static List<Bus> getTramToStation(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+    fun getTramToStation(context: Context, yesterdayForQuery: String, now: Date, operator: String, dayForThisQuery: String): List<Bus> {
 
-        db = openDatabase(context);
+        db = openDatabase(context)
 
-        List<Bus> tramToStationTimes = new LinkedList<>();
+        val tramToStationTimes = LinkedList<Bus>()
 
         //Tram Mestre Centro -> Stazione
-        String tramToStation = "SELECT t.trip_id,\n" +
+        val tramToStation = "SELECT t.trip_id,\n" +
                 "       start_s.stop_name as departure_stop,\n" +
                 "\t   start_s.stop_id as departure_stop_id,\n" +
                 "       start_st.departure_time,\n" +
@@ -317,48 +322,48 @@ public class DatabaseHelper {
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and arrival_stop_id in (" + stazioneMestre + ")\n" +
                 "  and departure_stop_id in (" + cialdini + ")\n" +
-                "order by start_st.departure_time asc\t";
+                "order by start_st.departure_time asc\t"
 
-//                if(BuildConfig.DEBUG)
-//                    Log.w("TramToStation", tramToStation);
+        //                if(BuildConfig.DEBUG)
+        //                    Log.w("TramToStation", tramToStation);
 
-        Cursor leavingTramCursor = db.rawQuery(tramToStation, null);
-        leavingTramCursor.moveToFirst();
-        if (leavingTramCursor.getCount() > 0)
+        val leavingTramCursor = db.rawQuery(tramToStation, null)
+        leavingTramCursor.moveToFirst()
+        if (leavingTramCursor.count > 0)
             try {
                 do {
-                    String departureStop = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("departure_stop"));
-                    String departureTime = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("departure_time"));
-                    String arrivalTime = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("arrival_time"));
-                    String arrivalStop = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("arrival_stop"));
-                    String line = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("route_short_name"));
+                    val departureStop = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("departure_stop"))
+                    val departureTime = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("departure_time"))
+                    val arrivalTime = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("arrival_time"))
+                    val arrivalStop = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("arrival_stop"))
+                    val line = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("route_short_name"))
 
-                    tramToStationTimes.add(new Bus(dateFormatter.parse(departureTime),
+                    tramToStationTimes.add(Bus(dateFormatter.parse(departureTime),
                             line,
                             departureStop,
                             arrivalStop,
                             dateFormatter.parse(arrivalTime)
-                    ));
+                    ))
 
-                } while (leavingTramCursor.moveToNext());
-            } catch (ParseException e) {
-                Log.e("Catchit", "Uff, cheppalle");
+                } while (leavingTramCursor.moveToNext())
+            } catch (e: ParseException) {
+                Log.e("Catchit", "Uff, cheppalle")
             }
 
-        leavingTramCursor.close();
-        db.close();
+        leavingTramCursor.close()
+        db.close()
 
-        return tramToStationTimes;
+        return tramToStationTimes
     }
 
-    public static List<Bus> getTramFromStation(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+    fun getTramFromStation(context: Context, yesterdayForQuery: String, now: Date, operator: String, dayForThisQuery: String): List<Bus> {
 
-        db = openDatabase(context);
+        db = openDatabase(context)
 
-        List<Bus> tramToStationTimes = new LinkedList<>();
+        val tramToStationTimes = LinkedList<Bus>()
 
         //Tram Mestre Centro -> Stazione
-        String tramToStation = "SELECT t.trip_id,\n" +
+        val tramToStation = "SELECT t.trip_id,\n" +
                 "       start_s.stop_name as departure_stop,\n" +
                 "\t   start_s.stop_id as departure_stop_id,\n" +
                 "       start_st.departure_time,\n" +
@@ -379,47 +384,47 @@ public class DatabaseHelper {
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and arrival_stop_id in (" + cialdini + ")\n" +
                 "  and departure_stop_id in (" + stazioneMestre + ")\n" +
-                "order by start_st.departure_time asc\t";
+                "order by start_st.departure_time asc\t"
 
-//                if(BuildConfig.DEBUG)
-//                    Log.w("TramToStation", tramToStation);
+        //                if(BuildConfig.DEBUG)
+        //                    Log.w("TramToStation", tramToStation);
 
-        Cursor leavingTramCursor = db.rawQuery(tramToStation, null);
-        leavingTramCursor.moveToFirst();
-        if (leavingTramCursor.getCount() > 0)
+        val leavingTramCursor = db.rawQuery(tramToStation, null)
+        leavingTramCursor.moveToFirst()
+        if (leavingTramCursor.count > 0)
             try {
                 do {
-                    String departureStop = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("departure_stop"));
-                    String departureTime = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("departure_time"));
-                    String arrivalTime = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("arrival_time"));
-                    String arrivalStop = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("arrival_stop"));
-                    String line = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("route_short_name"));
+                    val departureStop = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("departure_stop"))
+                    val departureTime = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("departure_time"))
+                    val arrivalTime = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("arrival_time"))
+                    val arrivalStop = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("arrival_stop"))
+                    val line = leavingTramCursor.getString(leavingTramCursor.getColumnIndex("route_short_name"))
 
-                    tramToStationTimes.add(new Bus(dateFormatter.parse(departureTime),
+                    tramToStationTimes.add(Bus(dateFormatter.parse(departureTime),
                             line,
                             departureStop,
                             arrivalStop,
                             dateFormatter.parse(arrivalTime)
-                    ));
+                    ))
 
-                } while (leavingTramCursor.moveToNext());
-            } catch (ParseException e) {
-                Log.e("Catchit", "Uff, cheppalle");
+                } while (leavingTramCursor.moveToNext())
+            } catch (e: ParseException) {
+                Log.e("Catchit", "Uff, cheppalle")
             }
 
-        leavingTramCursor.close();
-        db.close();
+        leavingTramCursor.close()
+        db.close()
 
-        return tramToStationTimes;
+        return tramToStationTimes
     }
 
-    public static List<Bus> getCenterToSansovino(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+    fun getCenterToSansovino(context: Context, yesterdayForQuery: String, now: Date, operator: String, dayForThisQuery: String): List<Bus> {
 
-        db = openDatabase(context);
+        db = openDatabase(context)
 
-        List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
+        val tramCentroSansovinoTimes = LinkedList<Bus>()
 
-        String tramFromStation = "SELECT t.trip_id,\n" +
+        val tramFromStation = "SELECT t.trip_id,\n" +
                 "       start_s.stop_name as departure_stop,\n" +
                 "\t   start_s.stop_id as departure_stop_id,\n" +
                 "       start_st.departure_time,\n" +
@@ -440,47 +445,47 @@ public class DatabaseHelper {
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id in (" + cialdini + ")\n" +
                 "  and arrival_stop_id in (" + departingSansovino + ")\n" +
-                "order by start_st.departure_time asc\t";
+                "order by start_st.departure_time asc\t"
 
-//                if(BuildConfig.DEBUG)
-//                    Log.w("tramFromStation", tramFromStation);
+        //                if(BuildConfig.DEBUG)
+        //                    Log.w("tramFromStation", tramFromStation);
 
-        Cursor comingTramCursor = db.rawQuery(tramFromStation, null);
-        comingTramCursor.moveToFirst();
-        if (comingTramCursor.getCount() > 0)
+        val comingTramCursor = db.rawQuery(tramFromStation, null)
+        comingTramCursor.moveToFirst()
+        if (comingTramCursor.count > 0)
             try {
                 do {
-                    String departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"));
-                    String departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"));
-                    String arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"));
-                    String arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"));
-                    String line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"));
+                    val departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"))
+                    val departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"))
+                    val arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"))
+                    val arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"))
+                    val line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"))
 
-                    tramCentroSansovinoTimes.add(new Bus(dateFormatter.parse(departureTime),
+                    tramCentroSansovinoTimes.add(Bus(dateFormatter.parse(departureTime),
                             line,
                             departureStop,
                             arrivalStop,
                             dateFormatter.parse(arrivalTime)
-                    ));
+                    ))
 
-                } while (comingTramCursor.moveToNext());
-            } catch (ParseException e) {
-                Log.e("Catchit", "Uff, cheppalle");
+                } while (comingTramCursor.moveToNext())
+            } catch (e: ParseException) {
+                Log.e("Catchit", "Uff, cheppalle")
             }
 
-        comingTramCursor.close();
-        db.close();
+        comingTramCursor.close()
+        db.close()
 
-        return tramCentroSansovinoTimes;
+        return tramCentroSansovinoTimes
     }
 
-    public static List<Bus> getSansovinoToCenter(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+    fun getSansovinoToCenter(context: Context, yesterdayForQuery: String, now: Date, operator: String, dayForThisQuery: String): List<Bus> {
 
-        db = openDatabase(context);
+        db = openDatabase(context)
 
-        List<Bus> tramSansovinoCentroTimes = new LinkedList<>();
+        val tramSansovinoCentroTimes = LinkedList<Bus>()
 
-        String tramSansovinoToCentro = "SELECT t.trip_id,\n" +
+        val tramSansovinoToCentro = "SELECT t.trip_id,\n" +
                 "       start_s.stop_name as departure_stop,\n" +
                 "\t   start_s.stop_id as departure_stop_id,\n" +
                 "       start_st.departure_time,\n" +
@@ -501,51 +506,51 @@ public class DatabaseHelper {
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id in (" + returningSansovino + ")\n" +
                 "  and arrival_stop_id in (" + cialdini + ")\n" +
-                "order by start_st.departure_time asc\t";
+                "order by start_st.departure_time asc\t"
 
-//                if(BuildConfig.DEBUG)
-//                    Log.w("TramToVenice", tramSansovinoToCentro);
+        //                if(BuildConfig.DEBUG)
+        //                    Log.w("TramToVenice", tramSansovinoToCentro);
 
-        Cursor leavingToCentroCursor = db.rawQuery(tramSansovinoToCentro, null);
-        leavingToCentroCursor.moveToFirst();
-        if (leavingToCentroCursor.getCount() > 0)
+        val leavingToCentroCursor = db.rawQuery(tramSansovinoToCentro, null)
+        leavingToCentroCursor.moveToFirst()
+        if (leavingToCentroCursor.count > 0)
             try {
                 do {
-                    String departureStop = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("departure_stop"));
-                    String departureTime = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("departure_time"));
-                    String arrivalStop = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("arrival_stop"));
-                    String arrivalTime = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("arrival_time"));
-                    String line = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("route_short_name"));
+                    val departureStop = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("departure_stop"))
+                    val departureTime = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("departure_time"))
+                    val arrivalStop = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("arrival_stop"))
+                    val arrivalTime = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("arrival_time"))
+                    val line = leavingToCentroCursor.getString(leavingToCentroCursor.getColumnIndex("route_short_name"))
 
-                    tramSansovinoCentroTimes.add(new Bus(dateFormatter.parse(departureTime),
+                    tramSansovinoCentroTimes.add(Bus(dateFormatter.parse(departureTime),
                             line,
                             departureStop,
                             arrivalStop,
                             dateFormatter.parse(arrivalTime)
-                    ));
+                    ))
                     //                    Log.i("Catchit", "Added a new item: " + departureStop + " " + departureTime + " " + line);
 
-                } while (leavingToCentroCursor.moveToNext());
-            } catch (ParseException e) {
-                Log.e("Catchit", "Uff, cheppalle");
+                } while (leavingToCentroCursor.moveToNext())
+            } catch (e: ParseException) {
+                Log.e("Catchit", "Uff, cheppalle")
             }
 
-        leavingToCentroCursor.close();
-        db.close();
-//                    if(BuildConfig.DEBUG)
-//                        Log.w("TramSansovinoToCentro", tramSansovinoToCentro);
+        leavingToCentroCursor.close()
+        db.close()
+        //                    if(BuildConfig.DEBUG)
+        //                        Log.w("TramSansovinoToCentro", tramSansovinoToCentro);
 
-        return tramSansovinoCentroTimes;
+        return tramSansovinoCentroTimes
 
     }
 
-    public static List<Bus> getHermadaToStation(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+    fun getHermadaToStation(context: Context, yesterdayForQuery: String, now: Date, operator: String, dayForThisQuery: String): List<Bus> {
 
-        db = openDatabase(context);
+        db = openDatabase(context)
 
-        List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
+        val tramCentroSansovinoTimes = LinkedList<Bus>()
 
-        String tramFromStation = "SELECT t.trip_id,\n" +
+        val tramFromStation = "SELECT t.trip_id,\n" +
                 "       start_s.stop_name as departure_stop,\n" +
                 "\t   start_s.stop_id as departure_stop_id,\n" +
                 "       start_st.departure_time,\n" +
@@ -566,47 +571,47 @@ public class DatabaseHelper {
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id = " + viaHermadaStreetSide + "\n" +
                 "  and arrival_stop_id = " + stazioneMestreFor15 + "\n" +
-                "order by start_st.departure_time asc\t";
+                "order by start_st.departure_time asc\t"
 
-//                if(BuildConfig.DEBUG)
-//                    Log.w("tramFromStation", tramFromStation);
+        //                if(BuildConfig.DEBUG)
+        //                    Log.w("tramFromStation", tramFromStation);
 
-        Cursor comingTramCursor = db.rawQuery(tramFromStation, null);
-        comingTramCursor.moveToFirst();
-        if (comingTramCursor.getCount() > 0)
+        val comingTramCursor = db.rawQuery(tramFromStation, null)
+        comingTramCursor.moveToFirst()
+        if (comingTramCursor.count > 0)
             try {
                 do {
-                    String departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"));
-                    String departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"));
-                    String arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"));
-                    String arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"));
-                    String line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"));
+                    val departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"))
+                    val departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"))
+                    val arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"))
+                    val arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"))
+                    val line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"))
 
-                    tramCentroSansovinoTimes.add(new Bus(dateFormatter.parse(departureTime),
+                    tramCentroSansovinoTimes.add(Bus(dateFormatter.parse(departureTime),
                             line,
                             departureStop,
                             arrivalStop,
                             dateFormatter.parse(arrivalTime)
-                    ));
+                    ))
 
-                } while (comingTramCursor.moveToNext());
-            } catch (ParseException e) {
-                Log.e("Catchit", "Uff, cheppalle");
+                } while (comingTramCursor.moveToNext())
+            } catch (e: ParseException) {
+                Log.e("Catchit", "Uff, cheppalle")
             }
 
-        comingTramCursor.close();
-        db.close();
+        comingTramCursor.close()
+        db.close()
 
-        return tramCentroSansovinoTimes;
+        return tramCentroSansovinoTimes
     }
 
-    public static List<Bus> getStationToHermada(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+    fun getStationToHermada(context: Context, yesterdayForQuery: String, now: Date, operator: String, dayForThisQuery: String): List<Bus> {
 
-        db = openDatabase(context);
+        db = openDatabase(context)
 
-        List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
+        val tramCentroSansovinoTimes = LinkedList<Bus>()
 
-        String tramFromStation = "SELECT t.trip_id,\n" +
+        val tramFromStation = "SELECT t.trip_id,\n" +
                 "       start_s.stop_name as departure_stop,\n" +
                 "\t   start_s.stop_id as departure_stop_id,\n" +
                 "       start_st.departure_time,\n" +
@@ -627,47 +632,47 @@ public class DatabaseHelper {
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id = " + stazioneMestreFor15 + "\n" +
                 "  and arrival_stop_id = " + viaHermadaCanalSide + "\n" +
-                "order by start_st.departure_time asc\t";
+                "order by start_st.departure_time asc\t"
 
-//                if(BuildConfig.DEBUG)
-//                    Log.w("tramFromStation", tramFromStation);
+        //                if(BuildConfig.DEBUG)
+        //                    Log.w("tramFromStation", tramFromStation);
 
-        Cursor comingTramCursor = db.rawQuery(tramFromStation, null);
-        comingTramCursor.moveToFirst();
-        if (comingTramCursor.getCount() > 0)
+        val comingTramCursor = db.rawQuery(tramFromStation, null)
+        comingTramCursor.moveToFirst()
+        if (comingTramCursor.count > 0)
             try {
                 do {
-                    String departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"));
-                    String departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"));
-                    String arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"));
-                    String arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"));
-                    String line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"));
+                    val departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"))
+                    val departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"))
+                    val arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"))
+                    val arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"))
+                    val line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"))
 
-                    tramCentroSansovinoTimes.add(new Bus(dateFormatter.parse(departureTime),
+                    tramCentroSansovinoTimes.add(Bus(dateFormatter.parse(departureTime),
                             line,
                             departureStop,
                             arrivalStop,
                             dateFormatter.parse(arrivalTime)
-                    ));
+                    ))
 
-                } while (comingTramCursor.moveToNext());
-            } catch (ParseException e) {
-                Log.e("Catchit", "Uff, cheppalle");
+                } while (comingTramCursor.moveToNext())
+            } catch (e: ParseException) {
+                Log.e("Catchit", "Uff, cheppalle")
             }
 
-        comingTramCursor.close();
-        db.close();
+        comingTramCursor.close()
+        db.close()
 
-        return tramCentroSansovinoTimes;
+        return tramCentroSansovinoTimes
     }
 
-    public static List<Bus> getHermadaToAirport(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+    fun getHermadaToAirport(context: Context, yesterdayForQuery: String, now: Date, operator: String, dayForThisQuery: String): List<Bus> {
 
-        db = openDatabase(context);
+        db = openDatabase(context)
 
-        List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
+        val tramCentroSansovinoTimes = LinkedList<Bus>()
 
-        String tramFromStation = "SELECT t.trip_id,\n" +
+        val tramFromStation = "SELECT t.trip_id,\n" +
                 "       start_s.stop_name as departure_stop,\n" +
                 "\t   start_s.stop_id as departure_stop_id,\n" +
                 "       start_st.departure_time,\n" +
@@ -688,47 +693,47 @@ public class DatabaseHelper {
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id in (" + viaHermadaCanalSide + ")\n" +
                 "  and arrival_stop_id in (" + airport + ")\n" +
-                "order by start_st.departure_time asc\t";
+                "order by start_st.departure_time asc\t"
 
-//                if(BuildConfig.DEBUG)
-//                    Log.w("tramFromStation", tramFromStation);
+        //                if(BuildConfig.DEBUG)
+        //                    Log.w("tramFromStation", tramFromStation);
 
-        Cursor comingTramCursor = db.rawQuery(tramFromStation, null);
-        comingTramCursor.moveToFirst();
-        if (comingTramCursor.getCount() > 0)
+        val comingTramCursor = db.rawQuery(tramFromStation, null)
+        comingTramCursor.moveToFirst()
+        if (comingTramCursor.count > 0)
             try {
                 do {
-                    String departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"));
-                    String departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"));
-                    String arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"));
-                    String arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"));
-                    String line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"));
+                    val departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"))
+                    val departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"))
+                    val arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"))
+                    val arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"))
+                    val line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"))
 
-                    tramCentroSansovinoTimes.add(new Bus(dateFormatter.parse(departureTime),
+                    tramCentroSansovinoTimes.add(Bus(dateFormatter.parse(departureTime),
                             line,
                             departureStop,
                             arrivalStop,
                             dateFormatter.parse(arrivalTime)
-                    ));
+                    ))
 
-                } while (comingTramCursor.moveToNext());
-            } catch (ParseException e) {
-                Log.e("Catchit", "Uff, cheppalle");
+                } while (comingTramCursor.moveToNext())
+            } catch (e: ParseException) {
+                Log.e("Catchit", "Uff, cheppalle")
             }
 
-        comingTramCursor.close();
-        db.close();
+        comingTramCursor.close()
+        db.close()
 
-        return tramCentroSansovinoTimes;
+        return tramCentroSansovinoTimes
     }
 
-    public static List<Bus> getAirportToHermada(Context context, String yesterdayForQuery, Date now, String operator, String dayForThisQuery) {
+    fun getAirportToHermada(context: Context, yesterdayForQuery: String, now: Date, operator: String, dayForThisQuery: String): List<Bus> {
 
-        db = openDatabase(context);
+        db = openDatabase(context)
 
-        List<Bus> tramCentroSansovinoTimes = new LinkedList<>();
+        val tramCentroSansovinoTimes = LinkedList<Bus>()
 
-        String tramFromStation = "SELECT t.trip_id,\n" +
+        val tramFromStation = "SELECT t.trip_id,\n" +
                 "       start_s.stop_name as departure_stop,\n" +
                 "\t   start_s.stop_id as departure_stop_id,\n" +
                 "       start_st.departure_time,\n" +
@@ -749,38 +754,38 @@ public class DatabaseHelper {
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id in (" + airport + ")\n" +
                 "  and arrival_stop_id in (" + viaHermadaStreetSide + ")\n" +
-                "order by start_st.departure_time asc\t";
+                "order by start_st.departure_time asc\t"
 
-                if(BuildConfig.DEBUG)
-                    Log.w("tramFromStation", tramFromStation);
+        if (BuildConfig.DEBUG)
+            Log.w("tramFromStation", tramFromStation)
 
-        Cursor comingTramCursor = db.rawQuery(tramFromStation, null);
-        comingTramCursor.moveToFirst();
-        if (comingTramCursor.getCount() > 0)
+        val comingTramCursor = db.rawQuery(tramFromStation, null)
+        comingTramCursor.moveToFirst()
+        if (comingTramCursor.count > 0)
             try {
                 do {
-                    String departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"));
-                    String departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"));
-                    String arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"));
-                    String arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"));
-                    String line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"));
+                    val departureStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_stop"))
+                    val departureTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("departure_time"))
+                    val arrivalStop = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_stop"))
+                    val arrivalTime = comingTramCursor.getString(comingTramCursor.getColumnIndex("arrival_time"))
+                    val line = comingTramCursor.getString(comingTramCursor.getColumnIndex("route_short_name"))
 
-                    tramCentroSansovinoTimes.add(new Bus(dateFormatter.parse(departureTime),
+                    tramCentroSansovinoTimes.add(Bus(dateFormatter.parse(departureTime),
                             line,
                             departureStop,
                             arrivalStop,
                             dateFormatter.parse(arrivalTime)
-                    ));
+                    ))
 
-                } while (comingTramCursor.moveToNext());
-            } catch (ParseException e) {
-                Log.e("Catchit", "Uff, cheppalle");
+                } while (comingTramCursor.moveToNext())
+            } catch (e: ParseException) {
+                Log.e("Catchit", "Uff, cheppalle")
             }
 
-        comingTramCursor.close();
-        db.close();
+        comingTramCursor.close()
+        db.close()
 
-        return tramCentroSansovinoTimes;
+        return tramCentroSansovinoTimes
     }
 
     /*
@@ -790,12 +795,12 @@ public class DatabaseHelper {
     *  @param  beforeTime  The time that will have minutes subtracted from it
     *  @return  A date object with the specified number of minutes added to it
     */
-    public static java.util.Date subtractMinutesFromDate(int minutes, Date beforeTime) {
-        final long ONE_MINUTE_IN_MILLIS = 60000;//millisecs
+    fun subtractMinutesFromDate(minutes: Int, beforeTime: Date): java.util.Date {
+        val ONE_MINUTE_IN_MILLIS: Long = 60000//millisecs
 
-        long curTimeInMs = beforeTime.getTime();
-        Date afterAddingMins = new Date(curTimeInMs - (minutes * ONE_MINUTE_IN_MILLIS));
-        return afterAddingMins;
+        val curTimeInMs = beforeTime.time
+        val afterAddingMins = Date(curTimeInMs - minutes * ONE_MINUTE_IN_MILLIS)
+        return afterAddingMins
     }
 
 }

@@ -15,6 +15,6 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/text_size_for_title"
         android:textColor="@android:color/white"
-        android:id="@+id/title"/>
+        android:id="@+id/titleText"/>
 
 </android.support.v7.widget.Toolbar>
