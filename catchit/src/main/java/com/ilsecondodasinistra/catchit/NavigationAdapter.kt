@@ -4,13 +4,13 @@ package com.ilsecondodasinistra.catchit
  * Created by marco on 29/01/17.
  */
 
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.RecyclerView
 
 /**
  * Created by hp1 on 28-12-2014.
@@ -69,7 +69,7 @@ class NavigationAdapter internal constructor(private val mNavTitles: Array<Strin
     // if the viewType is TYPE_HEADER
     // and pass it to the view holder
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NavigationAdapter.ViewHolder? {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         if (viewType == TYPE_ITEM) {
             val v = LayoutInflater.from(parent.context).inflate(R.layout.navigation_drawer_item_row, parent, false) //Inflating the layout
@@ -80,24 +80,19 @@ class NavigationAdapter internal constructor(private val mNavTitles: Array<Strin
 
             //inflate your layout and pass it to view holder
 
-        } else if (viewType == TYPE_HEADER) {
-
+        } else {
             val v = LayoutInflater.from(parent.context).inflate(R.layout.navigation_drawer_header, parent, false) //Inflating the layout
 
             val vhHeader = ViewHolder(v, viewType) //Creating ViewHolder and passing the object of type view
 
             return vhHeader //returning the object created
-
-
         }
-        return null
-
     }
 
     //Next we override a method which is called when the item in a row is needed to be displayed, here the int position
     // Tells us item at which position is being constructed to be displayed and the holder id of the holder object tell us
     // which view type is being created 1 for item row
-    override fun onBindViewHolder(holder: NavigationAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         if (holder.Holderid == 1) {                              // as the list view is going to be called after the header view so we decrement the
             // position by 1 and pass it to the holder while setting the text and image
             holder.textView.text = mNavTitles[position - 1] // Setting the Text with the array of our Titles

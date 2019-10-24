@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CatchIt.iml" filepath="$PROJECT_DIR$/CatchIt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Catchit.iml" filepath="$PROJECT_DIR$/Catchit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MyDaoGenerator/Catchit-MyDaoGenerator.iml" filepath="$PROJECT_DIR$/MyDaoGenerator/Catchit-MyDaoGenerator.iml" />
       <module fileurl="file://$PROJECT_DIR$/MyDaoGenerator/MyDaoGenerator.iml" filepath="$PROJECT_DIR$/MyDaoGenerator/MyDaoGenerator.iml" />
       <module fileurl="file://$PROJECT_DIR$/catchit/catchit.iml" filepath="$PROJECT_DIR$/catchit/catchit.iml" />
     </modules>

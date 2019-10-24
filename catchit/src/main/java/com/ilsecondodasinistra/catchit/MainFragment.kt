@@ -1,16 +1,14 @@
 package com.ilsecondodasinistra.catchit
 
-import android.content.DialogInterface
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ListView
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
 class MainFragment : Fragment() {
 
@@ -22,8 +20,7 @@ class MainFragment : Fragment() {
     private var swipeContainer: SwipeRefreshLayout? = null
     internal var times: List<Bus> = ArrayList<Bus>()
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater!!.inflate(R.layout.fragment_main, container, false)
         timeTable = rootView.findViewById<View>(R.id.timeTable) as ListView
         setHasOptionsMenu(true)
@@ -46,7 +43,7 @@ class MainFragment : Fragment() {
         super.onStart()
 
         //Preferences
-        val settings = activity.getPreferences(0)
+        val settings = activity!!.getPreferences(0)
 
         //        Toast.makeText(rootView.getContext(), "Invocato onCreateView", Toast.LENGTH_SHORT).show();
 
@@ -61,7 +58,7 @@ class MainFragment : Fragment() {
 
     private fun saveToday(todayWeek: Int) {
         //Preferences
-        val settings = activity.getPreferences(0)
+        val settings = activity!!.getPreferences(0)
 
         /*
          * Salviamo l'ultimo giorno in cui l'app è stata usata
@@ -78,19 +75,19 @@ class MainFragment : Fragment() {
         /**
          * In base all'attributo "position" capisce in quale tab siamo
          */
-        val position = arguments.getInt(POSITION, 0)
+        val position = arguments!!.getInt(POSITION, 0)
 
-        leavingAdapter = CustomAdapter(activity, R.layout.row, times!!)
+        leavingAdapter = CustomAdapter(activity!!, R.layout.row, times!!)
         timeTable.adapter = leavingAdapter
     }
 
     fun populate(list: List<Bus>, force: Boolean) {
         if (force || timeTable.adapter == null) { //If we already have an adapter, we don't need another. Or do we???
             times = list
-            leavingAdapter = CustomAdapter(activity, R.layout.row, list)
+            leavingAdapter = CustomAdapter(activity!!, R.layout.row, list)
             timeTable.adapter = leavingAdapter
             timeTable.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-                AlertDialog.Builder(context)
+                AlertDialog.Builder(context!!)
                         .setTitle(times!![position].line)
                         .setMessage("Partenza da " + times!![position].departureStop + " alle " + times!![position].departureString + " e arrivo a " + times!![position].arrivalStop + " alle " + times!![position].arrivalString)
                         .setPositiveButton(android.R.string.yes) { dialog, which ->

@@ -2,18 +2,19 @@ package com.ilsecondodasinistra.catchit
 
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v4.view.GravityCompat
-import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewPager
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.core.view.MenuItemCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager.widget.ViewPager
 import kotlinx.android.synthetic.main.toolbar.*
 import java.util.*
 
@@ -255,7 +256,7 @@ class MainCatchitActivity : AppCompatActivity() {
         //        cal.set(Calendar.MILLISECOND, 00);
         //        now.setTime(cal.getTimeInMillis());
 
-        val position = fList.indexOf(fragment)
+        val position = fList.indexOf(fragment as Fragment)
         if (fList.contains(fragment)) {
             reloadSingleFragmentData(position, true)    //This is called when the user swipes down the list for refreshing, so we force refresh!
         }
