@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Catchit.iml" filepath="$PROJECT_DIR$/Catchit.iml" />
       <module fileurl="file://$PROJECT_DIR$/MyDaoGenerator/Catchit-MyDaoGenerator.iml" filepath="$PROJECT_DIR$/MyDaoGenerator/Catchit-MyDaoGenerator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MyDaoGenerator/Documents-Catchit-MyDaoGenerator.iml" filepath="$PROJECT_DIR$/MyDaoGenerator/Documents-Catchit-MyDaoGenerator.iml" />
       <module fileurl="file://$PROJECT_DIR$/MyDaoGenerator/MyDaoGenerator.iml" filepath="$PROJECT_DIR$/MyDaoGenerator/MyDaoGenerator.iml" />
       <module fileurl="file://$PROJECT_DIR$/catchit/catchit.iml" filepath="$PROJECT_DIR$/catchit/catchit.iml" />
     </modules>
