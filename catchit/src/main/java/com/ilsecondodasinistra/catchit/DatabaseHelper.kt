@@ -37,7 +37,7 @@ object DatabaseHelper {
     val veniceStopsFor12 = "501"
     val cialdini = "6080, 6027, 6081"
     val stazioneMestre = "6074, 6073"
-    val stazioneMestreFor15 = "613"
+    val stazioneMestreFor15 = "164, 612, 613"
     val viaHermadaStreetSide = "172"
     val viaHermadaCanalSide = "1172"
     val airport = "3626, 13626"
@@ -570,7 +570,7 @@ object DatabaseHelper {
                 "  and r.route_id in (" + routeFor15AirportStation + ")\n" +
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id = " + viaHermadaStreetSide + "\n" +
-                "  and arrival_stop_id = " + stazioneMestreFor15 + "\n" +
+                "  and arrival_stop_id IN (" + stazioneMestreFor15 + ")\n" +
                 "order by start_st.departure_time asc\t"
 
         //                if(BuildConfig.DEBUG)
@@ -630,7 +630,7 @@ object DatabaseHelper {
                 "WHERE " + dayForThisQuery + " = 1\n" +
                 "  and r.route_id in (" + routeFor15StationAirport + ")\n" +
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
-                "  and departure_stop_id = " + stazioneMestreFor15 + "\n" +
+                "  and departure_stop_id IN (" + stazioneMestreFor15 + ")\n" +
                 "  and arrival_stop_id = " + viaHermadaCanalSide + "\n" +
                 "order by start_st.departure_time asc\t"
 
