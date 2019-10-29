@@ -16,19 +16,19 @@ import java.util.LinkedList
 
 object DatabaseHelper {
 
-    val routeForT1MestreVe = "732, 733"
-    val routeForT1VeMestre = "734, 735"
-    val routeForT2MestreMa = "781"
-    val routeForT2MaMestre = "782, 783"
+    val routeForT1MestreVe = "731"
+    val routeForT1VeMestre = "733"
+    val routeForT2MestreMa = "779"
+    val routeForT2MaMestre = "780, 781"
 
     val routeForN1 = "712, 713"
     val routeForN2 = "714"
 
-    val routeFor12MestreVe = "534"
-    val routeFor12VeMestre = "533"
+    val routeFor12MestreVe = "63, 530"
+    val routeFor12VeMestre = "66, 529"
 
-    val routeFor15AirportStation = "549, 550"
-    val routeFor15StationAirport = "551, 552"
+    val routeFor15AirportStation = "545, 546"
+    val routeFor15StationAirport = "547, 548"
 
     val departingSansovino = "6061"
     val returningSansovino = "6062"
@@ -40,7 +40,7 @@ object DatabaseHelper {
     val stazioneMestreFor15 = "613"
     val viaHermadaStreetSide = "172"
     val viaHermadaCanalSide = "1172"
-    val airport = "3626"
+    val airport = "3626, 13626"
 
     internal var databaseHourFormatter = SimpleDateFormat("HH:mm:ss") //DateFormatter four hours.minutes.seconds
     private val dateFormatter = SimpleDateFormat("HH:mm:ss") //DateFormatter four hours.minutes.seconds

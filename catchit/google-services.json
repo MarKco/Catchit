@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "261336115280",
+    "firebase_url": "https://catchit-35001.firebaseio.com",
+    "project_id": "catchit-35001",
+    "storage_bucket": "catchit-35001.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:261336115280:android:22e71ced628e3f74894955",
+        "android_client_info": {
+          "package_name": "com.ilsecondodasinistra.catchit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "261336115280-l5lc18cbmnoptka1qttjpae0lg0atjuq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCcJoJZI_R83kdCRae54d4ktgVhw0r-qNw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "261336115280-l5lc18cbmnoptka1qttjpae0lg0atjuq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
