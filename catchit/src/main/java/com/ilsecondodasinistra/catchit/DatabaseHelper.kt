@@ -27,6 +27,8 @@ object DatabaseHelper {
     val routeFor12MestreVe = "63, 530"
     val routeFor12VeMestre = "66, 529"
 
+    val routeFor43 = "784, 785"
+
     val routeFor15AirportStation = "545, 546"
     val routeFor15StationAirport = "547, 548"
 
@@ -81,10 +83,10 @@ object DatabaseHelper {
                 "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
                 "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
                 "WHERE " + dayForThisQuery + " = 1\n" +
-                "  and r.route_id in (" + routeForT1MestreVe + ", " + routeFor12MestreVe + ")\n" + //For ordinary buses
+                "  and r.route_id in (" + routeForT1MestreVe + ", " + routeFor12MestreVe + ", " + routeFor43 + ")\n" + //For ordinary buses
 
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
-                "  and departure_stop_id = " + departingSansovino + "\n" +
+                "  and departure_stop_id IN (" + departingSansovino + "," + viaHermadaCanalSide + ")\n" +
                 "  and end_s.stop_id in (" + veniceStops + ", " + veniceStopsFor12 + ")\n" +
                 "  UNION " +
                 "SELECT t.trip_id,\n" +
@@ -200,11 +202,11 @@ object DatabaseHelper {
                 "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
                 "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
                 "WHERE " + dayForThisQuery + " = 1\n" +
-                "  and r.route_id in (" + routeForT1VeMestre + ", " + routeFor12VeMestre + ")\n" + //For ordinary buses
+                "  and r.route_id in (" + routeForT1VeMestre + ", " + routeFor12VeMestre + ", " + routeFor43 + ")\n" + //For ordinary buses
 
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id in (" + veniceStops + ", " + veniceStopsFor12 + ")\n" +
-                "  and end_s.stop_id = " + returningSansovino + "\n" +
+                "  and end_s.stop_id IN (" + returningSansovino + ", " + viaHermadaStreetSide + ")\n" +
                 " UNION " +
                 " SELECT t.trip_id, \n" +
                 "       start_s.stop_name as departure_stop,\n" +
@@ -567,7 +569,7 @@ object DatabaseHelper {
                 "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
                 "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
                 "WHERE " + dayForThisQuery + " = 1\n" +
-                "  and r.route_id in (" + routeFor15AirportStation + ")\n" +
+                "  and r.route_id in (" + routeFor15AirportStation + ", " + routeFor43 + ")\n" +
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id = " + viaHermadaStreetSide + "\n" +
                 "  and arrival_stop_id IN (" + stazioneMestreFor15 + ")\n" +
@@ -628,7 +630,7 @@ object DatabaseHelper {
                 "        INNER JOIN stop_times end_st ON t.trip_id = end_st.trip_id\n" +
                 "        INNER JOIN stops end_s ON end_st.stop_id = end_s.stop_id\n" +
                 "WHERE " + dayForThisQuery + " = 1\n" +
-                "  and r.route_id in (" + routeFor15StationAirport + ")\n" +
+                "  and r.route_id in (" + routeFor15StationAirport + ", " + routeFor43 + ")\n" +
                 "  and DATETIME(start_st.departure_time) " + operator + " DATETIME('" + databaseHourFormatter.format(subtractMinutesFromDate(4, now)) + "')\n" +
                 "  and departure_stop_id IN (" + stazioneMestreFor15 + ")\n" +
                 "  and arrival_stop_id = " + viaHermadaCanalSide + "\n" +
