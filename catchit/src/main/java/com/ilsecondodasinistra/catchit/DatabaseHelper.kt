@@ -16,21 +16,21 @@ import java.util.LinkedList
 
 object DatabaseHelper {
 
-    val routeForT1MestreVe = "731"
-    val routeForT1VeMestre = "733"
-    val routeForT2MestreMa = "779"
-    val routeForT2MaMestre = "780, 781"
+    val routeForT1MestreVe = "730"
+    val routeForT1VeMestre = "732"
+    val routeForT2MestreMa = "778"
+    val routeForT2MaMestre = "778, 779"
 
-    val routeForN1 = "712, 713"
-    val routeForN2 = "714"
+    val routeForN1 = "711, 712"
+    val routeForN2 = "713"
 
-    val routeFor12MestreVe = "63, 530"
-    val routeFor12VeMestre = "66, 529"
+    val routeFor12MestreVe = "63, 529"
+    val routeFor12VeMestre = "66, 528"
 
-    val routeFor43 = "784, 785"
+    val routeFor43 = "783, 784"
 
-    val routeFor15AirportStation = "545, 546"
-    val routeFor15StationAirport = "547, 548"
+    val routeFor15AirportStation = "544, 545"
+    val routeFor15StationAirport = "546, 547"
 
     val departingSansovino = "6061"
     val returningSansovino = "6062"
@@ -145,8 +145,8 @@ object DatabaseHelper {
                 "  and end_st.late_night IS NOT NULL\n" +
                 "order by start_st.departure_time asc"
 
-        //            if (BuildConfig.DEBUG)
-        //                Log.w("TramToVenice", tramToVenice);
+                 //   if (BuildConfig.DEBUG)
+                 //       Log.w("TramToVenice", tramToVenice);
 
         val leavingCursor = db.rawQuery(tramToVenice, null)
         leavingCursor.moveToFirst()
