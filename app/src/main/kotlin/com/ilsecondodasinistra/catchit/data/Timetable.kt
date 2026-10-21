@@ -59,7 +59,10 @@ class Timetable(private val data: TimetableData) {
         val iso = date.format(DateTimeFormatter.BASIC_ISO_DATE)
         if (iso in removed) return false
         if (iso in added) return true
-        return iso in start..end && days.getOrElse(date.dayOfWeek.ordinal) { false }
+        // Before the feed starts, the first timetable stands in for the old one (indicative: AVM's previous version
+        // isn't published). Only for services that begin with the feed, not for later seasonal ones.
+        val from = if (validFrom != null && date < validFrom && start == data.feedStart) "" else start
+        return iso >= from && iso <= end && days.getOrElse(date.dayOfWeek.ordinal) { false }
     }
 
     private fun String.toDateOrNull(): LocalDate? =

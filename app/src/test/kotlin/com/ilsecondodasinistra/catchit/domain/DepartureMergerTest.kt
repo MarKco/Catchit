@@ -99,10 +99,32 @@ class DepartureMergerTest {
     }
 
     @Test
-    fun passedDeparturesDropAndLimitApplies() {
-        val merged = DepartureMerger.merge("6059", timetable, scheduled(), emptyList(), at(8, 12), 2)
-        assertEquals(listOf(at(8, 20)), merged.map { it.time })
+    fun recentlyGonePassagesStayForFifteenMinutes() {
+        val at812 = DepartureMerger.merge("6059", timetable, scheduled(), emptyList(), at(8, 12), 10).map { it.time }
+        assertEquals(listOf(at(8, 0), at(8, 5), at(8, 10), at(8, 20)), at812) // 08:00 left 12 min ago
+        val at816 = DepartureMerger.merge("6059", timetable, scheduled(), emptyList(), at(8, 16), 10).map { it.time }
+        assertEquals(listOf(at(8, 5), at(8, 10), at(8, 20)), at816) // 08:00 is now 16 min old
+        assertTrue(DepartureMerger.merge("6059", timetable, scheduled(), emptyList(), at(8, 12), 10).first().isPast(at(8, 12)))
+    }
+
+    @Test
+    fun limitApplies() {
         assertEquals(2, DepartureMerger.merge("6059", timetable, scheduled(), emptyList(), at(7, 0), 2).size)
+    }
+
+    @Test
+    fun sixHoursPastMidnightIncludeTomorrow() {
+        val from = at(23, 0)
+        val rows = timetable.scheduled("6059", from, from.plusSeconds(9 * 3600), zone)
+        assertTrue(rows.any { it.time == day.plusDays(1).atTime(8, 0).atZone(zone).toInstant() })
+    }
+
+    @Test
+    fun beforeTheFeedStartsTheFirstTimetableIsIndicative() {
+        val dayBefore = day.minusDays(1) // Wednesday 21st, feed starts on the 22nd
+        val from = dayBefore.atTime(7, 0).atZone(zone).toInstant()
+        val rows = timetable.scheduled("6059", from, from.plusSeconds(3600 * 2), zone)
+        assertEquals(dayBefore.atTime(8, 0).atZone(zone).toInstant(), rows.first().time)
     }
 
     @Test
@@ -110,5 +132,13 @@ class DepartureMergerTest {
         val live = update("31H_UM", at(8, 10), delay = 0) // 31H is due at 08:05 only: 5 minutes apart
         val merged = DepartureMerger.merge("6059", timetable, scheduled(), listOf(live), at(7, 55), 10)
         assertEquals(2, merged.count { it.route.id == "31H_UM" })
+    }
+
+    @Test
+    fun horizonCutsFarPassages() {
+        val far = update("T1_UM", at(8, 0).plusSeconds(7 * 3600), delay = 0) // 15:00, beyond 6 h from 07:55
+        val merged = DepartureMerger.merge("6059", timetable, scheduled(), listOf(far), at(7, 55), 50)
+        assertTrue(merged.none { it.time > at(7, 55).plusSeconds(6 * 3600) })
+        assertEquals(4, merged.size)
     }
 }

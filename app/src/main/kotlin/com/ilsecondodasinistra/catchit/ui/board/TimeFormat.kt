@@ -18,3 +18,7 @@ internal fun minutesUntil(time: Instant, now: Instant): Long {
     val seconds = Duration.between(now, time).seconds
     return if (seconds <= 0) 0 else (seconds + 59) / 60
 }
+
+/** Whole minutes since [time], rounded down. */
+internal fun minutesSince(time: Instant, now: Instant): Long =
+    (Duration.between(time, now).seconds / 60).coerceAtLeast(0)

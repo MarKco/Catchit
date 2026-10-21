@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,6 +35,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.compose.runtime.LaunchedEffect
 import com.ilsecondodasinistra.catchit.R
+import com.ilsecondodasinistra.catchit.domain.isPast
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Duration
@@ -124,44 +129,72 @@ private fun Boards(state: BoardUiState, onRefresh: () -> Unit) {
                 )
             }
         }
-        HorizontalPager(state = pagerState, modifier = Modifier.weight(1f), beyondViewportPageCount = 1) { page ->
-            val board = state.boards[page]
-            PullToRefreshBox(isRefreshing = state.isRefreshing, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 32.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    state.scheduleStartsOn?.let { date ->
-                        item(key = "notice") {
-                            Notice(Icons.Rounded.Info, stringResource(R.string.board_schedule_starts, date.dayText()))
-                        }
-                    }
-                    if (state.realtimeFailed) {
-                        item(key = "offline") {
-                            Notice(Icons.Rounded.WifiOff, stringResource(R.string.board_offline_hint))
-                        }
-                    }
-                    if (board.departures.isEmpty()) {
-                        item(key = "empty") { EmptyState() }
-                    }
-                    itemsIndexed(board.departures, key = { _, d -> "${d.route.id}-${d.time.epochSecond}" }) { index, departure ->
-                        DepartureCard(departure, state.now, isNext = index == 0, modifier = Modifier.fillMaxWidth())
-                    }
-                }
+        // Outside the list: the list opens scrolled past the notices, and they must stay visible.
+        Column(Modifier.padding(horizontal = 12.dp).padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            state.scheduleStartsOn?.let { date ->
+                Notice(Icons.Rounded.Info, stringResource(R.string.board_schedule_starts, date.dayText()))
+            }
+            if (state.realtimeFailed) {
+                Notice(Icons.Rounded.WifiOff, stringResource(R.string.board_offline_hint))
             }
         }
+        HorizontalPager(state = pagerState, modifier = Modifier.weight(1f), beyondViewportPageCount = 1) { page ->
+            BoardPage(state.boards[page], state, onRefresh)
+        }
+    }
+}
+
+@Composable
+private fun BoardPage(board: StopBoard, state: BoardUiState, onRefresh: () -> Unit) {
+    val listState = rememberLazyListState()
+    val firstUpcoming = board.departures.indexOfFirst { !it.isPast(state.now) }
+
+    // Open on the next passage, the few already gone (last 15 min) sit above it: scroll up to see them.
+    // Done once; after that item keys keep the list anchored while rows age into the past.
+    var positioned by rememberSaveable(board.stopId) { mutableStateOf(false) }
+    LaunchedEffect(positioned, board.departures.isNotEmpty()) {
+        if (!positioned && board.departures.isNotEmpty()) {
+            listState.scrollToItem(firstUpcoming.coerceAtLeast(0))
+            positioned = true
+        }
+    }
+
+    PullToRefreshBox(isRefreshing = state.isRefreshing, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            if (board.departures.isEmpty()) {
+                item(key = "empty") { EmptyState() }
+            }
+            val keys = board.departures.uniqueKeys()
+            itemsIndexed(board.departures, key = { index, _ -> keys[index] }) { index, departure ->
+                DepartureCard(departure, state.now, isNext = index == firstUpcoming, modifier = Modifier.fillMaxWidth())
+            }
+        }
+    }
+}
+
+/** Stable lazy-list keys; two passages of one line in the same second still get distinct ones. */
+private fun List<com.ilsecondodasinistra.catchit.domain.Departure>.uniqueKeys(): List<String> {
+    val seen = HashMap<String, Int>()
+    return map { d ->
+        val key = "${d.route.id}-${d.time.epochSecond}"
+        val n = seen.merge(key, 1, Int::plus)!!
+        if (n == 1) key else "$key#$n"
     }
 }
 
 @Composable
 private fun Notice(icon: ImageVector, text: String) {
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Row(Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
             Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
         }

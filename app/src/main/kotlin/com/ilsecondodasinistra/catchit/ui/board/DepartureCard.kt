@@ -39,47 +39,51 @@ import androidx.compose.ui.unit.sp
 import com.ilsecondodasinistra.catchit.R
 import com.ilsecondodasinistra.catchit.data.RouteInfo
 import com.ilsecondodasinistra.catchit.domain.Departure
+import com.ilsecondodasinistra.catchit.domain.isPast
 import java.time.Instant
 import kotlin.math.abs
 import kotlin.math.roundToLong
 
 @Composable
 fun DepartureCard(departure: Departure, now: Instant, isNext: Boolean, modifier: Modifier = Modifier) {
-    val colors = if (isNext) {
+    val past = departure.isPast(now)
+    val colors = if (past) {
+        CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow, contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
+    } else if (isNext) {
         CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer)
     } else {
         CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
     }
-    Card(modifier = modifier, shape = RoundedCornerShape(if (isNext) 32.dp else 24.dp), colors = colors) {
+    Card(modifier = modifier.alpha(if (past) 0.65f else 1f), shape = RoundedCornerShape(16.dp), colors = colors) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = if (isNext) 20.dp else 14.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            RouteBadge(departure.route, large = isNext)
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            RouteBadge(departure.route)
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
                 Text(
                     text = departure.headsign.toTitleCase(),
-                    style = if (isNext) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
-                    maxLines = 2,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
                 StatusLine(departure)
             }
-            Countdown(departure, now, isNext)
+            Countdown(departure, now)
         }
     }
 }
 
 @Composable
-private fun RouteBadge(route: RouteInfo, large: Boolean) {
+private fun RouteBadge(route: RouteInfo) {
     val background = route.color.toColor(Color(0xFF5B5B5B))
     val content = route.textColor.toColor(Color.White)
     Column(
         modifier = Modifier
-            .size(if (large) 64.dp else 56.dp)
-            .background(background, RoundedCornerShape(if (large) 22.dp else 18.dp)),
+            .size(44.dp)
+            .background(background, RoundedCornerShape(14.dp)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -87,53 +91,51 @@ private fun RouteBadge(route: RouteInfo, large: Boolean) {
             imageVector = if (route.isTram) Icons.Rounded.Tram else Icons.Rounded.DirectionsBus,
             contentDescription = stringResource(if (route.isTram) R.string.board_tram else R.string.board_bus),
             tint = content,
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier.size(14.dp),
         )
-        Text(text = route.name, color = content, fontSize = if (large) 20.sp else 17.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+        Text(text = route.name, color = content, fontSize = 14.sp, lineHeight = 15.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
     }
 }
 
 @Composable
 private fun StatusLine(departure: Departure) {
     val live = MaterialTheme.colorScheme.tertiary
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
     when {
-        departure.isCanceled -> Text(
-            text = stringResource(R.string.board_canceled),
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-        )
-        departure.isRealtime -> Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                LiveDot(live)
-                val delayMinutes = departure.delay?.let { (it.seconds / 60.0).roundToLong() }
-                when {
-                    delayMinutes == null -> StatusText(stringResource(R.string.board_live), live)
-                    delayMinutes == 0L -> StatusText(stringResource(R.string.board_on_time), live)
-                    delayMinutes > 0 -> StatusText(pluralStringResource(R.plurals.board_late, delayMinutes.toInt(), delayMinutes), MaterialTheme.colorScheme.error)
-                    else -> StatusText(pluralStringResource(R.plurals.board_early, abs(delayMinutes).toInt(), abs(delayMinutes)), live)
+        departure.isCanceled -> StatusText(stringResource(R.string.board_canceled), MaterialTheme.colorScheme.error, FontWeight.Bold)
+        departure.isRealtime -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            LiveDot(live)
+            val delayMinutes = departure.delay?.let { (it.seconds / 60.0).roundToLong() }
+            when {
+                delayMinutes == null -> StatusText(stringResource(R.string.board_live), live)
+                delayMinutes == 0L -> StatusText(stringResource(R.string.board_on_time), live)
+                delayMinutes > 0 -> StatusText(pluralStringResource(R.plurals.board_late, delayMinutes.toInt(), delayMinutes), MaterialTheme.colorScheme.error)
+                else -> StatusText(pluralStringResource(R.plurals.board_early, abs(delayMinutes).toInt(), abs(delayMinutes)), live)
+            }
+            if (delayMinutes != 0L) {
+                departure.scheduled?.let {
+                    StatusText("·  " + stringResource(R.string.board_scheduled_at, it.clockText()), muted, modifier = Modifier.weight(1f, fill = false))
                 }
             }
-            val late = departure.delay?.let { (it.seconds / 60.0).roundToLong() } != 0L
-            departure.scheduled?.takeIf { late }?.let {
-                StatusText(stringResource(R.string.board_scheduled_at, it.clockText()), LocalMuted.current())
-            }
         }
-        else -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Icon(Icons.Rounded.Schedule, contentDescription = null, modifier = Modifier.size(16.dp), tint = LocalMuted.current())
-            StatusText(stringResource(R.string.board_from_timetable), LocalMuted.current())
+        else -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Icon(Icons.Rounded.Schedule, contentDescription = null, modifier = Modifier.size(13.dp), tint = muted)
+            StatusText(stringResource(R.string.board_from_timetable), muted)
         }
     }
 }
 
-private object LocalMuted {
-    @Composable
-    fun current(): Color = MaterialTheme.colorScheme.onSurfaceVariant
-}
-
 @Composable
-private fun StatusText(text: String, color: Color) {
-    Text(text = text, color = color, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Medium, maxLines = 1)
+private fun StatusText(text: String, color: Color, weight: FontWeight = FontWeight.Medium, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        color = color,
+        style = MaterialTheme.typography.labelMedium,
+        fontWeight = weight,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -145,25 +147,33 @@ private fun LiveDot(color: Color) {
         animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
         label = "liveAlpha",
     )
-    Box(Modifier.size(8.dp).alpha(alpha).background(color, CircleShape))
+    Box(Modifier.size(7.dp).alpha(alpha).background(color, CircleShape))
 }
 
 @Composable
-private fun Countdown(departure: Departure, now: Instant, isNext: Boolean) {
+private fun Countdown(departure: Departure, now: Instant) {
     val minutes = minutesUntil(departure.time, now)
     val strike = if (departure.isCanceled) TextDecoration.LineThrough else null
     Column(horizontalAlignment = Alignment.End) {
-        val big = if (isNext) 34.sp else 26.sp
+        if (departure.isPast(now)) {
+            val ago = minutesSince(departure.time, now)
+            Text(departure.time.clockText(), fontSize = 20.sp, lineHeight = 24.sp, fontWeight = FontWeight.ExtraBold, textDecoration = strike)
+            Text(
+                text = if (ago == 0L) stringResource(R.string.board_just_left) else stringResource(R.string.board_ago, ago),
+                style = MaterialTheme.typography.labelMedium,
+            )
+            return@Column
+        }
         when {
-            minutes >= 60 -> Text(departure.time.clockText(), fontSize = big, fontWeight = FontWeight.ExtraBold, textDecoration = strike)
-            minutes == 0L -> Text(stringResource(R.string.board_now), fontSize = big, fontWeight = FontWeight.ExtraBold, textDecoration = strike)
-            else -> Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(minutes.toString(), fontSize = big, fontWeight = FontWeight.ExtraBold, textDecoration = strike)
-                Text(stringResource(R.string.board_min), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(bottom = 4.dp))
+            minutes >= 60 -> Text(departure.time.clockText(), fontSize = 20.sp, lineHeight = 24.sp, fontWeight = FontWeight.ExtraBold, textDecoration = strike)
+            minutes == 0L -> Text(stringResource(R.string.board_now), fontSize = 20.sp, lineHeight = 24.sp, fontWeight = FontWeight.ExtraBold, textDecoration = strike)
+            else -> Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(minutes.toString(), fontSize = 20.sp, lineHeight = 24.sp, fontWeight = FontWeight.ExtraBold, textDecoration = strike)
+                Text(stringResource(R.string.board_min), style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(bottom = 2.dp))
             }
         }
         if (minutes < 60) {
-            Text(departure.time.clockText(), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (isNext) 0.8f else 1f), textDecoration = strike)
+            Text(departure.time.clockText(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textDecoration = strike)
         }
     }
 }

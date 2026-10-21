@@ -18,3 +18,8 @@ data class Departure(
     /** Positive = late. Only meaningful for live passages with a known timetable time. */
     val delay: Duration? get() = if (isRealtime && scheduled != null) Duration.between(scheduled, time) else null
 }
+
+private val PAST_GRACE: Duration = Duration.ofSeconds(30)
+
+/** Gone by more than a moment: such rows are shown dimmed above the next passage. */
+fun Departure.isPast(now: Instant): Boolean = time < now.minus(PAST_GRACE)

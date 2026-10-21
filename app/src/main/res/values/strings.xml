@@ -8,8 +8,10 @@
     <string name="board_min">min</string>
     <string name="board_live">Tempo reale</string>
     <string name="board_on_time">In orario</string>
-    <string name="board_scheduled_at">Programmato %1$s</string>
+    <string name="board_scheduled_at">era %1$s</string>
     <string name="board_from_timetable">Da orario</string>
+    <string name="board_just_left">appena passato</string>
+    <string name="board_ago">%1$d min fa</string>
     <string name="board_canceled">Soppressa</string>
     <plurals name="board_late">
         <item quantity="one">%1$d min di ritardo</item>
@@ -25,6 +27,6 @@
     <string name="board_updated_ago">Aggiornato %1$d s fa</string>
     <string name="board_realtime_unavailable">Tempo reale non disponibile</string>
     <string name="board_offline_hint">Non riesco a raggiungere AVM. Mostro gli ultimi dati e gli orari programmati.</string>
-    <string name="board_schedule_starts">Gli orari programmati partono dal %1$s: fino ad allora vedi solo i passaggi in tempo reale.</string>
+    <string name="board_schedule_starts">Orari indicativi: il nuovo orario AVM parte il %1$s. I passaggi in tempo reale sono esatti.</string>
     <string name="board_empty">Nessun passaggio previsto a breve</string>
 </resources>

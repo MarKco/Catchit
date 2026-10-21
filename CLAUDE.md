@@ -26,6 +26,11 @@ T1, 31H, 32H, 12L, N1, N2. The app must never contain the whole network, only a 
 - **RT `trip_id`s can't be joined to the static feed**: they embed the feed version (`AUT_ACTV_792_*` live vs `793` in the zip) and AVM
   publishes a new version often. `DepartureMerger` matches by line + `time - delay` (±150 s) instead. RT carries absolute predicted
   time, delay, `route_id`, `direction_id` but no headsign (taken from the timetable).
-- The static feed has a validity window (`feed_start_date`): before it, only live passages exist (the UI says so).
+- The static feed has a validity window (`feed_start_date`): before it, `Timetable.runsOn` reuses the first timetable (same weekday) as an *indicative* stand-in and the UI says so.
 - Seen on 2026-10-21: the tram (T1/T2) is absent from both `tripUpdates` and `vehiclePositions`: trams only show timetable data.
 - The navigation (vaporetti) feeds live under `/nav/` (same schema); unused so far.
+
+## Board behaviour
+- Per pole: timetable + live merged over a window of 6 h ahead (crosses midnight into the next service day) and the last 15 min
+  behind (`DepartureMerger.DEFAULT_*`). Past rows are dimmed; the list opens on the first non-past row (scroll up for the past).
+- Notices (indicative timetable, feed offline) live outside the lazy list so they stay visible after the initial scroll.

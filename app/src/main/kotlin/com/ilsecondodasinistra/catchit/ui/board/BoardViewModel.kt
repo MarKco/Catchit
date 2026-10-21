@@ -106,7 +106,7 @@ class BoardViewModel @Inject constructor(
         val zone = clock.zone
         val boards = tt.stops.map { stop ->
             val scheduled = tt.scheduled(stop.id, now.minus(LOOKBACK), now.plus(HORIZON), zone)
-            val departures = DepartureMerger.merge(stop.id, tt, scheduled, live.updates, now, LIMIT)
+            val departures = DepartureMerger.merge(stop.id, tt, scheduled, live.updates, now, LIMIT, HORIZON)
             StopBoard(stop.id, stop.label, departures)
         }
         val today = now.atZone(zone).toLocalDate()
@@ -124,8 +124,9 @@ class BoardViewModel @Inject constructor(
 
     private companion object {
         val TICK: Long = 10_000
+        // Wider than the visible past: a late tram is matched to a timetable row that is already behind it.
         val LOOKBACK: Duration = Duration.ofMinutes(60)
-        val HORIZON: Duration = Duration.ofHours(6)
-        const val LIMIT = 30
+        val HORIZON: Duration = DepartureMerger.DEFAULT_HORIZON
+        const val LIMIT = 150 // a tram every ~6 min for 6 h is ~60 rows per pole
     }
 }

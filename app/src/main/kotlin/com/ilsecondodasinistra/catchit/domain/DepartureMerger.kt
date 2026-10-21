@@ -17,8 +17,11 @@ import kotlin.math.abs
 object DepartureMerger {
     private val MATCH_TOLERANCE = Duration.ofSeconds(150)
 
-    /** Live passages already gone by more than this are dropped. */
-    private val GRACE = Duration.ofSeconds(30)
+    /** How far ahead the board looks. */
+    val DEFAULT_HORIZON: Duration = Duration.ofHours(6)
+
+    /** How far back the board still lists passages that have gone. */
+    val DEFAULT_PAST: Duration = Duration.ofMinutes(15)
 
     fun merge(
         stopId: String,
@@ -27,6 +30,8 @@ object DepartureMerger {
         updates: List<RealtimeUpdate>,
         now: Instant,
         limit: Int,
+        horizon: Duration = DEFAULT_HORIZON,
+        past: Duration = DEFAULT_PAST,
     ): List<Departure> {
         val free = scheduled.toMutableList()
         val out = ArrayList<Departure>()
@@ -61,7 +66,8 @@ object DepartureMerger {
             out += Departure(route, s.headsign, s.time, s.time, isRealtime = false)
         }
 
-        val earliest = now.minus(GRACE)
-        return out.filter { it.time >= earliest }.sortedBy { it.time }.take(limit)
+        val earliest = now.minus(past)
+        val latest = now.plus(horizon)
+        return out.filter { it.time in earliest..latest }.sortedBy { it.time }.take(limit)
     }
 }
