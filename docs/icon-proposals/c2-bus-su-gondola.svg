@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="432" height="432" viewBox="0 0 108 108">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#13857B"/>
+      <stop offset="1" stop-color="#0B5A53"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg)"/>
+  <!-- bus -->
+  <rect x="30" y="30" width="42" height="28" rx="6" fill="#FFFFFF"/>
+  <rect x="34" y="35" width="8" height="9" rx="2" fill="#0B5A53"/>
+  <rect x="45" y="35" width="8" height="9" rx="2" fill="#0B5A53"/>
+  <rect x="56" y="35" width="12" height="9" rx="2" fill="#0B5A53"/>
+  <circle cx="42" cy="58" r="4.6" fill="#FFFFFF" stroke="#0B5A53" stroke-width="2.2"/>
+  <circle cx="61" cy="58" r="4.6" fill="#FFFFFF" stroke="#0B5A53" stroke-width="2.2"/>
+  <!-- gondola hull: low stern on the left, tall bow with the comb (ferro) on the right -->
+  <path d="M20 58 C22 72 38 78 54 78 C72 78 86 70 88 48 L90 40 L85 44 C84 56 76 64 62 65 L42 65 C32 65 26 62 24 56 Z" fill="#FF9800"/>
+  <path d="M86 46 H92 M87.5 51 H92.5 M85.5 41 H90.5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+  <!-- water -->
+  <path d="M24 86 q7 -4.5 14 0 t14 0 t14 0 t14 0" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>

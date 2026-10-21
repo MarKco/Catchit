@@ -57,3 +57,13 @@ lines that directly link those places (derived from the feed by the importer).
 - `Timetable` holds several versions and answers each day with the one in force that day (a timetable published early doesn't replace the
   current one before its start). `SnapshotPolicy.obsolete` prunes superseded files. Changing `ImporterConfig`/`TimetableConfig`
   destinations changes the fingerprint: older downloaded files are dropped; regenerate the bundled asset with the importer.
+
+## Settings, calendar, log
+- Overflow menu (three dots, header): pick day+time (Material date picker from today to the end of the timetable, then time picker), back to
+  today (calendar icon with today's number), settings. Another day = whole-day timetable only (`BoardViewModel.wholeDay`), no live data and
+  no polling, countdowns replaced by times; the list opens at the picked time. The app forces `Locale.ITALIAN` (`MainActivity.attachBaseContext`)
+  so Material pickers are Italian.
+- Settings (`ui/settings`): timetable versions/lines/last check, "Controlla ora" and "Ricostruisci da AVM" (asks before a download on mobile
+  data), bottom-bar editor (drag handle + switch; saved in `BarPreferences`; the first visible button is the start screen; at least one stays
+  visible), and the log (`UpdateLog`: last 50 events, kept in `files/update-log.jsonl`, copy/share text starts with app/Android/device and
+  timetable versions so it can be pasted in a bug report).

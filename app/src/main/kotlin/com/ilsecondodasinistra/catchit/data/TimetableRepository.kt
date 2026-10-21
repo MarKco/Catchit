@@ -18,6 +18,12 @@ import javax.inject.Singleton
  * The timetables the app knows: the one bundled in the APK (always there, the fallback) plus those downloaded
  * by [com.ilsecondodasinistra.catchit.update.TimetableUpdater], one file per start date.
  */
+/** One timetable version the app has, for the settings page. */
+data class VersionInfo(val feedStart: String, val feedEnd: String, val downloaded: Boolean, val patterns: Int)
+
+/** Outcome of the last timetable check, as stored. */
+data class LastCheck(val epochMillis: Long, val trigger: String, val outcome: String)
+
 @Singleton
 class TimetableRepository @Inject constructor(@ApplicationContext private val context: Context) {
     private val json = Json { ignoreUnknownKeys = true }
@@ -37,6 +43,34 @@ class TimetableRepository @Inject constructor(@ApplicationContext private val co
     var failedStamp: String?
         get() = prefs.getString(KEY_FAILED, null)
         set(value) = prefs.edit().putString(KEY_FAILED, value).apply()
+
+    private val _versions = MutableStateFlow<List<VersionInfo>>(emptyList())
+
+    /** The versions behind [timetable], oldest first. */
+    val versions: StateFlow<List<VersionInfo>> = _versions
+
+    var lastCheck: LastCheck?
+        get() = prefs.getLong(KEY_LAST_AT, 0L).takeIf { it > 0 }?.let {
+            LastCheck(it, prefs.getString(KEY_LAST_TRIGGER, "").orEmpty(), prefs.getString(KEY_LAST_OUTCOME, "").orEmpty())
+        }
+        set(value) {
+            prefs.edit().apply {
+                if (value == null) remove(KEY_LAST_AT) else {
+                    putLong(KEY_LAST_AT, value.epochMillis)
+                    putString(KEY_LAST_TRIGGER, value.trigger)
+                    putString(KEY_LAST_OUTCOME, value.outcome)
+                }
+            }.apply()
+            _lastCheck.value = value
+        }
+    private val _lastCheck = MutableStateFlow<LastCheck?>(null)
+
+    /** Same as [lastCheck], observable. */
+    val lastCheckFlow: StateFlow<LastCheck?> = _lastCheck
+
+    init {
+        _lastCheck.value = lastCheck
+    }
 
     suspend fun load() = withContext(Dispatchers.IO) { _timetable.value = read() }
 
@@ -69,6 +103,9 @@ class TimetableRepository @Inject constructor(@ApplicationContext private val co
             // A file from an older app version (other destinations) or a damaged one is useless: drop it.
             if (data == null || data.config != TimetableConfig.fingerprint) file.delete() else byStart[data.feedStart] = data
         }
+        _versions.value = byStart.values.sortedBy { it.feedStart }.map { data ->
+            VersionInfo(data.feedStart, data.feedEnd, downloaded = data !== bundled, patterns = data.patterns.size)
+        }
         return Timetable(byStart.values.toList())
     }
 
@@ -94,6 +131,9 @@ class TimetableRepository @Inject constructor(@ApplicationContext private val co
         const val SUFFIX = ".json"
         const val KEY_PROCESSED = "processed"
         const val KEY_FAILED = "failed"
+        const val KEY_LAST_AT = "last_at"
+        const val KEY_LAST_TRIGGER = "last_trigger"
+        const val KEY_LAST_OUTCOME = "last_outcome"
     }
 }
 

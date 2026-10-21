@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter
 
 private val venice: ZoneId = ZoneId.of("Europe/Rome")
 private val clockFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm").withZone(venice)
+private val fullDayFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE d MMMM", java.util.Locale.ITALIAN)
 private val dayFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM", java.util.Locale.ITALIAN)
 
 internal fun Instant.clockText(): String = clockFormat.format(this)
@@ -26,3 +27,8 @@ internal fun minutesSince(time: Instant, now: Instant): Long =
 /** Calendar days between [now] and [time] in Venice (0 = today). */
 internal fun daysAhead(time: Instant, now: Instant): Long =
     java.time.temporal.ChronoUnit.DAYS.between(now.atZone(venice).toLocalDate(), time.atZone(venice).toLocalDate())
+
+/** "ven 23 ottobre". */
+internal fun java.time.LocalDate.fullDayText(): String = fullDayFormat.format(this)
+
+internal val veniceZone: ZoneId get() = venice

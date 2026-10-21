@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="432" height="432" viewBox="0 0 108 108">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#13857B"/>
+      <stop offset="1" stop-color="#0B5A53"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg)"/>
+  <!-- bus body -->
+  <rect x="22" y="40" width="52" height="28" rx="6" fill="#FFFFFF"/>
+  <!-- windows -->
+  <rect x="27" y="45" width="10" height="9" rx="2" fill="#0B5A53"/>
+  <rect x="40" y="45" width="10" height="9" rx="2" fill="#0B5A53"/>
+  <rect x="53" y="45" width="15" height="9" rx="2" fill="#0B5A53"/>
+  <!-- wheels -->
+  <circle cx="36" cy="69" r="6" fill="#FFFFFF" stroke="#0B5A53" stroke-width="2.5"/>
+  <circle cx="62" cy="69" r="6" fill="#FFFFFF" stroke="#0B5A53" stroke-width="2.5"/>
+  <!-- gondola prow (ferro) replacing the bus front -->
+  <path d="M74 64 C 88 64 91 48 82 34" stroke="#FFFFFF" stroke-width="4.2" stroke-linecap="round" fill="none"/>
+  <path d="M85.6 58 H90.5 M87 52 H91.8 M86.4 46 H90.6 M84.4 40.5 H88.2" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <circle cx="81.5" cy="32.5" r="3.6" fill="#FF9800"/>
+  <!-- waves -->
+  <path d="M24 84 q7 -5 14 0 t14 0 t14 0 t14 0" stroke="#FFFFFF" stroke-opacity="0.65" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>

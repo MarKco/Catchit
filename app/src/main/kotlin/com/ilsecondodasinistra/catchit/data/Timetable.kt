@@ -48,6 +48,12 @@ class Timetable(datas: List<TimetableData>) {
     /** First day covered by any version, null when the asset doesn't say. Before it, timetables are indicative. */
     val validFrom: LocalDate? = snapshots.first().validFrom
 
+    /** Last day covered by any version: the newest one's end. */
+    val validUntil: LocalDate? = snapshots.mapNotNull { it.data.feedEnd.toDateOrNull() }.maxOrNull()
+
+    /** Lines of the newest versions by name, for the settings page. */
+    val lineNames: List<String> = routes.values.map { it.name }.distinct().sortedWith(compareBy({ it.length }, { it }))
+
     /** The version in force on [day]: the newest one that has started; before all of them, the oldest (indicative). */
     private fun snapshotFor(day: LocalDate): Snapshot =
         snapshots.lastOrNull { it.validFrom == null || it.validFrom <= day } ?: snapshots.first()

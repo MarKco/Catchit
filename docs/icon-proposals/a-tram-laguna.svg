@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="432" height="432" viewBox="0 0 108 108">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1273B3"/>
+      <stop offset="1" stop-color="#0A4A78"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg)"/>
+  <!-- pantograph -->
+  <path d="M54 33 V25 M44 25 H64" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+  <!-- tram body -->
+  <rect x="30" y="33" width="48" height="38" rx="10" fill="#FFFFFF"/>
+  <!-- windscreen -->
+  <rect x="36" y="39" width="36" height="17" rx="5" fill="#0A4A78"/>
+  <path d="M54 39 V56" stroke="#FFFFFF" stroke-width="1.6"/>
+  <!-- headlights: the warm "live" accent -->
+  <circle cx="40" cy="63" r="3.4" fill="#FF9800"/>
+  <circle cx="68" cy="63" r="3.4" fill="#FF9800"/>
+  <!-- waves -->
+  <path d="M26 79 q7 -5 14 0 t14 0 t14 0 t14 0" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M26 86 q7 -5 14 0 t14 0 t14 0 t14 0" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>

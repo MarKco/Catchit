@@ -2,7 +2,11 @@ package com.ilsecondodasinistra.catchit.ui.board
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ilsecondodasinistra.catchit.data.BarEntry
+import com.ilsecondodasinistra.catchit.data.BarPreferences
 import com.ilsecondodasinistra.catchit.data.Leg
+import com.ilsecondodasinistra.catchit.data.LogKind
+import com.ilsecondodasinistra.catchit.data.UpdateLog
 import com.ilsecondodasinistra.catchit.data.RealtimeSource
 import com.ilsecondodasinistra.catchit.data.RealtimeUpdate
 import com.ilsecondodasinistra.catchit.data.Timetable
@@ -49,6 +53,9 @@ data class DestinationBoard(
     val legs: List<LegBoard>,
 )
 
+/** Another day picked from the calendar: that whole day's timetable, the list opening at [focus]. */
+data class Browsing(val day: LocalDate, val focus: Instant)
+
 data class BoardUiState(
     val isLoading: Boolean = true,
     val destinations: List<DestinationBoard> = emptyList(),
@@ -59,6 +66,11 @@ data class BoardUiState(
     val isRefreshing: Boolean = false,
     /** Set while the bundled timetable doesn't cover today yet: timetable rows are indicative until then. */
     val scheduleStartsOn: LocalDate? = null,
+    /** Null: the board shows now, with live data. */
+    val browsing: Browsing? = null,
+    val today: LocalDate? = null,
+    /** Last day with timetable data: the calendar stops there. */
+    val validUntil: LocalDate? = null,
 )
 
 private data class LiveState(
@@ -72,11 +84,16 @@ private data class LiveState(
 class BoardViewModel @Inject constructor(
     private val timetables: TimetableRepository,
     updater: TimetableUpdater,
+    private val log: UpdateLog,
+    private val bar: BarPreferences,
     private val realtime: RealtimeSource,
     private val clock: Clock,
 ) : ViewModel() {
     private val live = MutableStateFlow(LiveState())
     private val refreshLock = Mutex()
+
+    /** The instant picked in the calendar, null = now. */
+    private val selection = MutableStateFlow<Instant?>(null)
 
     /** Re-evaluated every few seconds so countdowns and the "next" list keep moving between fetches. */
     private val ticker = flow {
@@ -86,14 +103,25 @@ class BoardViewModel @Inject constructor(
         }
     }
 
-    val state: StateFlow<BoardUiState> = combine(timetables.timetable, live, ticker) { tt, live, now ->
-        if (tt == null) BoardUiState(isLoading = true) else buildState(tt, live, now)
+    val state: StateFlow<BoardUiState> = combine(timetables.timetable, live, ticker, selection, bar.saved) { tt, live, now, picked, saved ->
+        if (tt == null) BoardUiState(isLoading = true) else buildState(tt, live, now, picked, saved)
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), BoardUiState())
 
     init {
         viewModelScope.launch { timetables.load() }
         // In the background, a few seconds after the first screen: a newer AVM timetable swaps itself in.
         updater.checkSoon()
+    }
+
+    /** Show the timetable of the day of [instant] (no live data), the lists opening at that time. */
+    fun browse(instant: Instant) {
+        selection.value = instant
+    }
+
+    /** Back to now, with live data. */
+    fun backToToday() {
+        selection.value = null
+        requestRefresh()
     }
 
     fun requestRefresh() {
@@ -108,25 +136,34 @@ class BoardViewModel @Inject constructor(
             val updates = withContext(Dispatchers.Default) {
                 TripUpdatesParser.parse(realtime.fetchTripUpdates(), tt.stopIds)
             }
+            if (live.value.failed) log.info(LogKind.Live, "Tempo reale di nuovo disponibile")
             live.value = LiveState(updates, clock.instant(), failed = false)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             // Keep the last good predictions (they age out by themselves) and say the feed is unreachable.
+            // Only the first of a run of failures is logged: the poll repeats every 20 s.
+            if (!live.value.failed) log.error(LogKind.Live, "Tempo reale non disponibile", e)
             live.update { it.copy(failed = true, refreshing = false) }
         }
     }
 
-    private fun buildState(tt: Timetable, live: LiveState, now: Instant): BoardUiState {
+    private fun buildState(tt: Timetable, live: LiveState, now: Instant, picked: Instant?, saved: List<BarEntry>): BoardUiState {
         val zone = clock.zone
-        val destinations = tt.destinations.map { d ->
+        val today = now.atZone(zone).toLocalDate()
+        // A day picked yesterday and left open overnight is just "today" again.
+        val focus = picked?.takeIf { !it.atZone(zone).toLocalDate().isBefore(today) }
+        val browsing = focus?.let { Browsing(it.atZone(zone).toLocalDate(), it) }
+
+        val known = tt.destinations.associateBy { it.id }
+        val shown = BarPreferences.resolve(tt.destinations.map { it.id }, saved).filter { it.visible }.mapNotNull { known[it.id] }
+        val destinations = shown.map { d ->
             val legs = Leg.entries.map { leg ->
-                val departures = departures(tt, d.id, leg, live, now, zone)
+                val departures = if (browsing != null) wholeDay(tt, d.id, leg, browsing.day, zone) else departures(tt, d.id, leg, live, now, zone)
                 LegBoard(leg, towards = if (leg == Leg.Outbound) d.target else d.origin, departures = departures)
             }
             DestinationBoard(d.id, d.label, d.origin, d.target, legs)
         }
-        val today = now.atZone(zone).toLocalDate()
         return BoardUiState(
             isLoading = false,
             destinations = destinations,
@@ -135,7 +172,18 @@ class BoardViewModel @Inject constructor(
             realtimeFailed = live.failed,
             isRefreshing = live.refreshing,
             scheduleStartsOn = tt.validFrom?.takeIf { today < it },
+            browsing = browsing,
+            today = today,
+            validUntil = tt.validUntil,
         )
+    }
+
+    /** Timetable of a whole calendar day: live data only describes the next hour or so. */
+    private fun wholeDay(tt: Timetable, destinationId: String, leg: Leg, day: LocalDate, zone: ZoneId): List<Departure> {
+        val from = day.atStartOfDay(zone).toInstant()
+        val until = day.plusDays(1).atStartOfDay(zone).toInstant().minusSeconds(1)
+        val scheduled = tt.scheduled(destinationId, leg, from, until, zone)
+        return DepartureMerger.merge(destinationId, leg, tt, scheduled, emptyList(), from, DAY_LIMIT, Duration.ofHours(25), Duration.ZERO)
     }
 
     /**
@@ -158,6 +206,7 @@ class BoardViewModel @Inject constructor(
         val LOOKBACK: Duration = Duration.ofMinutes(60)
         val HORIZONS: List<Duration> = listOf(DepartureMerger.DEFAULT_HORIZON, Duration.ofHours(30))
         const val MIN_UPCOMING = 5
+        const val DAY_LIMIT = 800
         const val LIMIT = 150 // a tram every ~6 min for 6 h is ~60 rows per pole
     }
 }

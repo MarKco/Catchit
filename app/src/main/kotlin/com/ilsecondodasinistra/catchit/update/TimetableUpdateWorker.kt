@@ -24,7 +24,7 @@ internal interface UpdaterEntryPoint {
 class TimetableUpdateWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         val updater = EntryPointAccessors.fromApplication(applicationContext, UpdaterEntryPoint::class.java).updater()
-        return when (updater.check()) {
+        return when (updater.check(UpdateTrigger.Daily)) {
             UpdateOutcome.NetworkError -> Result.retry()
             else -> Result.success()
         }

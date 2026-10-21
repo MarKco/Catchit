@@ -17,6 +17,19 @@
     <string name="board_from_timetable">Da orario</string>
     <string name="board_just_left">appena passato</string>
     <string name="board_ago">%1$d min fa</string>
+    <string name="board_menu">Altre azioni</string>
+    <string name="board_menu_pick">Scegli giorno e ora</string>
+    <string name="board_menu_today">Torna a oggi</string>
+    <string name="board_menu_settings">Impostazioni</string>
+    <string name="board_pick_next">Avanti</string>
+    <string name="board_pick_cancel">Annulla</string>
+    <string name="board_time_title">A che ora?</string>
+    <string name="board_time_show">Mostra</string>
+    <string name="board_browsing_status">Orari programmati · %1$s</string>
+    <string name="board_browsing_notice">Stai guardando gli orari programmati di %1$s. Il tempo reale vale solo per oggi.</string>
+    <string name="board_toast_browse">Orari di %1$s, dalle %2$s</string>
+    <string name="board_toast_today">Tornato a oggi: orari e tempo reale di adesso</string>
+    <string name="board_toast_already_today">Sei già su oggi</string>
     <string name="board_tomorrow">domani</string>
     <string name="board_in_days">tra %1$d giorni</string>
     <string name="board_canceled">Soppressa</string>
@@ -36,4 +49,40 @@
     <string name="board_offline_hint">Non riesco a raggiungere AVM. Mostro gli ultimi dati e gli orari programmati.</string>
     <string name="board_schedule_starts">Orari indicativi: il nuovo orario AVM parte il %1$s. I passaggi in tempo reale sono esatti.</string>
     <string name="board_empty">Nessun passaggio previsto a breve</string>
+
+    <string name="settings_title">Impostazioni</string>
+    <string name="settings_back">Indietro</string>
+
+    <string name="settings_section_timetable">Orari</string>
+    <string name="settings_versions">Versioni in uso</string>
+    <string name="settings_version_line">dal %1$s al %2$s · %3$s</string>
+    <string name="settings_version_bundled">inclusa nell\'app</string>
+    <string name="settings_version_downloaded">scaricata</string>
+    <string name="settings_lines">Linee incluse</string>
+    <string name="settings_stops">Fermate di partenza: %1$d</string>
+    <string name="settings_auto">Si aggiornano da soli: controllo all\'avvio e una volta al giorno in background, solo con Wi-Fi.</string>
+    <string name="settings_last_check">Ultimo controllo</string>
+    <string name="settings_never_checked">mai</string>
+    <string name="settings_last_check_value">%1$s · %2$s · %3$s</string>
+    <string name="settings_check_now">Controlla ora</string>
+    <string name="settings_checking">Controllo in corso…</string>
+    <string name="settings_rebuild">Ricostruisci da AVM</string>
+    <string name="settings_result">Esito: %1$s</string>
+    <string name="settings_metered_title">Rete a consumo</string>
+    <string name="settings_metered_message">Sei su dati mobili: gli orari AVM sono circa 14 MB. Scaricare ora?</string>
+    <string name="settings_metered_yes">Scarica</string>
+
+    <string name="settings_section_bar">Barra in basso</string>
+    <string name="settings_bar_hint">Trascina per riordinare, interruttore per mostrare o nascondere. La prima voce visibile è la schermata iniziale; almeno una resta sempre visibile.</string>
+    <string name="settings_bar_drag">Trascina per spostare</string>
+
+    <string name="settings_section_log">Registro</string>
+    <string name="settings_log_hint">Gli ultimi %1$d eventi su orari e tempo reale. Se qualcosa non va, copia o condividi il registro.</string>
+    <string name="settings_log_copy">Copia</string>
+    <string name="settings_log_share">Condividi</string>
+    <string name="settings_log_clear">Cancella</string>
+    <string name="settings_log_copied">Registro copiato</string>
+    <string name="settings_log_empty">Nessun evento registrato</string>
+    <string name="settings_log_share_subject">Registro Catchit</string>
+    <string name="settings_about">Catchit %1$s</string>
 </resources>

@@ -46,8 +46,15 @@ import kotlin.math.abs
 import kotlin.math.roundToLong
 
 @Composable
-fun DepartureCard(departure: Departure, now: Instant, isNext: Boolean, modifier: Modifier = Modifier) {
-    val past = departure.isPast(now)
+fun DepartureCard(
+    departure: Departure,
+    now: Instant,
+    isNext: Boolean,
+    modifier: Modifier = Modifier,
+    /** False when browsing another day: minutes-to-go and "past" make no sense, only the times do. */
+    showCountdown: Boolean = true,
+) {
+    val past = showCountdown && departure.isPast(now)
     val colors = if (past) {
         CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow, contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
     } else if (isNext) {
@@ -72,7 +79,7 @@ fun DepartureCard(departure: Departure, now: Instant, isNext: Boolean, modifier:
                 )
                 StatusLine(departure)
             }
-            Countdown(departure, now)
+            Countdown(departure, now, showCountdown)
         }
     }
 }
@@ -151,10 +158,14 @@ private fun LiveDot(color: Color) {
 }
 
 @Composable
-private fun Countdown(departure: Departure, now: Instant) {
+private fun Countdown(departure: Departure, now: Instant, showCountdown: Boolean) {
     val minutes = minutesUntil(departure.time, now)
     val strike = if (departure.isCanceled) TextDecoration.LineThrough else null
     Column(horizontalAlignment = Alignment.End) {
+        if (!showCountdown) {
+            Text(departure.time.clockText(), fontSize = 20.sp, lineHeight = 24.sp, fontWeight = FontWeight.ExtraBold, textDecoration = strike)
+            return@Column
+        }
         if (departure.isPast(now)) {
             val ago = minutesSince(departure.time, now)
             Text(departure.time.clockText(), fontSize = 20.sp, lineHeight = 24.sp, fontWeight = FontWeight.ExtraBold, textDecoration = strike)
