@@ -1,6 +1,15 @@
 package com.ilsecondodasinistra.catchit.ui.board
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import com.ilsecondodasinistra.catchit.ui.theme.glass
+import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -96,6 +105,10 @@ fun BoardContent(state: BoardUiState, onRefresh: () -> Unit) {
     val selected = state.destinations.firstOrNull { it.id == selectedId } ?: state.destinations.firstOrNull()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
+    val haze = rememberHazeState()
+    val density = LocalDensity.current
+    var barHeight by remember { mutableStateOf(0.dp) }
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -112,8 +125,28 @@ fun BoardContent(state: BoardUiState, onRefresh: () -> Unit) {
                 scrollBehavior = scrollBehavior,
             )
         },
-        bottomBar = {
-            NavigationBar {
+        // The bar below is drawn over the content (see the Box): no inset padding at the bottom.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+    ) { padding ->
+        Box(Modifier.fillMaxSize().padding(padding)) {
+            // The content is the haze source: the glass bar blurs the list scrolling behind it.
+            Box(Modifier.fillMaxSize().hazeSource(haze)) {
+                if (state.isLoading || selected == null) {
+                    CircularProgressIndicator(Modifier.align(Alignment.Center))
+                } else {
+                    // A fresh pager (and tab) per destination.
+                    key(selected.id) { DestinationPage(selected, state, barHeight, onRefresh) }
+                }
+            }
+            NavigationBar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .onSizeChanged { barHeight = with(density) { it.height.toDp() } }
+                    .glass(haze),
+                containerColor = Color.Transparent,
+                tonalElevation = 0.dp,
+            ) {
                 state.destinations.forEach { destination ->
                     NavigationBarItem(
                         selected = destination.id == selected?.id,
@@ -122,15 +155,6 @@ fun BoardContent(state: BoardUiState, onRefresh: () -> Unit) {
                         label = { Text(destination.label) },
                     )
                 }
-            }
-        },
-    ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
-            if (state.isLoading || selected == null) {
-                CircularProgressIndicator(Modifier.align(Alignment.Center))
-            } else {
-                // A fresh pager (and tab) per destination.
-                key(selected.id) { DestinationPage(selected, state, onRefresh) }
             }
         }
     }
@@ -158,7 +182,7 @@ private fun LiveSubtitle(state: BoardUiState) {
 }
 
 @Composable
-private fun DestinationPage(destination: DestinationBoard, state: BoardUiState, onRefresh: () -> Unit) {
+private fun DestinationPage(destination: DestinationBoard, state: BoardUiState, bottomPadding: Dp, onRefresh: () -> Unit) {
     val pagerState = rememberPagerState { destination.legs.size }
     val scope = rememberCoroutineScope()
     Column(Modifier.fillMaxSize()) {
@@ -186,7 +210,7 @@ private fun DestinationPage(destination: DestinationBoard, state: BoardUiState, 
             }
         }
         HorizontalPager(state = pagerState, modifier = Modifier.weight(1f), beyondViewportPageCount = 1) { page ->
-            LegPage("${destination.id}/${destination.legs[page].leg.id}", destination.legs[page].departures, state, onRefresh)
+            LegPage("${destination.id}/${destination.legs[page].leg.id}", destination.legs[page].departures, state, bottomPadding, onRefresh)
         }
     }
 }
@@ -194,7 +218,7 @@ private fun DestinationPage(destination: DestinationBoard, state: BoardUiState, 
 private fun Leg.title(): Int = if (this == Leg.Outbound) R.string.board_leg_outbound else R.string.board_leg_return
 
 @Composable
-private fun LegPage(pageKey: String, departures: List<Departure>, state: BoardUiState, onRefresh: () -> Unit) {
+private fun LegPage(pageKey: String, departures: List<Departure>, state: BoardUiState, bottomPadding: Dp, onRefresh: () -> Unit) {
     val listState = rememberLazyListState()
     val firstUpcoming = departures.indexOfFirst { !it.isPast(state.now) }
 
@@ -212,7 +236,8 @@ private fun LegPage(pageKey: String, departures: List<Departure>, state: BoardUi
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 24.dp),
+            // Room for the glass bar: the last rows must be able to scroll above it.
+            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = bottomPadding + 16.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             if (departures.isEmpty()) {

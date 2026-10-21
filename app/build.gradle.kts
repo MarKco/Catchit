@@ -59,6 +59,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.androidx.work.runtime)
+    implementation(libs.haze)
+    implementation(libs.haze.materials)
     implementation(project(":timetable-builder"))
 
     testImplementation(libs.junit)

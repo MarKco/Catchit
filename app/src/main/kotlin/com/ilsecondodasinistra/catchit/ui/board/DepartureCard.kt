@@ -40,6 +40,7 @@ import com.ilsecondodasinistra.catchit.R
 import com.ilsecondodasinistra.catchit.data.RouteInfo
 import com.ilsecondodasinistra.catchit.domain.Departure
 import com.ilsecondodasinistra.catchit.domain.isPast
+import com.ilsecondodasinistra.catchit.ui.theme.lineColors
 import java.time.Instant
 import kotlin.math.abs
 import kotlin.math.roundToLong
@@ -78,8 +79,7 @@ fun DepartureCard(departure: Departure, now: Instant, isNext: Boolean, modifier:
 
 @Composable
 private fun RouteBadge(route: RouteInfo) {
-    val background = route.color.toColor(Color(0xFF5B5B5B))
-    val content = route.textColor.toColor(Color.White)
+    val (background, content) = route.lineColors()
     Column(
         modifier = Modifier
             .size(44.dp)
@@ -186,9 +186,6 @@ private fun Countdown(departure: Departure, now: Instant) {
         }
     }
 }
-
-private fun String.toColor(fallback: Color): Color =
-    runCatching { Color(("FF$this").toLong(16)) }.getOrDefault(fallback)
 
 /** The feed shouts ("VENEZIA CORSIA C"); read it as Title Case, leaving mixed-case names alone. */
 private fun String.toTitleCase(): String =
