@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Catchit"
 include(":app")
+include(":timetable-builder")
 include(":tools:importer")

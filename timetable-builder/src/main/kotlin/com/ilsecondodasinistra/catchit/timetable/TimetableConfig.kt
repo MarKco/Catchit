@@ -1,4 +1,4 @@
-package com.ilsecondodasinistra.catchit.importer
+package com.ilsecondodasinistra.catchit.timetable
 
 /** A named group of stops, matched by id or by name (case-insensitive). */
 class Place(
@@ -7,6 +7,9 @@ class Place(
     private val exactNames: Set<String> = emptySet(),
     private val namePrefixes: List<String> = emptyList(),
 ) {
+    /** Everything that decides which stops match, for [TimetableConfig.fingerprint]. */
+    internal fun describe(): String = "$name|${ids.sorted()}|${exactNames.sorted()}|$namePrefixes"
+
     fun matches(stopId: String, stopName: String): Boolean =
         stopId in ids ||
             exactNames.any { it.equals(stopName, ignoreCase = true) } ||
@@ -21,12 +24,11 @@ class Destination(val id: String, val label: String, val origin: Place, val targ
 
 /**
  * The app never ships the whole network: only the lines that directly link these places.
- * Edit and run `./gradlew :tools:importer:run` to regenerate `app/src/main/assets/timetable.json`.
+ * Shared by the importer tool (bundled asset) and the app (updates downloaded on the phone): edit it and regenerate
+ * the asset with `./gradlew :tools:importer:run`.
  */
-object ImporterConfig {
+object TimetableConfig {
     const val FEED_URL = "https://actv.avmspa.it/sites/default/files/attachments/opendata/automobilistico/actv_aut.zip"
-    const val CACHE_FILE = "tools/cache/actv_aut.zip"
-    const val OUTPUT_FILE = "app/src/main/assets/timetable.json"
 
     /** Both poles of San Marco Musatti. */
     private val musatti = Place("Musatti", ids = setOf("6059", "6060"))
@@ -63,4 +65,12 @@ object ImporterConfig {
             target = Place("Aeroporto", namePrefixes = listOf("Aeroporto MARCO POLO")),
         ),
     )
+
+    /**
+     * Identifies the destinations above. Stored in every generated timetable: a timetable built (and downloaded)
+     * by an older version of the app with other destinations must not be used.
+     */
+    val fingerprint: String
+        get() = destinations.joinToString(";") { "${it.id}:${it.label}:${it.origin.describe()}:${it.target.describe()}" }
+            .hashCode().toUInt().toString(16)
 }

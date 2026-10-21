@@ -1,4 +1,4 @@
-package com.ilsecondodasinistra.catchit.importer
+package com.ilsecondodasinistra.catchit.timetable
 
 import java.io.BufferedReader
 

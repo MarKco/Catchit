@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.serialization)
     application
 }
 
@@ -20,8 +19,7 @@ application {
 }
 
 dependencies {
-    implementation(libs.kotlinx.serialization.json)
-    testImplementation(libs.junit)
+    implementation(project(":timetable-builder"))
 }
 
 tasks.named<JavaExec>("run") {

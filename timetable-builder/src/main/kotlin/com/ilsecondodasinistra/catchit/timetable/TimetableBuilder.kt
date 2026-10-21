@@ -1,5 +1,6 @@
-package com.ilsecondodasinistra.catchit.importer
+package com.ilsecondodasinistra.catchit.timetable
 
+import java.io.File
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -43,7 +44,7 @@ internal fun parseGtfsTime(text: String): Int? {
  * exceptions) and *patterns* = the departure times of one (destination, leg, stop, route, direction, headsign,
  * service), sorted.
  */
-internal fun buildTimetable(feed: Feed, destinations: List<Destination>): JsonObject {
+internal fun buildTimetable(feed: GtfsZip, destinations: List<Destination>, log: (String) -> Unit = {}): JsonObject {
     val stopNames = feed.read("stops.txt") { rows -> rows.associate { it["stop_id"] to it["stop_name"] } }
 
     val originStops = destinations.associate { d -> d.id to stopNames.filter { (id, n) -> d.origin.matches(id, n) }.keys }
@@ -51,7 +52,7 @@ internal fun buildTimetable(feed: Feed, destinations: List<Destination>): JsonOb
     for (d in destinations) {
         require(originStops.getValue(d.id).isNotEmpty()) { "No stop matches the origin of ${d.id}" }
         require(targetStops.getValue(d.id).isNotEmpty()) { "No stop matches the target of ${d.id}" }
-        println("${d.id}: ${d.origin.name} ${originStops.getValue(d.id).sorted()} ⇄ ${d.target.name} ${targetStops.getValue(d.id).sorted()}")
+        log("${d.id}: ${d.origin.name} ${originStops.getValue(d.id).sorted()} ⇄ ${d.target.name} ${targetStops.getValue(d.id).sorted()}")
     }
     val relevant = (originStops.values + targetStops.values).flatten().toSet()
 
@@ -100,7 +101,7 @@ internal fun buildTimetable(feed: Feed, destinations: List<Destination>): JsonOb
     require(times.isNotEmpty()) { "No direct connection found" }
     for (d in destinations) for (leg in listOf(LEG_OUTBOUND, LEG_RETURN)) {
         val lines = times.keys.filter { it.destination == d.id && it.leg == leg }.map { it.route.substringBefore('_') }.toSortedSet()
-        println("  ${d.id}/$leg: $lines")
+        log("  ${d.id}/$leg: $lines")
     }
 
     val usedRoutes = times.keys.map { it.route }.toSet()
@@ -117,6 +118,7 @@ internal fun buildTimetable(feed: Feed, destinations: List<Destination>): JsonOb
     val days = listOf("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
 
     return buildJsonObject {
+        put("config", TimetableConfig.fingerprint)
         put("feedStart", feedInfo?.get("feed_start_date").orEmpty())
         put("feedEnd", feedInfo?.get("feed_end_date").orEmpty())
         put("routes", buildJsonArray {
@@ -183,4 +185,17 @@ internal fun buildTimetable(feed: Feed, destinations: List<Destination>): JsonOb
     }
 }
 
-internal val prettyJson = Json { prettyPrint = false }
+private val compactJson = Json { prettyPrint = false }
+
+/** Public entry point, shared by the importer tool and the app. */
+object TimetableBuilder {
+    /**
+     * Reads the AVM GTFS [zip] and returns `timetable.json` content for the lines that directly link the
+     * [destinations]' places. Throws when nothing matches, so callers keep the timetable they already have.
+     */
+    fun build(
+        zip: File,
+        destinations: List<Destination> = TimetableConfig.destinations,
+        log: (String) -> Unit = {},
+    ): String = GtfsZip(zip).use { compactJson.encodeToString(JsonObject.serializer(), buildTimetable(it, destinations, log)) }
+}

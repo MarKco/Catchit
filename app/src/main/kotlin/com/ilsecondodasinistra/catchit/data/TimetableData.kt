@@ -8,6 +8,8 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class TimetableData(
+    /** `TimetableConfig.fingerprint` of the destinations it was built for. */
+    val config: String = "",
     val feedStart: String = "",
     val feedEnd: String = "",
     val routes: List<RouteInfo>,

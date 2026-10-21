@@ -6,11 +6,12 @@ import com.ilsecondodasinistra.catchit.data.Leg
 import com.ilsecondodasinistra.catchit.data.RealtimeSource
 import com.ilsecondodasinistra.catchit.data.RealtimeUpdate
 import com.ilsecondodasinistra.catchit.data.Timetable
-import com.ilsecondodasinistra.catchit.data.TimetableSource
+import com.ilsecondodasinistra.catchit.data.TimetableRepository
 import com.ilsecondodasinistra.catchit.data.TripUpdatesParser
 import com.ilsecondodasinistra.catchit.domain.Departure
 import com.ilsecondodasinistra.catchit.domain.DepartureMerger
 import com.ilsecondodasinistra.catchit.domain.isPast
+import com.ilsecondodasinistra.catchit.update.TimetableUpdater
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -69,11 +70,11 @@ private data class LiveState(
 
 @HiltViewModel
 class BoardViewModel @Inject constructor(
-    timetableSource: TimetableSource,
+    private val timetables: TimetableRepository,
+    updater: TimetableUpdater,
     private val realtime: RealtimeSource,
     private val clock: Clock,
 ) : ViewModel() {
-    private val timetable = MutableStateFlow<Timetable?>(null)
     private val live = MutableStateFlow(LiveState())
     private val refreshLock = Mutex()
 
@@ -85,12 +86,14 @@ class BoardViewModel @Inject constructor(
         }
     }
 
-    val state: StateFlow<BoardUiState> = combine(timetable, live, ticker) { tt, live, now ->
+    val state: StateFlow<BoardUiState> = combine(timetables.timetable, live, ticker) { tt, live, now ->
         if (tt == null) BoardUiState(isLoading = true) else buildState(tt, live, now)
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), BoardUiState())
 
     init {
-        viewModelScope.launch { timetable.value = timetableSource.load() }
+        viewModelScope.launch { timetables.load() }
+        // In the background, a few seconds after the first screen: a newer AVM timetable swaps itself in.
+        updater.checkSoon()
     }
 
     fun requestRefresh() {
@@ -99,7 +102,7 @@ class BoardViewModel @Inject constructor(
 
     /** One realtime fetch; overlapping calls (poll + pull-to-refresh) are serialised. */
     suspend fun refresh() = refreshLock.withLock {
-        val tt = timetable.filterNotNull().first()
+        val tt = timetables.timetable.filterNotNull().first()
         live.update { it.copy(refreshing = true) }
         try {
             val updates = withContext(Dispatchers.Default) {
