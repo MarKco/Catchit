@@ -99,7 +99,8 @@ lines that directly link those places (derived from the feed by the importer).
   (median 483 ms without it vs 508 with it). Wall times here are noisy (±100 ms): trust the phases, and re-measure on a real phone.
 - Baseline profile: module `:baselineprofile` (generator = the main journeys of the app). Regenerate when the UI changes a lot:
   `./gradlew :app:generateBaselineProfile` (needs an emulator/device, ~12 min; result in `app/src/release/generated/baselineProfiles/`, committed).
-  `StartupBenchmarks` compares cold start with and without it: `./gradlew :baselineprofile:connectedBenchmarkReleaseAndroidTest`.
+  `StartupBenchmarks` compares cold start with and without it: `./gradlew :baselineprofile:connectedBenchmarkReleaseAndroidTest`. It needs a **physical
+  device**: Macrobenchmark refuses emulators ("not representative"; it fails with `EMULATOR`). Not run yet: the first numbers have to come from a phone.
 - The splash is held until the first list exists (max 800 ms) so there is no spinner flash.
 
 ## Back and bar
