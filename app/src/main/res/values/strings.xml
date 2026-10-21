@@ -32,6 +32,7 @@
     <string name="board_toast_already_today">Sei già su oggi</string>
     <string name="board_terminus">capolinea %1$s</string>
     <string name="board_terminus_title">Capolinea %1$s</string>
+    <string name="board_arrives_at">arrivo alle %1$s</string>
     <string name="board_tomorrow">domani</string>
     <string name="board_in_days">tra %1$d giorni</string>
     <string name="board_canceled">Soppressa</string>

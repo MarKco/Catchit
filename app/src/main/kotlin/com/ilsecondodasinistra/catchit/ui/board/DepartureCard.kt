@@ -182,7 +182,7 @@ private fun Countdown(departure: Departure, now: Instant, showCountdown: Boolean
     Column(horizontalAlignment = Alignment.End) {
         if (!showCountdown) {
             Text(departure.time.clockText(), fontSize = 20.sp, lineHeight = 24.sp, fontWeight = FontWeight.ExtraBold, textDecoration = strike)
-            ArrivalText(arrival, prefix = null, strike = strike)
+            ArrivalText(arrival, prefix = null, strike = strike, spelledOut = true)
             return@Column
         }
         if (departure.isPast(now)) {
@@ -206,7 +206,7 @@ private fun Countdown(departure: Departure, now: Instant, showCountdown: Boolean
             // Departure → arrival under the minutes.
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(departure.time.clockText(), style = MaterialTheme.typography.labelMedium, color = muted, textDecoration = strike)
-                ArrivalText(arrival, prefix = " ", strike = strike)
+                ArrivalText(arrival, prefix = " ", strike = strike, spelledOut = false)
             }
         } else {
             val days = daysAhead(departure.time, now)
@@ -217,18 +217,23 @@ private fun Countdown(departure: Departure, now: Instant, showCountdown: Boolean
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 day?.let { Text(it, style = MaterialTheme.typography.labelMedium, color = muted) }
-                ArrivalText(arrival, prefix = if (day != null) " " else null, strike = strike)
+                ArrivalText(arrival, prefix = if (day != null) " · " else null, strike = strike, spelledOut = true)
             }
         }
     }
 }
 
-/** "→ 01:32": the arrival in the weight of a live value (the feed's own estimate) or a muted one (timetable). */
+/**
+ * The arrival: "→ 01:32" next to the departure time when that is shown right above, "arrivo alle 01:32" when the
+ * big number is the departure and nothing says what the other time is. Bold in the live estimate's color when it
+ * comes from the realtime feed, muted when it is the timetable's.
+ */
 @Composable
-private fun ArrivalText(arrival: Arrival?, prefix: String?, strike: TextDecoration?) {
+private fun ArrivalText(arrival: Arrival?, prefix: String?, strike: TextDecoration?, spelledOut: Boolean) {
     arrival ?: return
+    val time = arrival.time.clockText()
     Text(
-        text = (prefix ?: "") + "→ " + arrival.time.clockText(),
+        text = (prefix ?: "") + if (spelledOut) stringResource(R.string.board_arrives_at, time) else "→ $time",
         style = MaterialTheme.typography.labelMedium,
         fontWeight = if (arrival.live) FontWeight.Bold else FontWeight.Normal,
         color = if (arrival.live) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
