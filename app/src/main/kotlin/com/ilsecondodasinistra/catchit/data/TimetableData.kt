@@ -3,8 +3,8 @@ package com.ilsecondodasinistra.catchit.data
 import kotlinx.serialization.Serializable
 
 /**
- * Shape of `assets/timetable.json`, written by `:tools:importer`. It only holds the few lines and stops the app
- * cares about, never the whole ACTV network.
+ * Shape of `assets/timetable.json`, written by `:tools:importer`. It only holds the lines that directly link the
+ * configured places, never the whole ACTV network.
  */
 @Serializable
 data class TimetableData(
@@ -12,6 +12,7 @@ data class TimetableData(
     val feedEnd: String = "",
     val routes: List<RouteInfo>,
     val stops: List<StopInfo>,
+    val destinations: List<DestinationInfo>,
     val services: List<ServiceInfo>,
     val patterns: List<Pattern>,
 )
@@ -31,7 +32,20 @@ data class RouteInfo(
 }
 
 @Serializable
-data class StopInfo(val id: String, val name: String, val label: String)
+data class StopInfo(val id: String, val name: String)
+
+/** One bottom-bar entry: [origin] ⇄ [target] (display names), e.g. "Musatti" ⇄ "Mestre Centro". */
+@Serializable
+data class DestinationInfo(val id: String, val label: String, val origin: String, val target: String)
+
+/** The two tabs of a destination. */
+enum class Leg(val id: String) {
+    /** Departures from the origin that reach the target without changing. */
+    Outbound("andata"),
+
+    /** Departures from the target that reach the origin without changing. */
+    Return("ritorno"),
+}
 
 @Serializable
 data class ServiceInfo(
@@ -44,9 +58,14 @@ data class ServiceInfo(
     val removed: List<String> = emptyList(),
 )
 
-/** Departure times (seconds after the service day's noon-minus-12h, may exceed 24h) of one stop/route/service. */
+/**
+ * Departure times (seconds after the service day's noon-minus-12h, may exceed 24h) of one
+ * destination/leg/stop/route/service.
+ */
 @Serializable
 data class Pattern(
+    val destination: String,
+    val leg: String,
     val stop: String,
     val route: String,
     val direction: Int,

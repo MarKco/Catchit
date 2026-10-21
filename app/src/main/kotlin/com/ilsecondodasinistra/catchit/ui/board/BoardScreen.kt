@@ -17,7 +17,12 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DirectionsBus
+import androidx.compose.material.icons.rounded.Flight
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.LocationCity
+import androidx.compose.material.icons.rounded.Place
+import androidx.compose.material.icons.rounded.Sailing
+import androidx.compose.material.icons.rounded.Train
 import androidx.compose.material.icons.rounded.WifiOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,6 +32,8 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -34,11 +41,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -51,14 +60,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.compose.runtime.LaunchedEffect
 import com.ilsecondodasinistra.catchit.R
+import com.ilsecondodasinistra.catchit.data.Leg
+import com.ilsecondodasinistra.catchit.domain.Departure
 import com.ilsecondodasinistra.catchit.domain.isPast
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Duration
 
 private const val POLL_MS = 20_000L
+private const val START_DESTINATION = "centro"
 
 @Composable
 fun BoardScreen(viewModel: BoardViewModel = hiltViewModel()) {
@@ -81,25 +92,56 @@ fun BoardScreen(viewModel: BoardViewModel = hiltViewModel()) {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun BoardContent(state: BoardUiState, onRefresh: () -> Unit) {
+    var selectedId by rememberSaveable { mutableStateOf(START_DESTINATION) }
+    val selected = state.destinations.firstOrNull { it.id == selectedId } ?: state.destinations.firstOrNull()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeFlexibleTopAppBar(
-                title = { Text(state.stopName.ifEmpty { stringResource(R.string.app_name) }, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        text = selected?.let { stringResource(R.string.board_title, it.origin, it.target) } ?: stringResource(R.string.app_name),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                    )
+                },
                 subtitle = { if (!state.isLoading) LiveSubtitle(state) },
                 scrollBehavior = scrollBehavior,
             )
         },
+        bottomBar = {
+            NavigationBar {
+                state.destinations.forEach { destination ->
+                    NavigationBarItem(
+                        selected = destination.id == selected?.id,
+                        onClick = { selectedId = destination.id },
+                        icon = { Icon(destination.icon(), contentDescription = null) },
+                        label = { Text(destination.label) },
+                    )
+                }
+            }
+        },
     ) { padding ->
         Box(Modifier.fillMaxSize().padding(padding)) {
-            if (state.isLoading || state.boards.isEmpty()) {
+            if (state.isLoading || selected == null) {
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
             } else {
-                Boards(state, onRefresh)
+                // A fresh pager (and tab) per destination.
+                key(selected.id) { DestinationPage(selected, state, onRefresh) }
             }
         }
     }
+}
+
+private fun DestinationBoard.icon(): ImageVector = when (id) {
+    "venezia" -> Icons.Rounded.Sailing
+    "centro" -> Icons.Rounded.LocationCity
+    "stazione" -> Icons.Rounded.Train
+    "aeroporto" -> Icons.Rounded.Flight
+    else -> Icons.Rounded.Place
 }
 
 @Composable
@@ -116,16 +158,21 @@ private fun LiveSubtitle(state: BoardUiState) {
 }
 
 @Composable
-private fun Boards(state: BoardUiState, onRefresh: () -> Unit) {
-    val pagerState = rememberPagerState { state.boards.size }
+private fun DestinationPage(destination: DestinationBoard, state: BoardUiState, onRefresh: () -> Unit) {
+    val pagerState = rememberPagerState { destination.legs.size }
     val scope = rememberCoroutineScope()
     Column(Modifier.fillMaxSize()) {
         PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
-            state.boards.forEachIndexed { index, board ->
+            destination.legs.forEachIndexed { index, board ->
                 Tab(
                     selected = pagerState.currentPage == index,
                     onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                    text = { Text(board.label, fontWeight = FontWeight.SemiBold) },
+                    text = {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(stringResource(board.leg.title()), fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.board_towards, board.towards), style = MaterialTheme.typography.labelSmall)
+                        }
+                    },
                 )
             }
         }
@@ -139,21 +186,23 @@ private fun Boards(state: BoardUiState, onRefresh: () -> Unit) {
             }
         }
         HorizontalPager(state = pagerState, modifier = Modifier.weight(1f), beyondViewportPageCount = 1) { page ->
-            BoardPage(state.boards[page], state, onRefresh)
+            LegPage("${destination.id}/${destination.legs[page].leg.id}", destination.legs[page].departures, state, onRefresh)
         }
     }
 }
 
+private fun Leg.title(): Int = if (this == Leg.Outbound) R.string.board_leg_outbound else R.string.board_leg_return
+
 @Composable
-private fun BoardPage(board: StopBoard, state: BoardUiState, onRefresh: () -> Unit) {
+private fun LegPage(pageKey: String, departures: List<Departure>, state: BoardUiState, onRefresh: () -> Unit) {
     val listState = rememberLazyListState()
-    val firstUpcoming = board.departures.indexOfFirst { !it.isPast(state.now) }
+    val firstUpcoming = departures.indexOfFirst { !it.isPast(state.now) }
 
     // Open on the next passage, the few already gone (last 15 min) sit above it: scroll up to see them.
     // Done once; after that item keys keep the list anchored while rows age into the past.
-    var positioned by rememberSaveable(board.stopId) { mutableStateOf(false) }
-    LaunchedEffect(positioned, board.departures.isNotEmpty()) {
-        if (!positioned && board.departures.isNotEmpty()) {
+    var positioned by rememberSaveable(pageKey) { mutableStateOf(false) }
+    LaunchedEffect(positioned, departures.isNotEmpty()) {
+        if (!positioned && departures.isNotEmpty()) {
             listState.scrollToItem(firstUpcoming.coerceAtLeast(0))
             positioned = true
         }
@@ -166,11 +215,11 @@ private fun BoardPage(board: StopBoard, state: BoardUiState, onRefresh: () -> Un
             contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            if (board.departures.isEmpty()) {
+            if (departures.isEmpty()) {
                 item(key = "empty") { EmptyState() }
             }
-            val keys = board.departures.uniqueKeys()
-            itemsIndexed(board.departures, key = { index, _ -> keys[index] }) { index, departure ->
+            val keys = departures.uniqueKeys()
+            itemsIndexed(departures, key = { index, _ -> keys[index] }) { index, departure ->
                 DepartureCard(departure, state.now, isNext = index == firstUpcoming, modifier = Modifier.fillMaxWidth())
             }
         }
@@ -178,7 +227,7 @@ private fun BoardPage(board: StopBoard, state: BoardUiState, onRefresh: () -> Un
 }
 
 /** Stable lazy-list keys; two passages of one line in the same second still get distinct ones. */
-private fun List<com.ilsecondodasinistra.catchit.domain.Departure>.uniqueKeys(): List<String> {
+private fun List<Departure>.uniqueKeys(): List<String> {
     val seen = HashMap<String, Int>()
     return map { d ->
         val key = "${d.route.id}-${d.time.epochSecond}"

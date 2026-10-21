@@ -13,33 +13,42 @@ data class ScheduledDeparture(
     val time: Instant,
 )
 
+/** A line at a stop: what a live update must match to belong to a leg. */
+data class StopRoute(val stopId: String, val routeId: String)
+
 /** Queries over the bundled [TimetableData]. */
 class Timetable(private val data: TimetableData) {
-    val stops: List<StopInfo> get() = data.stops
+    val destinations: List<DestinationInfo> get() = data.destinations
     val routes: Map<String, RouteInfo> = data.routes.associateBy { it.id }
+
+    /** Every stop the app departs from: the realtime feed is filtered down to these. */
+    val stopIds: Set<String> = data.patterns.mapTo(HashSet()) { it.stop }
 
     /** First day covered by the feed, null when the asset doesn't say. */
     val validFrom: LocalDate? = data.feedStart.toDateOrNull()
     val validUntil: LocalDate? = data.feedEnd.toDateOrNull()
 
     private val services = data.services.associateBy { it.id }
+    private val patternsByLeg = data.patterns.groupBy { it.destination to it.leg }
 
-    fun scheduled(stopId: String, from: Instant, until: Instant, zone: ZoneId): List<ScheduledDeparture> {
+    private fun patterns(destinationId: String, leg: Leg) = patternsByLeg[destinationId to leg.id].orEmpty()
+
+    fun scheduled(destinationId: String, leg: Leg, from: Instant, until: Instant, zone: ZoneId): List<ScheduledDeparture> {
         val firstDay = from.atZone(zone).toLocalDate().minusDays(1) // after-midnight runs of yesterday's service
         val lastDay = until.atZone(zone).toLocalDate()
+        val patterns = patterns(destinationId, leg)
         val out = ArrayList<ScheduledDeparture>()
         var day = firstDay
         while (!day.isAfter(lastDay)) {
             // GTFS: times count from "noon minus 12 hours", which survives DST changes.
             val base = day.atTime(12, 0).atZone(zone).minusHours(12).toInstant()
-            for (pattern in data.patterns) {
-                if (pattern.stop != stopId) continue
+            for (pattern in patterns) {
                 val service = services[pattern.service] ?: continue
                 if (!service.runsOn(day)) continue
                 for (t in pattern.times) {
                     val time = base.plusSeconds(t.toLong())
                     if (time >= from && time <= until) {
-                        out += ScheduledDeparture(stopId, pattern.route, pattern.direction, pattern.headsign, time)
+                        out += ScheduledDeparture(pattern.stop, pattern.route, pattern.direction, pattern.headsign, time)
                     }
                 }
             }
@@ -48,9 +57,13 @@ class Timetable(private val data: TimetableData) {
         return out.sortedBy { it.time }
     }
 
+    /** Lines that serve a leg, by stop: other lines passing the same poles are not part of it. */
+    fun stopRoutes(destinationId: String, leg: Leg): Set<StopRoute> =
+        patterns(destinationId, leg).mapTo(HashSet()) { StopRoute(it.stop, it.route) }
+
     /** Destination for a realtime-only passage: the feed carries no headsign, so borrow it from the timetable. */
-    fun headsign(stopId: String, routeId: String, direction: Int?): String? {
-        val candidates = data.patterns.filter { it.stop == stopId && it.route == routeId }
+    fun headsign(destinationId: String, leg: Leg, stopId: String, routeId: String, direction: Int?): String? {
+        val candidates = patterns(destinationId, leg).filter { it.stop == stopId && it.route == routeId }
         val byDirection = direction?.let { d -> candidates.filter { it.direction == d } }.orEmpty()
         return (byDirection.ifEmpty { candidates }).maxByOrNull { it.times.size }?.headsign
     }

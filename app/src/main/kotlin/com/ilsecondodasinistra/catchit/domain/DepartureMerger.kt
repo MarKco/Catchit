@@ -1,7 +1,9 @@
 package com.ilsecondodasinistra.catchit.domain
 
+import com.ilsecondodasinistra.catchit.data.Leg
 import com.ilsecondodasinistra.catchit.data.RealtimeUpdate
 import com.ilsecondodasinistra.catchit.data.ScheduledDeparture
+import com.ilsecondodasinistra.catchit.data.StopRoute
 import com.ilsecondodasinistra.catchit.data.Timetable
 import java.time.Duration
 import java.time.Instant
@@ -24,7 +26,8 @@ object DepartureMerger {
     val DEFAULT_PAST: Duration = Duration.ofMinutes(15)
 
     fun merge(
-        stopId: String,
+        destinationId: String,
+        leg: Leg,
         timetable: Timetable,
         scheduled: List<ScheduledDeparture>,
         updates: List<RealtimeUpdate>,
@@ -35,22 +38,25 @@ object DepartureMerger {
     ): List<Departure> {
         val free = scheduled.toMutableList()
         val out = ArrayList<Departure>()
+        val ofLeg = timetable.stopRoutes(destinationId, leg)
 
-        for (update in updates.filter { it.stopId == stopId }.sortedBy { it.epochSecond ?: Long.MAX_VALUE }) {
+        // The feed has every line of a stop; only those that take this leg's direction count.
+        val live = updates.filter { StopRoute(it.stopId, it.routeId) in ofLeg }.sortedBy { it.epochSecond ?: Long.MAX_VALUE }
+        for (update in live) {
             val route = timetable.routes[update.routeId] ?: continue
             val predicted = update.epochSecond?.let(Instant::ofEpochSecond)
             val implied = predicted?.let { p -> update.delaySeconds?.let { p.minusSeconds(it.toLong()) } }
             val reference = implied ?: predicted
 
             val match = reference?.let { ref ->
-                free.filter { it.routeId == update.routeId }
+                free.filter { it.routeId == update.routeId && it.stopId == update.stopId }
                     .minByOrNull { abs(Duration.between(it.time, ref).seconds) }
                     ?.takeIf { abs(Duration.between(it.time, ref).seconds) <= MATCH_TOLERANCE.seconds }
             }
             match?.let(free::remove)
 
             val time = predicted ?: match?.time ?: continue
-            val headsign = match?.headsign ?: timetable.headsign(stopId, update.routeId, update.directionId) ?: route.longName
+            val headsign = match?.headsign ?: timetable.headsign(destinationId, leg, update.stopId, update.routeId, update.directionId) ?: route.longName
             out += Departure(
                 route = route,
                 headsign = headsign,

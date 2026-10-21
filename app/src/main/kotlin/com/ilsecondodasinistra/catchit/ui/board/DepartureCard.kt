@@ -174,6 +174,15 @@ private fun Countdown(departure: Departure, now: Instant) {
         }
         if (minutes < 60) {
             Text(departure.time.clockText(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textDecoration = strike)
+        } else {
+            val days = daysAhead(departure.time, now)
+            if (days > 0) {
+                Text(
+                    text = if (days == 1L) stringResource(R.string.board_tomorrow) else stringResource(R.string.board_in_days, days),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }

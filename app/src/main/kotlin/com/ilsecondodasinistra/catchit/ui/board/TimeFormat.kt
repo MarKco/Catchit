@@ -22,3 +22,7 @@ internal fun minutesUntil(time: Instant, now: Instant): Long {
 /** Whole minutes since [time], rounded down. */
 internal fun minutesSince(time: Instant, now: Instant): Long =
     (Duration.between(time, now).seconds / 60).coerceAtLeast(0)
+
+/** Calendar days between [now] and [time] in Venice (0 = today). */
+internal fun daysAhead(time: Instant, now: Instant): Long =
+    java.time.temporal.ChronoUnit.DAYS.between(now.atZone(venice).toLocalDate(), time.atZone(venice).toLocalDate())

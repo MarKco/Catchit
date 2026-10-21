@@ -1,7 +1,26 @@
 package com.ilsecondodasinistra.catchit.importer
 
+/** A named group of stops, matched by id or by name (case-insensitive). */
+class Place(
+    val name: String,
+    private val ids: Set<String> = emptySet(),
+    private val exactNames: Set<String> = emptySet(),
+    private val namePrefixes: List<String> = emptyList(),
+) {
+    fun matches(stopId: String, stopName: String): Boolean =
+        stopId in ids ||
+            exactNames.any { it.equals(stopName, ignoreCase = true) } ||
+            namePrefixes.any { stopName.startsWith(it, ignoreCase = true) }
+}
+
 /**
- * The app never ships the whole network: only these lines, at these stops.
+ * One bottom-bar entry. Its two tabs are the departures from [origin] that reach [target] without changing
+ * (andata) and the departures from [target] that reach [origin] (ritorno): every line that links them directly.
+ */
+class Destination(val id: String, val label: String, val origin: Place, val target: Place)
+
+/**
+ * The app never ships the whole network: only the lines that directly link these places.
  * Edit and run `./gradlew :tools:importer:run` to regenerate `app/src/main/assets/timetable.json`.
  */
 object ImporterConfig {
@@ -9,12 +28,39 @@ object ImporterConfig {
     const val CACHE_FILE = "tools/cache/actv_aut.zip"
     const val OUTPUT_FILE = "app/src/main/assets/timetable.json"
 
-    /** `route_short_name`s to keep. */
-    val lines = setOf("T1", "31H", "32H", "12L", "N1", "N2")
+    /** Both poles of San Marco Musatti. */
+    private val musatti = Place("Musatti", ids = setOf("6059", "6060"))
 
-    /** Stop id → label shown in the tab. Both poles are named "San Marco Musatti" in the feed; labelled after the T1 headsign (31H/32H are loops). */
-    val stops = linkedMapOf(
-        "6059" to "Tram per Venezia",
-        "6060" to "Tram per Favaro",
+    /**
+     * No stop is called "uffici giudiziari" or "tribunale": Hermada (both poles) is the guess; every pole of
+     * Forte Marghera is served by the lines 15 (station + airport) and, from Hermada on, 43.
+     */
+    private val forteMarghera = Place("Forte Marghera", ids = setOf("172", "1172"))
+
+    val destinations = listOf(
+        Destination(
+            id = "venezia",
+            label = "Venezia",
+            origin = musatti,
+            target = Place("Venezia", exactNames = setOf("VENEZIA", "VENEZIA CORSIA C", "Piazzale Roma")),
+        ),
+        Destination(
+            id = "centro",
+            label = "Centro",
+            origin = musatti,
+            target = Place("Mestre Centro", namePrefixes = listOf("MESTRE CENTRO")),
+        ),
+        Destination(
+            id = "stazione",
+            label = "Stazione",
+            origin = forteMarghera,
+            target = Place("Stazione", namePrefixes = listOf("Stazione MESTRE FS", "Favretti MESTRE FS")),
+        ),
+        Destination(
+            id = "aeroporto",
+            label = "Aeroporto",
+            origin = forteMarghera,
+            target = Place("Aeroporto", namePrefixes = listOf("Aeroporto MARCO POLO")),
+        ),
     )
 }

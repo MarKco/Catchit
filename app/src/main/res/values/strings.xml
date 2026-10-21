@@ -2,6 +2,11 @@
 <resources>
     <string name="app_name">Catchit</string>
 
+    <string name="board_title">%1$s ⇄ %2$s</string>
+    <string name="board_leg_outbound">Andata</string>
+    <string name="board_leg_return">Ritorno</string>
+    <string name="board_towards">verso %1$s</string>
+
     <string name="board_tram">Tram</string>
     <string name="board_bus">Autobus</string>
     <string name="board_now">Ora</string>
@@ -12,6 +17,8 @@
     <string name="board_from_timetable">Da orario</string>
     <string name="board_just_left">appena passato</string>
     <string name="board_ago">%1$d min fa</string>
+    <string name="board_tomorrow">domani</string>
+    <string name="board_in_days">tra %1$d giorni</string>
     <string name="board_canceled">Soppressa</string>
     <plurals name="board_late">
         <item quantity="one">%1$d min di ritardo</item>
