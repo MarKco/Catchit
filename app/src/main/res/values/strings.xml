@@ -85,4 +85,25 @@
     <string name="settings_log_empty">Nessun evento registrato</string>
     <string name="settings_log_share_subject">Registro Catchit</string>
     <string name="settings_about">Catchit %1$s</string>
+
+    <string name="sheet_from">Partenza</string>
+    <string name="sheet_to">Arrivo</string>
+    <string name="sheet_duration">%1$d min di viaggio</string>
+    <string name="sheet_arrival_live">previsto</string>
+    <string name="sheet_arrival_timetable">da orario</string>
+    <string name="sheet_vehicle_title">Il mezzo</string>
+    <string name="sheet_vehicle_at">È a %1$s da %2$s</string>
+    <string name="sheet_vehicle_age">posizione di %1$s</string>
+    <string name="sheet_stops_title">Fermate</string>
+    <string name="sheet_stops_note">Gli orari con ~ sono tipici della linea; quelli senza arrivano dal tempo reale di AVM.</string>
+    <string name="sheet_stops_note_timetable">Gli orari con ~ sono tipici della linea.</string>
+    <string name="sheet_next_title">Poi</string>
+    <string name="sheet_share">Condividi</string>
+    <string name="sheet_share_text">%1$s per %2$s, da %3$s alle %4$s</string>
+    <string name="sheet_share_arrival">, arrivo a %1$s alle %2$s</string>
+    <string name="sheet_source_live">Tempo reale AVM, aggiornato alle %1$s</string>
+    <string name="sheet_source_timetable">Orario programmato</string>
+    <string name="sheet_source_tram">Orario programmato: AVM non pubblica il tempo reale del tram</string>
+    <string name="sheet_source_no_live">Orario programmato: AVM non ha dati in tempo reale per questa corsa</string>
+    <string name="sheet_source_day">Orario programmato di %1$s</string>
 </resources>

@@ -111,7 +111,8 @@ class TimetableUpdater @Inject constructor(
         log.info(LogKind.Timetable, "Zip AVM: ${stamp.substringAfter('|')}")
         if (!force) {
             if (stamp == repository.processedStamp) return UpdateOutcome.UpToDate
-            if (stamp == repository.failedStamp) {
+            // A manual check retries a zip that failed before: the user is asking, and the cause may have been transient.
+            if (stamp == repository.failedStamp && trigger != UpdateTrigger.Manual) {
                 log.warning(LogKind.Timetable, "Questo zip ha già dato errore: aspetto che AVM ne pubblichi un altro")
                 return UpdateOutcome.BuildError
             }
@@ -124,7 +125,7 @@ class TimetableUpdater @Inject constructor(
         val zip = File(context.cacheDir, ZIP_NAME)
         val downloadStart = System.nanoTime()
         try {
-            withContext(worker) { download(zip) }
+            withContext(worker) { download(zip, expectedLength = stamp.substringAfterLast('|').toLongOrNull()) }
         } catch (e: java.io.IOException) {
             zip.delete()
             log.error(LogKind.Timetable, "Download interrotto", e)
@@ -169,19 +170,36 @@ class TimetableUpdater @Inject constructor(
         }
     }
 
-    private fun download(target: File) {
+    /**
+     * Downloads the zip. AVM's server sometimes answers 200 with a small page instead of the file (it also drops
+     * connections): anything that is not a complete zip is an IOException, a network error to retry later.
+     */
+    private fun download(target: File, expectedLength: Long?) {
         val connection = open("GET")
         try {
             if (connection.responseCode != HttpURLConnection.HTTP_OK) throw java.io.IOException("AVM ha risposto ${connection.responseCode}")
-            val expected = connection.contentLengthLong
+            val type = connection.contentType.orEmpty()
+            // The length AVM declared for the real file (HEAD) wins: an error page declares its own, tiny, length.
+            val expected = expectedLength ?: connection.contentLengthLong.takeIf { it > 0 }
             val tmp = File(target.path + ".part")
             connection.inputStream.use { input -> tmp.outputStream().use { input.copyTo(it) } }
-            if (expected > 0 && tmp.length() != expected) throw java.io.IOException("Download incompleto (${tmp.length()} di $expected byte)")
+            if (expected != null && tmp.length() != expected) {
+                val head = tmp.inputStream().use { it.readNBytes(80) }.toString(Charsets.UTF_8).replace(Regex("\\s+"), " ")
+                tmp.delete()
+                throw java.io.IOException("Risposta inattesa di AVM: $type, ${connection.contentLengthLong} byte invece di $expected ($head)")
+            }
+            if (!isZip(tmp)) {
+                tmp.delete()
+                throw java.io.IOException("Il file scaricato non è uno zip ($type)")
+            }
             if (!tmp.renameTo(target)) throw java.io.IOException("Impossibile salvare il download")
         } finally {
             connection.disconnect()
         }
     }
+
+    private fun isZip(file: File): Boolean =
+        file.inputStream().use { it.readNBytes(4) }.let { it.size == 4 && it[0] == 'P'.code.toByte() && it[1] == 'K'.code.toByte() && it[2] == 3.toByte() && it[3] == 4.toByte() }
 
     private fun open(method: String): HttpURLConnection =
         (URL(TimetableConfig.FEED_URL).openConnection() as HttpURLConnection).apply {

@@ -53,6 +53,7 @@ fun DepartureCard(
     modifier: Modifier = Modifier,
     /** False when browsing another day: minutes-to-go and "past" make no sense, only the times do. */
     showCountdown: Boolean = true,
+    onClick: () -> Unit = {},
 ) {
     val past = showCountdown && departure.isPast(now)
     val colors = if (past) {
@@ -62,7 +63,7 @@ fun DepartureCard(
     } else {
         CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
     }
-    Card(modifier = modifier.alpha(if (past) 0.65f else 1f), shape = RoundedCornerShape(16.dp), colors = colors) {
+    Card(onClick = onClick, modifier = modifier.alpha(if (past) 0.65f else 1f), shape = RoundedCornerShape(16.dp), colors = colors) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -85,12 +86,12 @@ fun DepartureCard(
 }
 
 @Composable
-private fun RouteBadge(route: RouteInfo) {
+internal fun RouteBadge(route: RouteInfo, size: androidx.compose.ui.unit.Dp = 44.dp) {
     val (background, content) = route.lineColors()
     Column(
         modifier = Modifier
-            .size(44.dp)
-            .background(background, RoundedCornerShape(14.dp)),
+            .size(size)
+            .background(background, RoundedCornerShape(size * 0.32f)),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -105,7 +106,7 @@ private fun RouteBadge(route: RouteInfo) {
 }
 
 @Composable
-private fun StatusLine(departure: Departure) {
+internal fun StatusLine(departure: Departure) {
     val live = MaterialTheme.colorScheme.tertiary
     val muted = MaterialTheme.colorScheme.onSurfaceVariant
     when {
@@ -199,5 +200,5 @@ private fun Countdown(departure: Departure, now: Instant, showCountdown: Boolean
 }
 
 /** The feed shouts ("VENEZIA CORSIA C"); read it as Title Case, leaving mixed-case names alone. */
-private fun String.toTitleCase(): String =
+internal fun String.toTitleCase(): String =
     if (any { it.isLowerCase() }) this else lowercase().split(' ').joinToString(" ") { w -> w.replaceFirstChar { it.uppercase() } }

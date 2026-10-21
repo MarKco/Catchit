@@ -39,3 +39,48 @@ class TripUpdatesParserTest {
         TripUpdatesParser.parse(sample.copyOf(sample.size / 2 + 1), setOf("6059"))
     }
 }
+
+class TripStopTimesTest {
+    private val sample = checkNotNull(javaClass.getResourceAsStream("/trip_updates_sample.pb")).use { it.readBytes() }
+
+    @Test
+    fun givesThePredictedTimeAtEveryStopOfTheTrip() {
+        val times = TripUpdatesParser.tripStopTimes(sample, setOf("AUT_ACTV_792_29202")).getValue("AUT_ACTV_792_29202")
+        assertEquals(1792609967L, times["6059"]) // the stop we depart from
+        assertEquals(1792609907L, times["6057"]) // the one before
+        assertTrue(times.size > 20)
+    }
+
+    @Test
+    fun ignoresTripsThatWereNotAsked() {
+        assertEquals(emptyMap<String, Map<String, Long>>(), TripUpdatesParser.tripStopTimes(sample, emptySet()))
+        assertEquals(setOf("AUT_ACTV_792_29202"), TripUpdatesParser.tripStopTimes(sample, setOf("AUT_ACTV_792_29202", "nope")).keys)
+    }
+}
+
+class VehiclePositionsParserTest {
+    // Snapshot of https://tpl.actv.it/aut/GTFSRT/vehiclePositions taken on 2026-10-21 21:40 Europe/Rome.
+    private val sample = checkNotNull(javaClass.getResourceAsStream("/vehicle_positions_sample.pb")).use { it.readBytes() }
+
+    @Test
+    fun readsTheFixOfATripWithAVehicle() {
+        val fix = VehiclePositionsParser.parse(sample, setOf("AUT_ACTV_792_33397")).getValue("AUT_ACTV_792_33397")
+        assertTrue(fix.latitude in 45.0..46.0)
+        assertTrue(fix.longitude in 12.0..13.0)
+        assertTrue(fix.epochSecond > 1_700_000_000L)
+    }
+
+    @Test
+    fun vehiclesWithoutATripAreNotReturned() {
+        // 74 of the 127 vehicles of the snapshot (all the trams) carry no trip: nothing to tie them to.
+        assertEquals(emptyMap<String, VehicleFix>(), VehiclePositionsParser.parse(sample, setOf("")))
+        assertEquals(emptyMap<String, VehicleFix>(), VehiclePositionsParser.parse(sample, emptySet()))
+    }
+
+    @Test
+    fun readsFloatsFromFixed32() {
+        // 45.5f = 0x42360000, little endian on the wire.
+        val reader = ProtoReader(byteArrayOf(0x00, 0x00, 0x36, 0x42))
+        assertEquals(45.5f, reader.readFloat(), 0f)
+    }
+}

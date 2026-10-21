@@ -12,6 +12,8 @@ import com.ilsecondodasinistra.catchit.data.RealtimeUpdate
 import com.ilsecondodasinistra.catchit.data.Timetable
 import com.ilsecondodasinistra.catchit.data.TimetableRepository
 import com.ilsecondodasinistra.catchit.data.TripUpdatesParser
+import com.ilsecondodasinistra.catchit.data.VehicleFix
+import com.ilsecondodasinistra.catchit.data.VehiclePositionsParser
 import com.ilsecondodasinistra.catchit.domain.Departure
 import com.ilsecondodasinistra.catchit.domain.DepartureMerger
 import com.ilsecondodasinistra.catchit.domain.isPast
@@ -53,6 +55,9 @@ data class DestinationBoard(
     val legs: List<LegBoard>,
 )
 
+/** What the realtime feed knows about one trip: predicted time at each of its stops and where its vehicle is. */
+data class LiveTrip(val stopTimes: Map<String, Instant>, val vehicle: VehicleFix?)
+
 /** Another day picked from the calendar: that whole day's timetable, the list opening at [focus]. */
 data class Browsing(val day: LocalDate, val focus: Instant)
 
@@ -71,10 +76,15 @@ data class BoardUiState(
     val today: LocalDate? = null,
     /** Last day with timetable data: the calendar stops there. */
     val validUntil: LocalDate? = null,
+    /** Live details by trip id, for the sheet of a passage. */
+    val liveTrips: Map<String, LiveTrip> = emptyMap(),
+    /** Stop names and coordinates, for the sheet of a passage. */
+    val timetable: Timetable? = null,
 )
 
 private data class LiveState(
     val updates: List<RealtimeUpdate> = emptyList(),
+    val trips: Map<String, LiveTrip> = emptyMap(),
     val lastUpdate: Instant? = null,
     val failed: Boolean = false,
     val refreshing: Boolean = false,
@@ -133,11 +143,26 @@ class BoardViewModel @Inject constructor(
         val tt = timetables.timetable.filterNotNull().first()
         live.update { it.copy(refreshing = true) }
         try {
-            val updates = withContext(Dispatchers.Default) {
-                TripUpdatesParser.parse(realtime.fetchTripUpdates(), tt.stopIds)
+            val parsed = withContext(Dispatchers.Default) {
+                val bytes = realtime.fetchTripUpdates()
+                val updates = TripUpdatesParser.parse(bytes, tt.stopIds)
+                val tripIds = updates.mapTo(HashSet()) { it.tripId }
+                updates to TripUpdatesParser.tripStopTimes(bytes, tripIds)
+            }
+            val (updates, stopTimes) = parsed
+            // Where the vehicles are is a bonus: the board works without it, and its failure is not "no live data".
+            val vehicles = try {
+                VehiclePositionsParser.parse(realtime.fetchVehiclePositions(), stopTimes.keys)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                emptyMap()
+            }
+            val trips = stopTimes.mapValues { (id, times) ->
+                LiveTrip(times.mapValues { Instant.ofEpochSecond(it.value) }, vehicles[id])
             }
             if (live.value.failed) log.info(LogKind.Live, "Tempo reale di nuovo disponibile")
-            live.value = LiveState(updates, clock.instant(), failed = false)
+            live.value = LiveState(updates, trips, clock.instant(), failed = false)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -175,6 +200,8 @@ class BoardViewModel @Inject constructor(
             browsing = browsing,
             today = today,
             validUntil = tt.validUntil,
+            liveTrips = live.trips,
+            timetable = tt,
         )
     }
 

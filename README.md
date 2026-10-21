@@ -35,6 +35,7 @@ Ogni voce ha due schede, **Andata** e **Ritorno**: l'andata sono le partenze dal
 
 - **Prossimi passaggi in una lista**: da adesso a 6 ore avanti (anche oltre la mezzanotte, con l'etichetta *domani*), e gli ultimi 15 minuti scorrendo verso l'alto. La lista si apre sempre sulla prossima corsa.
 - **Tempo reale** dove AVM lo pubblica: minuti mancanti, ritardo o anticipo rispetto all'orario, corse soppresse. Si aggiorna ogni 20 secondi, solo mentre l'app è aperta (nessun servizio in background, nessun consumo da fermo).
+- **Dettaglio della corsa**: toccando una card si apre una scheda con partenza e **arrivo a destinazione** (previsto dal tempo reale quando c'è), durata, **fermate intermedie** con gli orari, dove si trova il mezzo adesso (distanza dalla tua fermata, per le corse live), le corse successive della linea e un pulsante per condividere.
 - **Orari programmati** per tutto il resto, mescolati ai passaggi live senza duplicati.
 - **Un colore per ogni linea**, uguale per bus e tram della stessa linea: le liste si leggono a colpo d'occhio (ACTV dipinge tutte le linee urbane dello stesso rosso).
 - **Altri giorni**: dal menu a tre puntini scegli un giorno e un'ora (da oggi alla fine dell'orario in vigore) e vedi l'orario programmato di quel giorno, con la lista aperta all'ora scelta. «Torna a oggi» (la voce col numero del giorno) riporta subito al presente.
@@ -98,7 +99,6 @@ Altre note per chi lavora sul codice (formato dei dati, limiti del feed, regole 
 ## Idee
 
 - **Tram in tempo reale**: stimare l'arrivo di T1/T2 dalla posizione GPS, dalla direzione e dalle fermate della linea, segnandolo come «stimato».
-- **Dettaglio della corsa** toccando una card: orario di arrivo a destinazione, fermate intermedie, ritardo.
 - Widget con il prossimo passaggio.
 - Aggiornamento dei dati anche per la navigazione (vaporetti), che usa lo stesso formato.
 

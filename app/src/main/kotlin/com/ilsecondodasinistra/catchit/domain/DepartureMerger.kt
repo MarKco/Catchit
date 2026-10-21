@@ -56,7 +56,9 @@ object DepartureMerger {
             match?.let(free::remove)
 
             val time = predicted ?: match?.time ?: continue
-            val headsign = match?.headsign ?: timetable.headsign(destinationId, leg, update.stopId, update.routeId, update.directionId) ?: route.longName
+            // A live passage that matches no timetable row still needs a destination and a duration: borrow them.
+            val typical = if (match == null) timetable.typical(destinationId, leg, update.stopId, update.routeId, update.directionId) else null
+            val headsign = match?.headsign ?: typical?.headsign ?: route.longName
             out += Departure(
                 route = route,
                 headsign = headsign,
@@ -64,12 +66,20 @@ object DepartureMerger {
                 scheduled = implied ?: match?.time,
                 isRealtime = predicted != null && !update.tripCanceled,
                 isCanceled = update.tripCanceled,
+                stopId = update.stopId,
+                tripId = update.tripId.ifEmpty { null },
+                alightStopId = match?.alightStopId ?: typical?.alightStopId,
+                durationSeconds = match?.durationSeconds ?: typical?.durationSeconds,
+                shape = match?.shape ?: typical?.shape,
             )
         }
 
         for (s in free) {
             val route = timetable.routes[s.routeId] ?: continue
-            out += Departure(route, s.headsign, s.time, s.time, isRealtime = false)
+            out += Departure(
+                route, s.headsign, s.time, s.time, isRealtime = false,
+                stopId = s.stopId, alightStopId = s.alightStopId, durationSeconds = s.durationSeconds, shape = s.shape,
+            )
         }
 
         val earliest = now.minus(past)

@@ -14,6 +14,7 @@ data class TimetableData(
     val feedEnd: String = "",
     val routes: List<RouteInfo>,
     val stops: List<StopInfo>,
+    val shapes: List<ShapeInfo> = emptyList(),
     val destinations: List<DestinationInfo>,
     val services: List<ServiceInfo>,
     val patterns: List<Pattern>,
@@ -34,7 +35,11 @@ data class RouteInfo(
 }
 
 @Serializable
-data class StopInfo(val id: String, val name: String)
+data class StopInfo(val id: String, val name: String, val lat: Double? = null, val lon: Double? = null)
+
+/** The stops of a run, from boarding to getting off, with their typical time after the departure (seconds). */
+@Serializable
+data class ShapeInfo(val id: Int, val stops: List<String>, val offsets: List<Int>)
 
 /** One bottom-bar entry: [origin] ⇄ [target] (display names), e.g. "Musatti" ⇄ "Mestre Centro". */
 @Serializable
@@ -74,4 +79,10 @@ data class Pattern(
     val headsign: String,
     val service: String,
     val times: List<Int>,
+    /** The stop where the run gets to the other end of the leg. */
+    val alight: String = "",
+    /** Index in [TimetableData.shapes]; -1 when unknown. */
+    val shape: Int = -1,
+    /** Seconds from each departure in [times] to getting off at [alight]. */
+    val durations: List<Int> = emptyList(),
 )

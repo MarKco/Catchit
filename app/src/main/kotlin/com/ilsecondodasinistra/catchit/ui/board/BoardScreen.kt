@@ -148,6 +148,9 @@ fun BoardContent(
     val context = LocalContext.current
     var barHeight by remember { mutableStateOf(0.dp) }
 
+    // The passage whose sheet is open.
+    var sheet by remember { mutableStateOf<Departure?>(null) }
+
     var pickingDay by rememberSaveable { mutableStateOf(false) }
     var pickedDay by rememberSaveable { mutableStateOf<String?>(null) } // ISO date, between the two dialogs
 
@@ -174,7 +177,7 @@ fun BoardContent(
             }
             if (!state.isLoading && selected != null) {
                 // A fresh pager (and tab) per destination.
-                key(selected.id) { DestinationPage(selected, state, haze, barHeight, actions, onRefresh) }
+                key(selected.id) { DestinationPage(selected, state, haze, barHeight, actions, onRefresh) { sheet = it } }
             }
             NavigationBar(
                 modifier = Modifier
@@ -195,6 +198,15 @@ fun BoardContent(
                 }
             }
         }
+    }
+
+    sheet?.let { shown ->
+        // The list moves under the sheet (live data arrives, rows age): follow the same passage, not the stale copy.
+        val all = selected?.legs?.flatMap { it.departures }.orEmpty()
+        val current = all.firstOrNull { it.sameRun(shown) } ?: shown
+        val next = all.filter { it.route.id == current.route.id && it.stopId == current.stopId && it.time > current.time }
+            .sortedBy { it.time }.take(3).map { it.time }
+        DepartureSheet(current, next, state, onDismiss = { sheet = null })
     }
 
     val today = state.today
@@ -250,6 +262,7 @@ private fun DestinationPage(
     bottomPadding: Dp,
     actions: BoardActions,
     onRefresh: () -> Unit,
+    onOpen: (Departure) -> Unit,
 ) {
     val pagerState = rememberPagerState { destination.legs.size }
     val scope = rememberCoroutineScope()
@@ -269,6 +282,7 @@ private fun DestinationPage(
                     topPadding = headerHeight,
                     bottomPadding = bottomPadding,
                     onRefresh = onRefresh,
+                    onOpen = onOpen,
                 )
             }
         }
@@ -433,6 +447,7 @@ private fun LegPage(
     topPadding: Dp,
     bottomPadding: Dp,
     onRefresh: () -> Unit,
+    onOpen: (Departure) -> Unit,
 ) {
     val listState = rememberLazyListState()
     // The instant the list opens on: now, or the time picked in the calendar.
@@ -485,6 +500,7 @@ private fun LegPage(
                     isNext = index == firstUpcoming,
                     modifier = Modifier.fillMaxWidth(),
                     showCountdown = showCountdown,
+                    onClick = { onOpen(departure) },
                 )
             }
         }
@@ -526,3 +542,7 @@ private fun EmptyState() {
         Text(stringResource(R.string.board_empty), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
+
+/** The same run of a line, whether it is now live or still just on the timetable. */
+private fun Departure.sameRun(other: Departure): Boolean =
+    route.id == other.route.id && stopId == other.stopId && (scheduled ?: time) == (other.scheduled ?: other.time)

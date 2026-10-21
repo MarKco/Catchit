@@ -30,6 +30,15 @@ class ProtoReader(private val buf: ByteArray, private var pos: Int = 0, private 
         return ProtoReader(buf, pos, pos + length).also { pos += length }
     }
 
+    /** A `fixed32` field read as a float (latitude, longitude, bearing). */
+    fun readFloat(): Float {
+        if (pos + 4 > end) throw ProtoException("Truncated field")
+        val bits = (buf[pos].toInt() and 0xff) or ((buf[pos + 1].toInt() and 0xff) shl 8) or
+            ((buf[pos + 2].toInt() and 0xff) shl 16) or ((buf[pos + 3].toInt() and 0xff) shl 24)
+        pos += 4
+        return java.lang.Float.intBitsToFloat(bits)
+    }
+
     fun readString(): String {
         val sub = readLengthDelimited()
         return String(buf, sub.pos, sub.end - sub.pos, Charsets.UTF_8)

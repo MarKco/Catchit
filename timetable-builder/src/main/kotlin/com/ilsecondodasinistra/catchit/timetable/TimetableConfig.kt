@@ -28,6 +28,9 @@ class Destination(val id: String, val label: String, val origin: Place, val targ
  * the asset with `./gradlew :tools:importer:run`.
  */
 object TimetableConfig {
+    /** Bump when the shape of the generated timetable changes: older downloaded files are then discarded. */
+    private const val SCHEMA = 2
+
     const val FEED_URL = "https://actv.avmspa.it/sites/default/files/attachments/opendata/automobilistico/actv_aut.zip"
 
     /** Both poles of San Marco Musatti. */
@@ -71,6 +74,6 @@ object TimetableConfig {
      * by an older version of the app with other destinations must not be used.
      */
     val fingerprint: String
-        get() = destinations.joinToString(";") { "${it.id}:${it.label}:${it.origin.describe()}:${it.target.describe()}" }
-            .hashCode().toUInt().toString(16)
+        get() = ("schema$SCHEMA;" + destinations.joinToString(";") { "${it.id}:${it.label}:${it.origin.describe()}:${it.target.describe()}" }
+            ).hashCode().toUInt().toString(16)
 }

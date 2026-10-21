@@ -32,6 +32,41 @@ object TripUpdatesParser {
         return out
     }
 
+    /**
+     * Predicted time at every stop (not only ours) of the given trips: the stops in between and the arrival.
+     * Departure time wins over arrival time, as in [parse].
+     */
+    fun tripStopTimes(bytes: ByteArray, tripIds: Set<String>): Map<String, Map<String, Long>> {
+        if (tripIds.isEmpty()) return emptyMap()
+        val out = HashMap<String, Map<String, Long>>()
+        val feed = ProtoReader(bytes)
+        feed.forEachField { field, wire ->
+            if (field == 2 && wire == WIRE_LENGTH) {
+                val entity = feed.readLengthDelimited()
+                entity.forEachField { f, w ->
+                    if (f == 3 && w == WIRE_LENGTH) readTripStops(entity.readLengthDelimited(), tripIds, out) else entity.skip(w)
+                }
+            } else feed.skip(wire)
+        }
+        return out
+    }
+
+    private fun readTripStops(tu: ProtoReader, tripIds: Set<String>, out: MutableMap<String, Map<String, Long>>) {
+        val trip = Trip()
+        val times = HashMap<String, Long>()
+        tu.forEachField { field, wire ->
+            when {
+                field == 1 && wire == WIRE_LENGTH -> readTrip(tu.readLengthDelimited(), trip)
+                field == 2 && wire == WIRE_LENGTH -> readStopUpdate(tu.readLengthDelimited()).let { st ->
+                    val time = st.time
+                    if (!st.skipped && !st.noData && time != null && st.stopId.isNotEmpty()) times[st.stopId] = time
+                }
+                else -> tu.skip(wire)
+            }
+        }
+        if (trip.id in tripIds && times.isNotEmpty()) out[trip.id] = times
+    }
+
     private fun readEntity(entity: ProtoReader, stopIds: Set<String>, out: MutableList<RealtimeUpdate>) {
         entity.forEachField { field, wire ->
             if (field == 3 && wire == WIRE_LENGTH) readTripUpdate(entity.readLengthDelimited(), stopIds, out) else entity.skip(wire)

@@ -10,13 +10,20 @@ import javax.inject.Singleton
 /** Where the raw GTFS-RT `tripUpdates` bytes come from; a seam for tests. */
 interface RealtimeSource {
     suspend fun fetchTripUpdates(): ByteArray
+
+    /** Where the vehicles are: optional extra, the board works without it. */
+    suspend fun fetchVehiclePositions(): ByteArray
 }
 
 /** Bus and tram feed of AVM/ACTV (the water-bus one lives under `/nav/`). */
 @Singleton
 class AvmRealtimeSource @Inject constructor() : RealtimeSource {
-    override suspend fun fetchTripUpdates(): ByteArray = withContext(Dispatchers.IO) {
-        val connection = URL(TRIP_UPDATES_URL).openConnection() as HttpURLConnection
+    override suspend fun fetchTripUpdates(): ByteArray = fetch(TRIP_UPDATES_URL)
+
+    override suspend fun fetchVehiclePositions(): ByteArray = fetch(VEHICLE_POSITIONS_URL)
+
+    private suspend fun fetch(url: String): ByteArray = withContext(Dispatchers.IO) {
+        val connection = URL(url).openConnection() as HttpURLConnection
         try {
             connection.connectTimeout = TIMEOUT_MS
             connection.readTimeout = TIMEOUT_MS
@@ -29,6 +36,7 @@ class AvmRealtimeSource @Inject constructor() : RealtimeSource {
 
     private companion object {
         const val TRIP_UPDATES_URL = "https://tpl.actv.it/aut/GTFSRT/tripUpdates"
+        const val VEHICLE_POSITIONS_URL = "https://tpl.actv.it/aut/GTFSRT/vehiclePositions"
         const val TIMEOUT_MS = 8_000
     }
 }

@@ -35,11 +35,12 @@ class TimetableBuilderTest {
 
     private val feed = mapOf(
         "stops.txt" to """
-            stop_id,stop_name
-            A,Alfa
-            B1,Beta uno
-            B2,Beta due
-            C,Gamma
+            stop_id,stop_name,stop_lat,stop_lon
+            A,Alfa,45.1,12.1
+            M,Mezzo,45.2,12.2
+            B1,Beta uno,45.3,12.3
+            B2,Beta due,45.4,12.4
+            C,Gamma,45.5,12.5
         """,
         "routes.txt" to """
             route_id,route_short_name,route_long_name,route_type,route_color,route_text_color
@@ -51,6 +52,8 @@ class TimetableBuilderTest {
         "trips.txt" to """
             route_id,trip_id,service_id,trip_headsign,direction_id
             R1,t1,wk,Beta,0
+            R1,t1b,wk,Beta,0
+            R1,t1c,wk,Beta,0
             R2,t2,wk,Alfa,1
             R3,t3,wk,Gamma,0
             R4,t4,feast,Loop,0
@@ -59,7 +62,14 @@ class TimetableBuilderTest {
         "stop_times.txt" to """
             trip_id,stop_id,stop_sequence,arrival_time,departure_time,pickup_type,drop_off_type
             t1,A,1,08:00:00,08:00:00,,1
-            t1,B1,2,08:10:00,08:10:00,1,
+            t1,M,2,08:05:00,08:05:00,,
+            t1,B1,3,08:10:00,08:10:00,1,
+            t1b,A,1,09:00:00,09:00:00,,1
+            t1b,M,2,09:06:00,09:06:00,,
+            t1b,B1,3,09:14:00,09:14:00,1,
+            t1c,A,1,10:00:00,10:00:00,,1
+            t1c,M,2,10:07:00,10:07:00,,
+            t1c,B1,3,10:12:00,10:12:00,1,
             t2,B2,1,09:00:00,09:00:00,,1
             t2,A,2,09:10:00,09:10:00,1,
             t3,A,1,10:00:00,10:00:00,,
@@ -103,7 +113,7 @@ class TimetableBuilderTest {
         val patterns = build().getValue("patterns").jsonArray.patterns()
         val outbound = patterns.single { it.getValue("route").jsonPrimitive.content == "R1" }
         assertEquals("A", outbound.getValue("stop").jsonPrimitive.content)
-        assertEquals(listOf(8 * 3600), outbound.getValue("times").jsonArray.map { it.jsonPrimitive.content.toInt() })
+        assertEquals(listOf(8 * 3600, 9 * 3600, 10 * 3600), outbound.getValue("times").jsonArray.map { it.jsonPrimitive.content.toInt() })
         val back = patterns.single { it.getValue("route").jsonPrimitive.content == "R2" }
         assertEquals("B2", back.getValue("stop").jsonPrimitive.content)
     }
@@ -141,5 +151,32 @@ class TimetableBuilderTest {
         } catch (e: IllegalArgumentException) {
             assertTrue(e.message!!.contains("origin"))
         }
+    }
+
+    @Test
+    fun eachDepartureKnowsWhereAndAfterHowLongYouGetOff() {
+        val outbound = build().getValue("patterns").jsonArray.patterns().single { it.getValue("route").jsonPrimitive.content == "R1" }
+        assertEquals("B1", outbound.getValue("alight").jsonPrimitive.content)
+        // 08:00→08:10, 09:00→09:14, 10:00→10:12
+        assertEquals(listOf(600, 840, 720), outbound.getValue("durations").jsonArray.map { it.jsonPrimitive.content.toInt() })
+    }
+
+    @Test
+    fun theStopsBetweenCarryTheMedianOffset() {
+        val root = build()
+        val outbound = root.getValue("patterns").jsonArray.patterns().single { it.getValue("route").jsonPrimitive.content == "R1" }
+        val shape = root.getValue("shapes").jsonArray.map { it.jsonObject }.single { it.getValue("id").jsonPrimitive.content == outbound.getValue("shape").jsonPrimitive.content }
+        assertEquals(listOf("A", "M", "B1"), shape.getValue("stops").jsonArray.map { it.jsonPrimitive.content })
+        // Offsets of M: 300, 360, 420 -> 360; of B1: 600, 840, 720 -> 720.
+        assertEquals(listOf(0, 360, 720), shape.getValue("offsets").jsonArray.map { it.jsonPrimitive.content.toInt() })
+    }
+
+    @Test
+    fun stopsCarryNamesAndCoordinatesIncludingTheIntermediateOnes() {
+        val stops = build().getValue("stops").jsonArray.map { it.jsonObject }.associateBy { it.getValue("id").jsonPrimitive.content }
+        val middle = stops.getValue("M")
+        assertEquals("Mezzo", middle.getValue("name").jsonPrimitive.content)
+        assertEquals(45.2, middle.getValue("lat").jsonPrimitive.content.toDouble(), 1e-9)
+        assertEquals(12.2, middle.getValue("lon").jsonPrimitive.content.toDouble(), 1e-9)
     }
 }

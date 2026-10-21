@@ -67,3 +67,21 @@ lines that directly link those places (derived from the feed by the importer).
   data), bottom-bar editor (drag handle + switch; saved in `BarPreferences`; the first visible button is the start screen; at least one stays
   visible), and the log (`UpdateLog`: last 50 events, kept in `files/update-log.jsonl`, copy/share text starts with app/Android/device and
   timetable versions so it can be pasted in a bug report).
+
+## Passage sheet (tap on a card)
+- Asset schema 2 (`TimetableConfig.SCHEMA` is part of the fingerprint: bump it when the generated JSON changes, older downloaded
+  files are then dropped): each pattern has `alight` (stop where the run reaches the other end of the leg), `durations` (seconds, aligned
+  with `times`) and a `shape` (stops from boarding to getting off with the *median* offset of the trips of that pattern, so intermediate
+  stop times are typical, shown with "~"). Stops carry lat/lon. The builder reads `stop_times.txt` twice (pass 1: which trips link the ends;
+  pass 2: the stops between).
+- Live details: `TripUpdatesParser.tripStopTimes` (predicted time at every stop of the shown trips, so the arrival and the stops in between
+  are exact for live trips) and `VehiclePositionsParser` (fix of the vehicle by trip id; trams have none). `DepartureSheet` shows the
+  straight-line distance from the vehicle to the boarding stop. The feed has **no accessibility data** (`wheelchair_accessible` /
+  `bikes_allowed` are empty in trips.txt), so the sheet doesn't show any.
+- A live passage that matches no timetable row borrows headsign, destination, duration and stops from the busiest timetable row of that
+  line (`Timetable.typical`).
+- Since 2026-10-22 00:00 the live feed uses the 793 trip ids, equal to the ids in the static zip: an exact join by trip id would now be
+  possible (not needed so far). Many entities carry only the `trip_id` and no stop updates: they are ignored.
+- AVM's zip server sometimes answers 200 with a ~2 KB page (or drops the connection) instead of the 14 MB file. The updater checks the length
+  declared by HEAD and the zip magic; a bad download is a *network* error (retried), never a build error (which blocks that zip). A manual
+  check retries a zip that failed before.
