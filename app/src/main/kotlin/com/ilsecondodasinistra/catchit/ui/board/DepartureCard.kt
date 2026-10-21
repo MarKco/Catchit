@@ -54,6 +54,8 @@ fun DepartureCard(
     /** False when browsing another day: minutes-to-go and "past" make no sense, only the times do. */
     showCountdown: Boolean = true,
     onClick: () -> Unit = {},
+    /** Name of the stop where this passage reaches the other end of the leg: what the user is going to. */
+    arrivesAt: String? = null,
 ) {
     val past = showCountdown && departure.isPast(now)
     val colors = if (past) {
@@ -71,13 +73,25 @@ fun DepartureCard(
         ) {
             RouteBadge(departure.route)
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                // The headsign is where the vehicle ends its run, which may be nowhere near where you are going (a night
+                // loop that ends in Venezia passes through Mestre Centro): lead with where it takes you.
+                val destination = arrivesAt?.takeIf { it.isNotBlank() } ?: departure.headsign
                 Text(
-                    text = departure.headsign.toTitleCase(),
+                    text = destination.toTitleCase(),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
+                if (!destination.equals(departure.headsign, ignoreCase = true)) {
+                    Text(
+                        text = stringResource(R.string.board_terminus, departure.headsign.toTitleCase()),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
                 StatusLine(departure)
             }
             Countdown(departure, now, showCountdown)

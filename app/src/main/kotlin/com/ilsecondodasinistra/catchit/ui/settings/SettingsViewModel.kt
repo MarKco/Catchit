@@ -88,6 +88,9 @@ class SettingsViewModel @Inject constructor(
     /** Saves the bar as shown: [rows] in their new order with their visibility. */
     fun saveBar(rows: List<BarRow>) = bar.save(rows.map { BarEntry(it.id, it.visible) })
 
+    /** Back to the bar as it comes: default order, every button visible. */
+    fun resetBar() = bar.save(emptyList())
+
     fun checkNow(force: Boolean = false, allowMetered: Boolean = false) {
         if (check.value.checking) return
         viewModelScope.launch {

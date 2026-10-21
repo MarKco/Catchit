@@ -107,7 +107,7 @@ fun DepartureSheet(
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 RouteBadge(departure.route, size = 56.dp)
                 Column {
-                    Text(departure.headsign.toTitleCase(), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.board_terminus_title, departure.headsign.toTitleCase()), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     // The night loops are called "VENEZIA - VENEZIA": no use repeating it.
                     val halves = departure.route.longName.split(" - ")
                     if (halves.size != 2 || !halves[0].equals(halves[1], ignoreCase = true)) {

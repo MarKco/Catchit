@@ -85,3 +85,26 @@ lines that directly link those places (derived from the feed by the importer).
 - AVM's zip server sometimes answers 200 with a ~2 KB page (or drops the connection) instead of the 14 MB file. The updater checks the length
   declared by HEAD and the zip magic; a bad download is a *network* error (retried), never a build error (which blocks that zip). A manual
   check retries a zip that failed before.
+
+## Start-up performance
+- Measure on the **release** build (R8 on): `./gradlew :app:assembleRelease`, `adb install -r app/build/outputs/apk/release/app-release.apk`,
+  then `adb shell cmd package compile -f -m speed-profile com.ilsecondodasinistra.catchit` (adb installs don't apply the profile by themselves).
+  Cold start = `adb shell am force-stop …; adb shell am start -W -n …/.MainActivity` (TotalTime); `ReportDrawnWhen` logs "Fully drawn".
+  Phases: `adb shell setprop log.tag.CatchitStartup DEBUG` and `adb logcat -s CatchitStartup` (`StartupTrace`, also Perfetto sections).
+- What was found (emulator, Android 17 arm64, release): data ready at +67 ms after the process start (it was +640 ms) because the timetables
+  are read from `Application.onCreate` (`TimetableRepository.preload`) and `BoardViewModel` is created in `MainActivity.onCreate`; the list
+  query (`buildState`) costs 1–5 ms, JSON decode ~30–45 ms. Then ~240 ms of the main thread is *asleep* waiting for the launch animation
+  (launcher + SurfaceFlinger, software GPU), and the frames after the content are bound by the RenderThread, not by app code (main-thread
+  CPU ~40 ms). A stock simple app (Settings) cold-starts in ~230–320 ms on the same emulator: that is the floor. Blur (Haze) is not the cost
+  (median 483 ms without it vs 508 with it). Wall times here are noisy (±100 ms): trust the phases, and re-measure on a real phone.
+- Baseline profile: module `:baselineprofile` (generator = the main journeys of the app). Regenerate when the UI changes a lot:
+  `./gradlew :app:generateBaselineProfile` (needs an emulator/device, ~12 min; result in `app/src/release/generated/baselineProfiles/`, committed).
+  `StartupBenchmarks` compares cold start with and without it: `./gradlew :baselineprofile:connectedBenchmarkReleaseAndroidTest`.
+- The splash is held until the first list exists (max 800 ms) so there is no spinner flash.
+
+## Back and bar
+- Back from a bar button other than the first goes to the first (`BackHandler` in `BoardContent`); from the first it leaves the app.
+- Default bar order is fixed (`BarPreferences.DEFAULT_ORDER`: Venezia, Centro, Stazione, Aeroporto), whatever order the timetable lists;
+  Settings has "Ripristina ordine predefinito".
+- A card's title is where the passage takes you in this leg (the stop where it gets off), with the headsign as a small "capolinea X" line
+  when different: the headsign is where the vehicle ends its run (the night loops end in Venezia but pass through Mestre Centro).

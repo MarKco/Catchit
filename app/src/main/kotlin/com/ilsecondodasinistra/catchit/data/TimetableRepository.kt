@@ -1,9 +1,15 @@
 package com.ilsecondodasinistra.catchit.data
 
 import android.content.Context
+import com.ilsecondodasinistra.catchit.StartupTrace
 import com.ilsecondodasinistra.catchit.timetable.TimetableConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
@@ -72,7 +78,18 @@ class TimetableRepository @Inject constructor(@ApplicationContext private val co
         _lastCheck.value = lastCheck
     }
 
-    suspend fun load() = withContext(Dispatchers.IO) { _timetable.value = read() }
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val loadLock = Mutex()
+
+    /** Starts reading the timetables on a background thread, now: the app is still busy starting up anyway. */
+    fun preload() {
+        scope.launch { ensureLoaded() }
+    }
+
+    /** Loads the timetables once; whoever comes later (the screen) finds them ready or waits for the one load. */
+    suspend fun ensureLoaded() = loadLock.withLock {
+        if (_timetable.value == null) withContext(Dispatchers.IO) { _timetable.value = StartupTrace.section("timetable.load") { read() } }
+    }
 
     /**
      * Validates [jsonText] and stores it as the timetable starting on its `feedStart`. Throws when it is not a
@@ -94,7 +111,8 @@ class TimetableRepository @Inject constructor(@ApplicationContext private val co
     }
 
     private fun read(): Timetable {
-        val bundled = decode(context.assets.open(ASSET).bufferedReader().use { it.readText() })
+        val text = StartupTrace.section("timetable.asset read") { context.assets.open(ASSET).bufferedReader().use { it.readText() } }
+        val bundled = StartupTrace.section("timetable.asset decode") { decode(text) }
         // One version per start date; a downloaded one is a republication of the bundled one: it wins.
         val byStart = LinkedHashMap<String, TimetableData>()
         byStart[bundled.feedStart] = bundled

@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.androidx.baselineprofile)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
@@ -62,6 +63,9 @@ dependencies {
     implementation(libs.haze)
     implementation(libs.haze.materials)
     implementation(project(":timetable-builder"))
+    // Installs the baseline profile (precompiled hot start-up paths) when the app is installed.
+    implementation(libs.androidx.profileinstaller)
+    baselineProfile(project(":baselineprofile"))
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

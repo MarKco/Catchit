@@ -160,6 +160,10 @@ fun SettingsScreen(onBack: () -> Unit, viewModel: SettingsViewModel = hiltViewMo
                 )
             }
 
+            item(key = "bar-reset") {
+                TextButton(onClick = viewModel::resetBar) { Text(stringResource(R.string.settings_bar_reset)) }
+            }
+
             item(key = "h-log") { SectionTitle(stringResource(R.string.settings_section_log)) }
             item(key = "log-hint") {
                 Text(

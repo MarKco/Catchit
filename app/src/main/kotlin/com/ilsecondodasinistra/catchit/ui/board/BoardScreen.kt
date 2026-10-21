@@ -1,6 +1,8 @@
 package com.ilsecondodasinistra.catchit.ui.board
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.ReportDrawnWhen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -80,6 +82,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.ilsecondodasinistra.catchit.R
+import com.ilsecondodasinistra.catchit.StartupTrace
 import com.ilsecondodasinistra.catchit.data.Leg
 import com.ilsecondodasinistra.catchit.domain.Departure
 import com.ilsecondodasinistra.catchit.domain.isPast
@@ -143,6 +146,12 @@ fun BoardContent(
     // The first visible button is the start screen; a button hidden from the settings falls back to it too.
     val selected = state.destinations.firstOrNull { it.id == selectedId } ?: state.destinations.firstOrNull()
 
+    // Back from any other button goes to the first one (the start screen); only from there it leaves the app.
+    val first = state.destinations.firstOrNull()
+    BackHandler(enabled = first != null && selected != null && selected.id != first.id) {
+        selectedId = first?.id
+    }
+
     val haze = rememberHazeState()
     val density = LocalDensity.current
     val context = LocalContext.current
@@ -166,6 +175,11 @@ fun BoardContent(
         },
         onSettings = onOpenSettings,
     )
+
+    // The moment the user sees what they came for: the system logs it as "Fully drawn" in the app start-up time.
+    val contentReady = state.hasContent
+    ReportDrawnWhen { contentReady }
+    LaunchedEffect(contentReady) { if (contentReady) StartupTrace.mark("content ready") }
 
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         Box(Modifier.fillMaxSize()) {
@@ -272,7 +286,7 @@ private fun DestinationPage(
     Box(Modifier.fillMaxSize()) {
         // The lists live in the haze source too, so the header blurs them; they start below the header.
         Box(Modifier.fillMaxSize().hazeSource(haze)) {
-            HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize(), beyondViewportPageCount = 1) { page ->
+            HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize(), beyondViewportPageCount = 0) { page ->
                 // A new day (or time) picked: a new key, so the list opens at the new time again.
                 val position = state.browsing?.focus?.epochSecond ?: "now"
                 LegPage(
@@ -501,6 +515,7 @@ private fun LegPage(
                     modifier = Modifier.fillMaxWidth(),
                     showCountdown = showCountdown,
                     onClick = { onOpen(departure) },
+                    arrivesAt = departure.alightStopId?.let { state.timetable?.stop(it)?.name },
                 )
             }
         }

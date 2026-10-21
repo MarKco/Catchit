@@ -13,6 +13,18 @@ class BarPreferencesTest {
     }
 
     @Test
+    fun theDefaultOrderDoesNotDependOnHowTheTimetableListsThem() {
+        val shuffled = listOf("aeroporto", "stazione", "centro", "venezia")
+        assertEquals(known, BarPreferences.resolve(shuffled, emptyList()).map { it.id })
+    }
+
+    @Test
+    fun resettingMeansSavingNothing() {
+        assertEquals(emptyList<BarEntry>(), BarPreferences.parse(""))
+        assertEquals(known.map { BarEntry(it, true) }, BarPreferences.resolve(known, BarPreferences.parse("")))
+    }
+
+    @Test
     fun savedOrderAndVisibilityWin() {
         val saved = listOf(BarEntry("stazione", true), BarEntry("centro", false), BarEntry("venezia", true), BarEntry("aeroporto", true))
         assertEquals(saved, BarPreferences.resolve(known, saved))

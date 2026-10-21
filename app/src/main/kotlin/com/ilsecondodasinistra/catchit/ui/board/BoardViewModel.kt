@@ -2,6 +2,7 @@ package com.ilsecondodasinistra.catchit.ui.board
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ilsecondodasinistra.catchit.StartupTrace
 import com.ilsecondodasinistra.catchit.data.BarEntry
 import com.ilsecondodasinistra.catchit.data.BarPreferences
 import com.ilsecondodasinistra.catchit.data.Leg
@@ -80,7 +81,10 @@ data class BoardUiState(
     val liveTrips: Map<String, LiveTrip> = emptyMap(),
     /** Stop names and coordinates, for the sheet of a passage. */
     val timetable: Timetable? = null,
-)
+) {
+    /** At least one passage to show: what the user opened the app for. */
+    val hasContent: Boolean get() = !isLoading && destinations.any { d -> d.legs.any { it.departures.isNotEmpty() } }
+}
 
 private data class LiveState(
     val updates: List<RealtimeUpdate> = emptyList(),
@@ -114,11 +118,12 @@ class BoardViewModel @Inject constructor(
     }
 
     val state: StateFlow<BoardUiState> = combine(timetables.timetable, live, ticker, selection, bar.saved) { tt, live, now, picked, saved ->
-        if (tt == null) BoardUiState(isLoading = true) else buildState(tt, live, now, picked, saved)
+        if (tt == null) BoardUiState(isLoading = true) else StartupTrace.section("buildState") { buildState(tt, live, now, picked, saved) }
     }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), BoardUiState())
 
     init {
-        viewModelScope.launch { timetables.load() }
+        StartupTrace.mark("BoardViewModel init")
+        viewModelScope.launch { timetables.ensureLoaded() }
         // In the background, a few seconds after the first screen: a newer AVM timetable swaps itself in.
         updater.checkSoon()
     }

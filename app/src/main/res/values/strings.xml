@@ -30,6 +30,8 @@
     <string name="board_toast_browse">Orari di %1$s, dalle %2$s</string>
     <string name="board_toast_today">Tornato a oggi: orari e tempo reale di adesso</string>
     <string name="board_toast_already_today">Sei già su oggi</string>
+    <string name="board_terminus">capolinea %1$s</string>
+    <string name="board_terminus_title">Capolinea %1$s</string>
     <string name="board_tomorrow">domani</string>
     <string name="board_in_days">tra %1$d giorni</string>
     <string name="board_canceled">Soppressa</string>
@@ -74,6 +76,7 @@
 
     <string name="settings_section_bar">Barra in basso</string>
     <string name="settings_bar_hint">Trascina per riordinare, interruttore per mostrare o nascondere. La prima voce visibile è la schermata iniziale; almeno una resta sempre visibile.</string>
+    <string name="settings_bar_reset">Ripristina ordine predefinito</string>
     <string name="settings_bar_drag">Trascina per spostare</string>
 
     <string name="settings_section_log">Registro</string>

@@ -27,6 +27,9 @@ class BarPreferences @Inject constructor(@ApplicationContext context: Context) {
     companion object {
         private const val KEY = "entries"
 
+        /** The bottom bar as it comes: Venezia, Centro, Stazione, Aeroporto. */
+        val DEFAULT_ORDER = listOf("venezia", "centro", "stazione", "aeroporto")
+
         internal fun parse(text: String?): List<BarEntry> =
             text.orEmpty().split(',').mapNotNull { part ->
                 val (id, flag) = part.split(':').takeIf { it.size == 2 } ?: return@mapNotNull null
@@ -39,7 +42,10 @@ class BarPreferences @Inject constructor(@ApplicationContext context: Context) {
          */
         fun resolve(known: List<String>, saved: List<BarEntry>): List<BarEntry> {
             val kept = saved.filter { it.id in known }.distinctBy { it.id }
-            val added = known.filter { id -> kept.none { it.id == id } }.map { BarEntry(it, visible = true) }
+            // Buttons nobody has placed yet follow the default order, whatever order the timetable lists them in.
+            val added = known.filter { id -> kept.none { it.id == id } }
+                .sortedBy { DEFAULT_ORDER.indexOf(it).let { i -> if (i < 0) Int.MAX_VALUE else i } }
+                .map { BarEntry(it, visible = true) }
             val all = kept + added
             return if (all.isNotEmpty() && all.none { it.visible }) listOf(all.first().copy(visible = true)) + all.drop(1) else all
         }
