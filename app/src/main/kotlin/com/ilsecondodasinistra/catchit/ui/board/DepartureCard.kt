@@ -77,7 +77,7 @@ fun DepartureCard(
                 // loop that ends in Venezia passes through Mestre Centro): lead with where it takes you.
                 val destination = arrivesAt?.takeIf { it.isNotBlank() } ?: departure.headsign
                 Text(
-                    text = destination.toTitleCase(),
+                    text = stringResource(R.string.board_towards, destination.toTitleCase()),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,

@@ -107,5 +107,5 @@ lines that directly link those places (derived from the feed by the importer).
 - Back from a bar button other than the first goes to the first (`BackHandler` in `BoardContent`); from the first it leaves the app.
 - Default bar order is fixed (`BarPreferences.DEFAULT_ORDER`: Venezia, Centro, Stazione, Aeroporto), whatever order the timetable lists;
   Settings has "Ripristina ordine predefinito".
-- A card's title is where the passage takes you in this leg (the stop where it gets off), with the headsign as a small "capolinea X" line
+- A card's title is "verso <where the passage takes you in this leg>" (the stop where it gets off), with the headsign as a small "capolinea X" line
   when different: the headsign is where the vehicle ends its run (the night loops end in Venezia but pass through Mestre Centro).
