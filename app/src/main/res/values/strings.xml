@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Catchit</string>
+
+    <string name="board_tram">Tram</string>
+    <string name="board_bus">Autobus</string>
+    <string name="board_now">Ora</string>
+    <string name="board_min">min</string>
+    <string name="board_live">Tempo reale</string>
+    <string name="board_on_time">In orario</string>
+    <string name="board_scheduled_at">Programmato %1$s</string>
+    <string name="board_from_timetable">Da orario</string>
+    <string name="board_canceled">Soppressa</string>
+    <plurals name="board_late">
+        <item quantity="one">%1$d min di ritardo</item>
+        <item quantity="other">%1$d min di ritardo</item>
+    </plurals>
+    <plurals name="board_early">
+        <item quantity="one">%1$d min in anticipo</item>
+        <item quantity="other">%1$d min in anticipo</item>
+    </plurals>
+
+    <string name="board_connecting">Connessione al tempo reale…</string>
+    <string name="board_updated_now">Aggiornato ora</string>
+    <string name="board_updated_ago">Aggiornato %1$d s fa</string>
+    <string name="board_realtime_unavailable">Tempo reale non disponibile</string>
+    <string name="board_offline_hint">Non riesco a raggiungere AVM. Mostro gli ultimi dati e gli orari programmati.</string>
+    <string name="board_schedule_starts">Gli orari programmati partono dal %1$s: fino ad allora vedi solo i passaggi in tempo reale.</string>
+    <string name="board_empty">Nessun passaggio previsto a breve</string>
+</resources>
