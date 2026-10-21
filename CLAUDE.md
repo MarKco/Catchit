@@ -109,3 +109,5 @@ lines that directly link those places (derived from the feed by the importer).
   Settings has "Ripristina ordine predefinito".
 - A card's title is "verso <where the passage takes you in this leg>" (the stop where it gets off), with the headsign as a small "capolinea X" line
   when different: the headsign is where the vehicle ends its run (the night loops end in Venezia but pass through Mestre Centro).
+- A card shows "departure → arrival" under the minutes (`arrivalOf`, shared with the sheet: live arrival at the stop where it gets off when
+  the feed has one for that trip, else departure + the usual duration; always the timetable when browsing another day). Live arrivals are bold.

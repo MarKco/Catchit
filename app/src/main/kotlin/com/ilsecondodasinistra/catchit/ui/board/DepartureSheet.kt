@@ -57,10 +57,9 @@ private class SheetModel(val departure: Departure, val state: BoardUiState) {
     val from = name(departure.stopId)
     val to = name(departure.alightStopId)
 
-    /** Live arrival when the feed has one for the stop where it gets off; otherwise departure plus the usual duration. */
-    private val liveArrival = departure.alightStopId?.let { live?.stopTimes?.get(it) }
-    val arrival: Instant? = liveArrival ?: departure.durationSeconds?.let { departure.time.plusSeconds(it.toLong()) }
-    val arrivalIsLive = liveArrival != null
+    private val computed = arrivalOf(departure, state)
+    val arrival: Instant? = computed?.time
+    val arrivalIsLive = computed?.live == true
     val minutes: Long? = arrival?.let { Duration.between(departure.time, it).toMinutes() }
 
     class StopRow(val name: String, val time: Instant, val approximate: Boolean)

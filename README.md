@@ -33,7 +33,7 @@ Ogni voce ha due schede, **Andata** e **Ritorno**: l'andata sono le partenze dal
 
 ## Cosa può fare
 
-- **Prossimi passaggi in una lista**: da adesso a 6 ore avanti (anche oltre la mezzanotte, con l'etichetta *domani*), e gli ultimi 15 minuti scorrendo verso l'alto. La lista si apre sempre sulla prossima corsa.
+- **Prossimi passaggi in una lista**, ognuno con **partenza → arrivo** a destinazione e il titolo «verso …» (dove ti porta, con il capolinea in piccolo): da adesso a 6 ore avanti (anche oltre la mezzanotte, con l'etichetta *domani*), e gli ultimi 15 minuti scorrendo verso l'alto. La lista si apre sempre sulla prossima corsa.
 - **Tempo reale** dove AVM lo pubblica: minuti mancanti, ritardo o anticipo rispetto all'orario, corse soppresse. Si aggiorna ogni 20 secondi, solo mentre l'app è aperta (nessun servizio in background, nessun consumo da fermo).
 - **Dettaglio della corsa**: toccando una card si apre una scheda con partenza e **arrivo a destinazione** (previsto dal tempo reale quando c'è), durata, **fermate intermedie** con gli orari, dove si trova il mezzo adesso (distanza dalla tua fermata, per le corse live), le corse successive della linea e un pulsante per condividere.
 - **Orari programmati** per tutto il resto, mescolati ai passaggi live senza duplicati.

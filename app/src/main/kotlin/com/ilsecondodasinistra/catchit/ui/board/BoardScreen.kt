@@ -516,6 +516,7 @@ private fun LegPage(
                     showCountdown = showCountdown,
                     onClick = { onOpen(departure) },
                     arrivesAt = departure.alightStopId?.let { state.timetable?.stop(it)?.name },
+                    arrival = arrivalOf(departure, state),
                 )
             }
         }

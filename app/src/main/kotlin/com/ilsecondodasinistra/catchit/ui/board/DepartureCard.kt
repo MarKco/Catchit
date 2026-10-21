@@ -56,6 +56,8 @@ fun DepartureCard(
     onClick: () -> Unit = {},
     /** Name of the stop where this passage reaches the other end of the leg: what the user is going to. */
     arrivesAt: String? = null,
+    /** When it gets there: shown next to the departure time. */
+    arrival: Arrival? = null,
 ) {
     val past = showCountdown && departure.isPast(now)
     val colors = if (past) {
@@ -94,7 +96,7 @@ fun DepartureCard(
                 }
                 StatusLine(departure)
             }
-            Countdown(departure, now, showCountdown)
+            Countdown(departure, now, showCountdown, arrival)
         }
     }
 }
@@ -173,12 +175,14 @@ private fun LiveDot(color: Color) {
 }
 
 @Composable
-private fun Countdown(departure: Departure, now: Instant, showCountdown: Boolean) {
+private fun Countdown(departure: Departure, now: Instant, showCountdown: Boolean, arrival: Arrival?) {
     val minutes = minutesUntil(departure.time, now)
     val strike = if (departure.isCanceled) TextDecoration.LineThrough else null
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
     Column(horizontalAlignment = Alignment.End) {
         if (!showCountdown) {
             Text(departure.time.clockText(), fontSize = 20.sp, lineHeight = 24.sp, fontWeight = FontWeight.ExtraBold, textDecoration = strike)
+            ArrivalText(arrival, prefix = null, strike = strike)
             return@Column
         }
         if (departure.isPast(now)) {
@@ -199,18 +203,37 @@ private fun Countdown(departure: Departure, now: Instant, showCountdown: Boolean
             }
         }
         if (minutes < 60) {
-            Text(departure.time.clockText(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textDecoration = strike)
+            // Departure → arrival under the minutes.
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(departure.time.clockText(), style = MaterialTheme.typography.labelMedium, color = muted, textDecoration = strike)
+                ArrivalText(arrival, prefix = " ", strike = strike)
+            }
         } else {
             val days = daysAhead(departure.time, now)
-            if (days > 0) {
-                Text(
-                    text = if (days == 1L) stringResource(R.string.board_tomorrow) else stringResource(R.string.board_in_days, days),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+            val day = when {
+                days <= 0 -> null
+                days == 1L -> stringResource(R.string.board_tomorrow)
+                else -> stringResource(R.string.board_in_days, days)
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                day?.let { Text(it, style = MaterialTheme.typography.labelMedium, color = muted) }
+                ArrivalText(arrival, prefix = if (day != null) " " else null, strike = strike)
             }
         }
     }
+}
+
+/** "→ 01:32": the arrival in the weight of a live value (the feed's own estimate) or a muted one (timetable). */
+@Composable
+private fun ArrivalText(arrival: Arrival?, prefix: String?, strike: TextDecoration?) {
+    arrival ?: return
+    Text(
+        text = (prefix ?: "") + "→ " + arrival.time.clockText(),
+        style = MaterialTheme.typography.labelMedium,
+        fontWeight = if (arrival.live) FontWeight.Bold else FontWeight.Normal,
+        color = if (arrival.live) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
+        textDecoration = strike,
+    )
 }
 
 /** The feed shouts ("VENEZIA CORSIA C"); read it as Title Case, leaving mixed-case names alone. */
