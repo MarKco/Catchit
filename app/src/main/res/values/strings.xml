@@ -66,7 +66,7 @@
     <string name="settings_last_check_value">%1$s · %2$s · %3$s</string>
     <string name="settings_check_now">Controlla ora</string>
     <string name="settings_checking">Controllo in corso…</string>
-    <string name="settings_rebuild">Ricostruisci da AVM</string>
+    <string name="settings_rebuild">Forza aggiornamento</string>
     <string name="settings_result">Esito: %1$s</string>
     <string name="settings_metered_title">Rete a consumo</string>
     <string name="settings_metered_message">Sei su dati mobili: gli orari AVM sono circa 14 MB. Scaricare ora?</string>
