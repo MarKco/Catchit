@@ -45,4 +45,15 @@ lines that directly link those places (derived from the feed by the importer).
   behind (`DepartureMerger.DEFAULT_*`); if that leaves fewer than 5 upcoming rows (a line stopped for the night) the window
   grows to 30 h (`BoardViewModel`), rows of other days get a "domani" tag. Live updates only count for the (stop, line) pairs
   of the leg (`Timetable.stopRoutes`). Past rows are dimmed; the list opens on the first non-past row (scroll up for the past).
-- Notices (indicative timetable, feed offline) live outside the lazy list so they stay visible after the initial scroll.
+- Glass UI (Haze, like Discography): header (title, live status, tabs, notices) and bottom bar are `Modifier.glass(haze)` overlays;
+  the pages are `hazeSource`s and pad their lists by the measured header/bar heights. No collapsing app bar (the list can't
+  scroll behind a bar whose height changes). Notices live in the header so they stay visible after the initial scroll.
+- Each line has its own badge color (`ui/theme/LineColors.kt`; ACTV paints all of them red). Add new lines there.
+
+## Timetable updates (on the phone)
+- `TimetableUpdater` (checked 5 s after start, and daily by `TimetableUpdateWorker`: unmetered network, battery not low):
+  HEAD on the AVM zip → if ETag/Last-Modified/size changed (stamp includes `TimetableConfig.fingerprint`) → download + `TimetableBuilder`
+  at background priority → `TimetableRepository.install` (`files/timetables/timetable-<feedStart>.json`). Bundled asset is the fallback.
+- `Timetable` holds several versions and answers each day with the one in force that day (a timetable published early doesn't replace the
+  current one before its start). `SnapshotPolicy.obsolete` prunes superseded files. Changing `ImporterConfig`/`TimetableConfig`
+  destinations changes the fingerprint: older downloaded files are dropped; regenerate the bundled asset with the importer.

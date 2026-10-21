@@ -1,13 +1,15 @@
 package com.ilsecondodasinistra.catchit.ui.board
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import com.ilsecondodasinistra.catchit.ui.theme.glass
+import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import androidx.compose.foundation.layout.Box
@@ -17,7 +19,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -37,18 +38,17 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,7 +60,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -98,45 +97,26 @@ fun BoardScreen(viewModel: BoardViewModel = hiltViewModel()) {
     BoardContent(state = state, onRefresh = viewModel::requestRefresh)
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun BoardContent(state: BoardUiState, onRefresh: () -> Unit) {
     var selectedId by rememberSaveable { mutableStateOf(START_DESTINATION) }
     val selected = state.destinations.firstOrNull { it.id == selectedId } ?: state.destinations.firstOrNull()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     val haze = rememberHazeState()
     val density = LocalDensity.current
     var barHeight by remember { mutableStateOf(0.dp) }
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            LargeFlexibleTopAppBar(
-                title = {
-                    Text(
-                        text = selected?.let { stringResource(R.string.board_title, it.origin, it.target) } ?: stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 2,
-                    )
-                },
-                subtitle = { if (!state.isLoading) LiveSubtitle(state) },
-                scrollBehavior = scrollBehavior,
-            )
-        },
-        // The bar below is drawn over the content (see the Box): no inset padding at the bottom.
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-    ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
-            // The content is the haze source: the glass bar blurs the list scrolling behind it.
+    Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize()) {
+            // The pages are the haze source: the glass header and bar blur the list scrolling behind them.
             Box(Modifier.fillMaxSize().hazeSource(haze)) {
                 if (state.isLoading || selected == null) {
                     CircularProgressIndicator(Modifier.align(Alignment.Center))
-                } else {
-                    // A fresh pager (and tab) per destination.
-                    key(selected.id) { DestinationPage(selected, state, barHeight, onRefresh) }
                 }
+            }
+            if (!state.isLoading && selected != null) {
+                // A fresh pager (and tab) per destination.
+                key(selected.id) { DestinationPage(selected, state, haze, barHeight, onRefresh) }
             }
             NavigationBar(
                 modifier = Modifier
@@ -169,75 +149,135 @@ private fun DestinationBoard.icon(): ImageVector = when (id) {
 }
 
 @Composable
-private fun LiveSubtitle(state: BoardUiState) {
-    val text = when {
-        state.realtimeFailed -> stringResource(R.string.board_realtime_unavailable)
-        state.lastUpdate == null -> stringResource(R.string.board_connecting)
-        else -> {
-            val seconds = Duration.between(state.lastUpdate, state.now).seconds.coerceAtLeast(0)
-            if (seconds < 5) stringResource(R.string.board_updated_now) else stringResource(R.string.board_updated_ago, seconds)
-        }
+private fun liveStatus(state: BoardUiState): String = when {
+    state.realtimeFailed -> stringResource(R.string.board_realtime_unavailable)
+    state.lastUpdate == null -> stringResource(R.string.board_connecting)
+    else -> {
+        val seconds = Duration.between(state.lastUpdate, state.now).seconds.coerceAtLeast(0)
+        if (seconds < 5) stringResource(R.string.board_updated_now) else stringResource(R.string.board_updated_ago, seconds)
     }
-    Text(text)
 }
 
 @Composable
-private fun DestinationPage(destination: DestinationBoard, state: BoardUiState, bottomPadding: Dp, onRefresh: () -> Unit) {
+private fun DestinationPage(
+    destination: DestinationBoard,
+    state: BoardUiState,
+    haze: HazeState,
+    bottomPadding: Dp,
+    onRefresh: () -> Unit,
+) {
     val pagerState = rememberPagerState { destination.legs.size }
     val scope = rememberCoroutineScope()
-    Column(Modifier.fillMaxSize()) {
-        PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
-            destination.legs.forEachIndexed { index, board ->
-                Tab(
-                    selected = pagerState.currentPage == index,
-                    onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                    text = {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(stringResource(board.leg.title()), fontWeight = FontWeight.SemiBold)
-                            Text(stringResource(R.string.board_towards, board.towards), style = MaterialTheme.typography.labelSmall)
-                        }
-                    },
+    val density = LocalDensity.current
+    var headerHeight by remember { mutableStateOf(0.dp) }
+
+    Box(Modifier.fillMaxSize()) {
+        // The lists live in the haze source too, so the header blurs them; they start below the header.
+        Box(Modifier.fillMaxSize().hazeSource(haze)) {
+            HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize(), beyondViewportPageCount = 1) { page ->
+                LegPage(
+                    pageKey = "${destination.id}/${destination.legs[page].leg.id}",
+                    departures = destination.legs[page].departures,
+                    state = state,
+                    topPadding = headerHeight,
+                    bottomPadding = bottomPadding,
+                    onRefresh = onRefresh,
                 )
             }
         }
-        // Outside the list: the list opens scrolled past the notices, and they must stay visible.
-        Column(Modifier.padding(horizontal = 12.dp).padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            state.scheduleStartsOn?.let { date ->
-                Notice(Icons.Rounded.Info, stringResource(R.string.board_schedule_starts, date.dayText()))
+        Column(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .onSizeChanged { headerHeight = with(density) { it.height.toDp() } }
+                .glass(haze),
+        ) {
+            Column(Modifier.statusBarsPadding().padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp)) {
+                Text(
+                    text = stringResource(R.string.board_title, destination.origin, destination.target),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                )
+                Text(
+                    text = liveStatus(state),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
-            if (state.realtimeFailed) {
-                Notice(Icons.Rounded.WifiOff, stringResource(R.string.board_offline_hint))
+            PrimaryTabRow(selectedTabIndex = pagerState.currentPage, containerColor = Color.Transparent) {
+                destination.legs.forEachIndexed { index, board ->
+                    Tab(
+                        selected = pagerState.currentPage == index,
+                        onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
+                        text = {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(stringResource(board.leg.title()), fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.board_towards, board.towards), style = MaterialTheme.typography.labelSmall)
+                            }
+                        },
+                    )
+                }
             }
-        }
-        HorizontalPager(state = pagerState, modifier = Modifier.weight(1f), beyondViewportPageCount = 1) { page ->
-            LegPage("${destination.id}/${destination.legs[page].leg.id}", destination.legs[page].departures, state, bottomPadding, onRefresh)
+            // In the header, not in the list: they stay visible after the list opens on the next passage.
+            val notices = listOfNotNull(
+                state.scheduleStartsOn?.let { Icons.Rounded.Info to stringResource(R.string.board_schedule_starts, it.dayText()) },
+                if (state.realtimeFailed) Icons.Rounded.WifiOff to stringResource(R.string.board_offline_hint) else null,
+            )
+            if (notices.isNotEmpty()) {
+                Column(Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    notices.forEach { (icon, text) -> Notice(icon, text) }
+                }
+            }
         }
     }
 }
 
 private fun Leg.title(): Int = if (this == Leg.Outbound) R.string.board_leg_outbound else R.string.board_leg_return
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LegPage(pageKey: String, departures: List<Departure>, state: BoardUiState, bottomPadding: Dp, onRefresh: () -> Unit) {
+private fun LegPage(
+    pageKey: String,
+    departures: List<Departure>,
+    state: BoardUiState,
+    topPadding: Dp,
+    bottomPadding: Dp,
+    onRefresh: () -> Unit,
+) {
     val listState = rememberLazyListState()
     val firstUpcoming = departures.indexOfFirst { !it.isPast(state.now) }
 
     // Open on the next passage, the few already gone (last 15 min) sit above it: scroll up to see them.
-    // Done once; after that item keys keep the list anchored while rows age into the past.
+    // Done once, when the header has been measured; after that item keys keep the list anchored while rows age.
     var positioned by rememberSaveable(pageKey) { mutableStateOf(false) }
-    LaunchedEffect(positioned, departures.isNotEmpty()) {
-        if (!positioned && departures.isNotEmpty()) {
+    LaunchedEffect(positioned, departures.isNotEmpty(), topPadding > 0.dp) {
+        if (!positioned && departures.isNotEmpty() && topPadding > 0.dp) {
             listState.scrollToItem(firstUpcoming.coerceAtLeast(0))
             positioned = true
         }
     }
 
-    PullToRefreshBox(isRefreshing = state.isRefreshing, onRefresh = onRefresh, modifier = Modifier.fillMaxSize()) {
+    val pullState = rememberPullToRefreshState()
+    PullToRefreshBox(
+        isRefreshing = state.isRefreshing,
+        onRefresh = onRefresh,
+        state = pullState,
+        modifier = Modifier.fillMaxSize(),
+        // Below the header, which is drawn over the list.
+        indicator = {
+            PullToRefreshDefaults.Indicator(
+                state = pullState,
+                isRefreshing = state.isRefreshing,
+                modifier = Modifier.align(Alignment.TopCenter).padding(top = topPadding),
+            )
+        },
+    ) {
         LazyColumn(
             state = listState,
             modifier = Modifier.fillMaxSize(),
-            // Room for the glass bar: the last rows must be able to scroll above it.
-            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = bottomPadding + 16.dp),
+            // Room for the glass header and bar: the first and last rows must scroll clear of them.
+            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = topPadding + 8.dp, bottom = bottomPadding + 16.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             if (departures.isEmpty()) {
