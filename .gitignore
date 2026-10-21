@@ -38,3 +38,11 @@ captures/
 
 # Keystore files
 *.jks
+
+# IDE
+.idea/
+.kotlin/
+.claude/
+
+# Generator cache
+tools/cache/
