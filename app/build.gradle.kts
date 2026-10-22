@@ -35,6 +35,8 @@ android {
     productFlavors {
         create("musatti") {
             dimension = "place"
+            // The variant Android Studio selects on sync (and the one other modules resolve to): musattiDebug.
+            isDefault = true
             buildConfigField("String", "PROFILE", "\"musatti\"")
         }
         create("cattaneo") {
@@ -45,6 +47,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            isDefault = true
+        }
         release {
             optimization {
                 enable = true
