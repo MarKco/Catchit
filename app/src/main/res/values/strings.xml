@@ -3,8 +3,6 @@
     <string name="app_name">Catchit</string>
 
     <string name="board_title">%1$s ⇄ %2$s</string>
-    <string name="board_leg_outbound">Andata</string>
-    <string name="board_leg_return">Ritorno</string>
     <string name="board_towards">verso %1$s</string>
 
     <string name="board_tram">Tram</string>

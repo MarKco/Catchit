@@ -83,7 +83,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.ilsecondodasinistra.catchit.R
 import com.ilsecondodasinistra.catchit.StartupTrace
-import com.ilsecondodasinistra.catchit.data.Leg
 import com.ilsecondodasinistra.catchit.domain.Departure
 import com.ilsecondodasinistra.catchit.domain.isPast
 import com.ilsecondodasinistra.catchit.ui.destinationIcon
@@ -331,12 +330,7 @@ private fun DestinationPage(
                     Tab(
                         selected = pagerState.currentPage == index,
                         onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                        text = {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(stringResource(board.leg.title()), fontWeight = FontWeight.SemiBold)
-                                Text(stringResource(R.string.board_towards, board.towards), style = MaterialTheme.typography.labelSmall)
-                            }
-                        },
+                        text = { Text(stringResource(R.string.board_towards, board.towards), fontWeight = FontWeight.SemiBold) },
                     )
                 }
             }
@@ -449,8 +443,6 @@ private fun TimePickerDialog(initial: LocalTime, onDismiss: () -> Unit, onPicked
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.board_pick_cancel)) } },
     )
 }
-
-private fun Leg.title(): Int = if (this == Leg.Outbound) R.string.board_leg_outbound else R.string.board_leg_return
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
