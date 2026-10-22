@@ -15,8 +15,8 @@ android {
         applicationId = "com.ilsecondodasinistra.catchit"
         minSdk = 26
         targetSdk = 37
-        versionCode = 13
-        versionName = "13.0"
+        versionCode = 14
+        versionName = "14.0"
     }
 
     compileOptions {
