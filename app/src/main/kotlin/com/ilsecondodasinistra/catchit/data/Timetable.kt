@@ -23,6 +23,9 @@ data class TypicalRun(val headsign: String, val alightStopId: String?, val durat
 /** A line at a stop: what a live update must match to belong to a leg. */
 data class StopRoute(val stopId: String, val routeId: String)
 
+/** A line at a stop going one way: the same pole is also where the opposite direction ends its run. */
+data class Boarding(val stopId: String, val routeId: String, val direction: Int)
+
 /**
  * Queries over one or more [TimetableData] versions (the bundled one and those downloaded later). Each day is
  * answered by the version in force that day, so an AVM timetable published in advance doesn't replace the current
@@ -100,6 +103,12 @@ class Timetable(datas: List<TimetableData>) {
     fun stopRoutes(destinationId: String, leg: Leg): Set<StopRoute> =
         snapshots.flatMapTo(HashSet()) { s ->
             s.patternsByLeg[destinationId to leg.id].orEmpty().map { StopRoute(it.stop, it.route) }
+        }
+
+    /** Like [stopRoutes] with the direction of travel: a vehicle of the other direction *arrives* at the pole, it doesn't leave from it. */
+    fun boardings(destinationId: String, leg: Leg): Set<Boarding> =
+        snapshots.flatMapTo(HashSet()) { s ->
+            s.patternsByLeg[destinationId to leg.id].orEmpty().map { Boarding(it.stop, it.route, it.direction) }
         }
 
     /** A stop by id, newest version first (names and coordinates). */

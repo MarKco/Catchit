@@ -1,9 +1,9 @@
 package com.ilsecondodasinistra.catchit.domain
 
+import com.ilsecondodasinistra.catchit.data.Boarding
 import com.ilsecondodasinistra.catchit.data.Leg
 import com.ilsecondodasinistra.catchit.data.RealtimeUpdate
 import com.ilsecondodasinistra.catchit.data.ScheduledDeparture
-import com.ilsecondodasinistra.catchit.data.StopRoute
 import com.ilsecondodasinistra.catchit.data.Timetable
 import java.time.Duration
 import java.time.Instant
@@ -38,10 +38,13 @@ object DepartureMerger {
     ): List<Departure> {
         val free = scheduled.toMutableList()
         val out = ArrayList<Departure>()
-        val ofLeg = timetable.stopRoutes(destinationId, leg)
+        val ofLeg = timetable.boardings(destinationId, leg)
 
-        // The feed has every line of a stop; only those that take this leg's direction count.
-        val live = updates.filter { StopRoute(it.stopId, it.routeId) in ofLeg }.sortedBy { it.epochSecond ?: Long.MAX_VALUE }
+        // The feed has every line of a stop, in both directions (the tram that ends its run there too): only the
+        // vehicles that leave in this leg's direction count. Without a direction in the feed, line and stop will do.
+        val live = updates.filter { u ->
+            u.directionId?.let { Boarding(u.stopId, u.routeId, it) in ofLeg } ?: ofLeg.any { it.stopId == u.stopId && it.routeId == u.routeId }
+        }.sortedBy { it.epochSecond ?: Long.MAX_VALUE }
         for (update in live) {
             val route = timetable.routes[update.routeId] ?: continue
             val predicted = update.epochSecond?.let(Instant::ofEpochSecond)

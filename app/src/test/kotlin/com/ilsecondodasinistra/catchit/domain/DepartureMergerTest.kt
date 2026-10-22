@@ -164,6 +164,22 @@ class DepartureMergerTest {
     }
 
     @Test
+    fun oppositeDirectionArrivingAtTheBoardingPoleIsNotADeparture() {
+        // The same line and pole, but the vehicle is ending its run there (direction 1): it arrives, it doesn't leave.
+        val arriving = RealtimeUpdate("t", "T1_UM", 1, "6059", at(8, 7).epochSecond, 0, false)
+        val merged = DepartureMerger.merge("d", Leg.Outbound, timetable, scheduled(), listOf(arriving), at(7, 55), 10)
+        assertFalse(merged.any { it.isRealtime })
+        assertEquals(listOf(at(8, 0), at(8, 5), at(8, 10), at(8, 20)), merged.map { it.time })
+    }
+
+    @Test
+    fun updateWithoutDirectionFallsBackToStopAndLine() {
+        val noDirection = RealtimeUpdate("t", "T1_UM", null, "6059", at(8, 10).epochSecond, 0, false)
+        val merged = DepartureMerger.merge("d", Leg.Outbound, timetable, scheduled(), listOf(noDirection), at(7, 55), 10)
+        assertEquals(1, merged.count { it.isRealtime })
+    }
+
+    @Test
     fun returnLegHasItsOwnDepartures() {
         val rows = timetable.scheduled("d", Leg.Return, at(7, 0), at(13, 0), zone)
         assertEquals(listOf(at(8, 2)), rows.map { it.time })
