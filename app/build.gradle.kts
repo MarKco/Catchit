@@ -17,6 +17,9 @@ android {
         targetSdk = 37
         versionCode = 27
         versionName = "27.0"
+
+        // No maps in this build: OSM's tile servers can't be used by a public app without a key.
+        buildConfigField("boolean", "MAPS_ENABLED", "false")
     }
 
     compileOptions {

@@ -38,10 +38,13 @@ class BaselineProfileGenerator {
         device.waitForIdle()
 
         // The map of the leg, from the button.
-        device.findObject(By.desc("Mappa"))?.click()
-        lookAtTheMap(device)
-        device.pressBack()
-        device.waitForIdle()
+        // (Absent when the build has no maps.)
+        device.findObject(By.desc("Mappa"))?.let {
+            it.click()
+            lookAtTheMap(device)
+            device.pressBack()
+            device.waitForIdle()
+        }
 
         // Open the sheet of a passage; from there, the map with its run (only when the vehicle is on the feed); close.
         device.click(device.displayWidth / 2, device.displayHeight / 2)

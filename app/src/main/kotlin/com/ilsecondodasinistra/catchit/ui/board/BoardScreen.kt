@@ -83,6 +83,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
+import com.ilsecondodasinistra.catchit.BuildConfig
 import com.ilsecondodasinistra.catchit.R
 import com.ilsecondodasinistra.catchit.StartupTrace
 import com.ilsecondodasinistra.catchit.data.GeoCatalog
@@ -395,7 +396,7 @@ private fun DestinationPage(
             }
         }
         // The map is about live vehicles: another day has none.
-        if (state.browsing == null) {
+        if (BuildConfig.MAPS_ENABLED && state.browsing == null) {
             FloatingActionButton(
                 onClick = { onOpenMap(MapTarget(destination.id, destination.legs[pagerState.currentPage].leg)) },
                 modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = bottomPadding + 16.dp),

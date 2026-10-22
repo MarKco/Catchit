@@ -124,6 +124,7 @@ Long-form notes of the map/shortcuts/startup work (decisions, feed findings, mea
 - The splash is held until the first list exists (max 800 ms) so there is no spinner flash.
 
 ## Map (FAB on each page, MapLibre + OSM raster tiles)
+- **Branch `release`: maps are off** (`BuildConfig.MAPS_ENABLED = false` in `app/build.gradle.kts`): no FAB, no "Vedi sulla mappa" row in the sheet. The map code and the MapLibre dependency are still compiled in (the flag only hides the entry points); `master` keeps the maps on. Version bumps go on both branches.
 - `ui/map`: `MapModel.buildMapModel` (pure; testable) works out what the map shows from `BoardUiState`: boarding stops of the leg (`Timetable.stopRoutes`),
   the **upcoming live passages of the leg**, wherever their vehicle is (no distance filter: pan along the line to find the next one; direction is already right:
   `(stop, route)` pairs), yellow "Tram" pills for `looseTrams` (trams with no route, only within `MAP_RADIUS_METERS` = 2 km of a boarding stop), and, for one selected/highlighted passage, its whole run
