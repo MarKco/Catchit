@@ -3,7 +3,13 @@ package com.ilsecondodasinistra.catchit.ui.map
 import android.animation.ValueAnimator
 import android.graphics.Color
 import android.graphics.RectF
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
+import kotlinx.coroutines.delay
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +39,7 @@ import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.geometry.LatLngBounds
 import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapLibreMapOptions
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
 import org.maplibre.android.style.expressions.Expression
@@ -93,6 +100,7 @@ private const val SRC_VEHICLES = "vehicles"
 
 private val VENICE = LatLng(45.4642, 12.2750)
 private const val TAP_REACH_DP = 22f
+private const val REVEAL_TIMEOUT_MS = 1_500L
 
 /**
  * The map: OSM tiles with, on top, the run of the highlighted passage, the stops, and the vehicles (arrow in the heading
@@ -113,10 +121,17 @@ internal fun TransitMap(
     val context = LocalContext.current
     val density = LocalDensity.current
     val markers = remember { MapMarkers(context) }
+    val background = MaterialTheme.colorScheme.background.toArgb()
     val mapView = remember {
         MapLibre.getInstance(context.applicationContext)
-        MapView(context)
+        // A TextureView, not the default SurfaceView: it is part of the view hierarchy, so it can be faded, scaled and
+        // clipped with the rest of the screen (the SurfaceView flashed beige, then black, and ignored the transitions).
+        MapView(context, MapLibreMapOptions.createFromAttributes(context).textureMode(true).foregroundLoadColor(background))
     }
+    // Hidden until the camera is framed and its tiles are drawn (the first frame is the default camera, a blurry
+    // zoomed tile): the screen's own background shows meanwhile. A slow network doesn't hold it back for long.
+    var drawn by remember { mutableStateOf(false) }
+    val reveal by animateFloatAsState(if (drawn) 1f else 0f, tween(220), label = "map reveal")
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     var map by remember { mutableStateOf<MapLibreMap?>(null) }
     var style by remember { mutableStateOf<Style?>(null) }
@@ -166,6 +181,7 @@ internal fun TransitMap(
             m.setStyle(Style.Builder().fromJson(STYLE_JSON)) { loaded ->
                 installLayers(loaded)
                 style = loaded
+                mapView.addOnDidFinishRenderingFrameListener { fully, _, _ -> if (fully && framedFor != null) drawn = true }
             }
         }
     }
@@ -197,6 +213,8 @@ internal fun TransitMap(
         if (style == null || framedFor == cameraKey || model.focus.isEmpty()) return@LaunchedEffect
         framedFor = cameraKey
         frame(m, animate = false)
+        delay(REVEAL_TIMEOUT_MS)
+        drawn = true
     }
 
     LaunchedEffect(recenter) {
@@ -204,7 +222,7 @@ internal fun TransitMap(
         if (recenter > 0 && m != null && model.focus.isNotEmpty()) frame(m, animate = true)
     }
 
-    AndroidView(factory = { mapView }, modifier = modifier.fillMaxSize())
+    AndroidView(factory = { mapView }, modifier = modifier.fillMaxSize().graphicsLayer { alpha = reveal })
 }
 
 /** The box around [points], never smaller than [MAP_MIN_HALF_SPAN_METERS] each way from its centre. */

@@ -175,7 +175,6 @@ fun BoardContent(
 
     // The map layer, when open: a leg of the selected destination, maybe with one passage's run highlighted.
     var mapTarget by remember { mutableStateOf<MapTarget?>(null) }
-    BackHandler(enabled = mapTarget != null) { mapTarget = null }
 
     // A shortcut used while the app is open: close what is on top of the board and go there.
     LaunchedEffect(requestedDestination) {
