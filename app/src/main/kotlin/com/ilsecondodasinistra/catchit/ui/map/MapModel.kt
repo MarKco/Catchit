@@ -20,7 +20,7 @@ data class MapTarget(val destinationId: String, val leg: Leg, val highlight: Dep
 data class MapStop(val id: String, val name: String, val position: LatLon)
 
 /**
- * A vehicle on the map. [line] is null for one we can't tell (a grey dot); [eta] is when it gets to the stop, if the feed
+ * A vehicle on the map. [line] is null for one we can't tell (a yellow dot); [eta] is when it gets to the stop, if the feed
  * says so; [highlighted] marks the one whose run is being shown.
  */
 data class MapVehicle(

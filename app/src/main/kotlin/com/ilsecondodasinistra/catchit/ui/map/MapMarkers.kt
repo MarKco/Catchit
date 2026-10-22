@@ -84,10 +84,11 @@ internal class MapMarkers(context: Context) {
         }
     }
 
-    /** A tram we can't tell the line of: just a grey dot. */
-    fun unknown(): Bitmap = bitmap(dp(24f), dp(24f)) {
-        drawCircle(dp(12f), dp(12f), dp(9f), fill(0xFFFFFFFF.toInt()))
-        drawCircle(dp(12f), dp(12f), dp(7f), fill(0xFF757575.toInt()))
+    /** A tram we can't tell the line of: a yellow dot (grey vanishes on the map) with a dark ring. */
+    fun unknown(): Bitmap = bitmap(dp(26f), dp(26f)) {
+        drawCircle(dp(13f), dp(13f), dp(10f), fill(0xFFFFFFFF.toInt()))
+        drawCircle(dp(13f), dp(13f), dp(8f), fill(0xFFFFD600.toInt()))
+        drawCircle(dp(13f), dp(13f), dp(8f), stroke(0xFF3E2723.toInt(), dp(1.5f)))
     }
 
     /**

@@ -85,7 +85,7 @@ data class BoardUiState(
     val liveTrips: Map<String, LiveTrip> = emptyMap(),
     /** Stop names and coordinates, for the sheet of a passage. */
     val timetable: Timetable? = null,
-    /** Trams the feed places but doesn't say which line they run: the map shows them as grey dots. */
+    /** Trams the feed places but doesn't say which line they run: the map shows them as yellow dots. */
     val looseTrams: List<VehicleSnapshot> = emptyList(),
 ) {
     /** At least one passage to show: what the user opened the app for. */

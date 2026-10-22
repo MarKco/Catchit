@@ -9,7 +9,7 @@ Le note operative brevi (comandi, regole) stanno in [`CLAUDE.md`](../CLAUDE.md);
 |---|---|
 | Schede | Tolte le etichette «Andata»/«Ritorno»: resta solo il sottotitolo «verso <dove>», con la stessa formattazione (SemiBold, stile Tab). Stringhe e `Leg.title()` eliminate. |
 | Mappa | Un FAB in ogni pagina della barra apre una mappa (MapLibre + tile OpenStreetMap) centrata sui pali di salita della tratta, con i mezzi in arrivo. |
-| Marker | Badge col nome della linea, nel colore della lista; freccia di direzione (bearing) se il dato è noto; fumetto sopra con i minuti all'arrivo in fermata. Tram senza linea: puntino grigio, senza nome. |
+| Marker | Badge col nome della linea, nel colore della lista; freccia di direzione (bearing) se il dato è noto; fumetto sopra con i minuti all'arrivo in fermata. Tram senza linea: puntino giallo, senza nome. |
 | Percorso | Dalla scheda di un passaggio, la riga «È a X da Y» è cliccabile («Vedi sulla mappa»): stessa mappa, con il percorso intero del mezzo (polilinea + tutte le fermate, passate in grigio e future a colori, salita e discesa cerchiate). Lo stesso si ottiene toccando un marker nella mappa del FAB (secondo tap o tap sulla mappa: deseleziona). |
 | Rifiniture mappa | Marker che scivolano (1,2 s) tra un fix e l'altro; pulsante «ricentra»; età della posizione nel sottotitolo («posizione di 7 s fa»); tile invertiti nel tema scuro. |
 | Dati | Il builder produce anche `geo.json` (schema 3): percorsi semplificati e sequenza completa delle fermate di ogni corsa che collega i posti. File separato, letto solo all'apertura della mappa. |
@@ -46,13 +46,14 @@ La nota precedente («i tram non hanno corsa né linea») era stata presa di ser
 
 ### Il caso del tram «senza linea» (verificato alle 09:57–10:02)
 
-In lista c'era un T1 delle 09:57 «Da orario» (nessun dato live) e nella mappa un pallino grigio a Mestre (`TRAM_05`, senza corsa né linea).
+In lista c'era un T1 delle 09:57 «Da orario» (nessun dato live) e nella mappa un pallino giallo a Mestre (`TRAM_05`, senza corsa né linea).
 - Le 7 corse T1 delle 09:57 al palo 6059 (una per calendario di servizio) non comparivano né in `tripUpdates` né in `vehiclePositions`; alle 09:59:57 l'unica corsa live verso Venezia a Musatti era `TRAM_13`, a 9 minuti.
 - `TRAM_05` in `vehiclePositions` ha solo id, etichetta, posizione, bearing e ora del fix; in `tripUpdates` nessuna corsa lo cita come veicolo. Nessun disallineamento tra linee e posizioni: dove esiste una corsa, i due feed si agganciano sempre per `trip_id` (150/150 veicoli con corsa presenti in `tripUpdates`, 0/139 corse senza veicolo).
 - Controllo esaustivo (10:04): l'entità grezza di `TRAM_05` contiene solo posizione, bearing, ora del fix e descrittore (id `33618`, etichetta, accessibilità); nessuna `TripUpdate` lo cita né per etichetta né per suffisso dell'id entità (`TripUpdate_<corsa>_<veicolo>`). 123 veicoli su 327 sono senza corsa (2 tram: `TRAM_05`, `TRAM_12`). Tre autobus senza corsa hanno una `TripUpdate` col loro id, ma con zero fermate e nessuna linea.
 - Il campo accessibilità del descrittore live (2 = accessibile su 174 veicoli, 3 = no su 75) dà 3 per *tutti* i tram: poco credibile, non usato.
-- Alle 10:02 lo stesso tram anonimo era oltre Musatti, in marcia verso Venezia: compatibile con quella corsa delle 09:57, ma i dati non lo provano.
-- Conclusione: nessuna associazione automatica fra puntino grigio e corsa da orario (sarebbe una stima senza appigli). Resta possibile come funzione esplicita «stimato» (tram anonimo che si muove lungo il percorso verso la fermata, con un passaggio programmato imminente senza live): non fatta.
+- Alle 10:02 lo stesso tram anonimo era oltre Musatti, in marcia verso Venezia. In quel momento sembrava compatibile con la corsa delle 09:57, ma **era un'ipotesi sbagliata**: alle 10:07 la corsa T1 delle 09:57 (`AUT_ACTV_793_28693`) è comparsa nel feed con **31 minuti di ritardo**, sul `TRAM_06`, ancora a Favaro (arrivo a Musatti tra ~20 minuti). Il tram anonimo (`TRAM_05`, ora oltre Forte Marghera, rotta 152°) non c'entrava: probabilmente un trasferimento a vuoto o una corsa non registrata.
+- Lezione: una corsa programmata assente dal feed non è «mancante». Può non essere ancora partita: il feed la aggiunge quando il tram la inizia (qui con 31 minuti di ritardo, una corsa che la lista mostrava «Da orario»). Un'associazione automatica fra tram anonimo e corsa imminente avrebbe dato un risultato falso in questo caso: per questo non è stata fatta.
+- Resta possibile come funzione esplicita «stimato», ma con questo precedente lo sconsiglio.
 - Fatto: il sottotitolo conta a parte i tram senza linea e il tap sul pallino mostra una scheda che spiega perché non ha nome né minuti.
 
 ## 4. Misure
@@ -109,7 +110,7 @@ Test aggiunti: `GeoCatalogTest` (decodifica del percorso, scelta della corsa), t
 | Widget con i prossimi 3 passaggi | medio-alto (Glance) | alto | in background si aggiorna ogni ~15 min: orari programmati + ultimo dato live |
 | Ritardo tipico per linea e fascia oraria | medio (storico locale) | medio | l'app raccoglie dati solo da aperta: campione scarso |
 | Destinazioni modificabili dall'utente | alto | basso se l'app è personale | il builder gira già sul telefono |
-| Stima per il tram anonimo (es. `TRAM_05`) | medio | medio | solo come «stimato»: nessun dato nel feed lega il tram alla corsa, rischio di abbinamenti sbagliati |
+| Stima per il tram anonimo (es. `TRAM_05`) | medio | basso | sconsigliata: nessun dato lega il tram alla corsa e un caso reale (09:57, tram in ritardo di 31 min) avrebbe dato un abbinamento falso |
 | Tile scuri «veri» (secondo fornitore) | basso | cosmetico | richiede condizioni d'uso e attribuzione aggiuntive |
 | Avvisi di servizio, affollamento dei mezzi | — | — | non fattibili: endpoint 403 / dato assente nel feed |
 
