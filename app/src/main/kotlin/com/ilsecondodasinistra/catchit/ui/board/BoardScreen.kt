@@ -572,11 +572,15 @@ private fun LegPage(
     }
 }
 
-/** Stable lazy-list keys; two passages of one line in the same second still get distinct ones. */
+/**
+ * Stable lazy-list keys; two passages of one line in the same second still get distinct ones. Keyed on the timetable
+ * time when there is one: the predicted time moves with every delay update, and a key that changes makes the row
+ * a new item (the list loses its anchor and jumps).
+ */
 private fun List<Departure>.uniqueKeys(): List<String> {
     val seen = HashMap<String, Int>()
     return map { d ->
-        val key = "${d.route.id}-${d.time.epochSecond}"
+        val key = "${d.route.id}-${d.stopId}-${(d.scheduled ?: d.time).epochSecond}"
         val n = seen.merge(key, 1, Int::plus)!!
         if (n == 1) key else "$key#$n"
     }

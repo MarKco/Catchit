@@ -1,16 +1,5 @@
 package com.ilsecondodasinistra.catchit.ui.map
 
-import androidx.activity.compose.PredictiveBackHandler
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.graphics.graphicsLayer
-import kotlinx.coroutines.launch
-import kotlin.coroutines.cancellation.CancellationException
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,10 +38,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.ilsecondodasinistra.catchit.R
 import com.ilsecondodasinistra.catchit.data.GeoCatalog
+import com.ilsecondodasinistra.catchit.ui.PredictiveLayer
 import com.ilsecondodasinistra.catchit.ui.board.BoardUiState
-
-private const val ENTER_MS = 300
-private const val EXIT_MS = 220
 
 /**
  * The map of a leg (the vehicles about to arrive at its boarding stops) or, with [MapTarget.highlight], of one passage:
@@ -61,34 +48,11 @@ private const val EXIT_MS = 220
  */
 @Composable
 fun MapScreen(state: BoardUiState, target: MapTarget, loadGeo: suspend () -> GeoCatalog, onBack: () -> Unit) {
-    // The layer fades and scales in over the board; leaving (button or back) plays it backwards, and the system's
-    // back gesture drives it while the finger moves (predictive back), the board showing through underneath.
-    val appear = remember { Animatable(0f) }
-    val drag = remember { Animatable(0f) }
-    var leaving by remember { mutableStateOf(false) }
-    val currentOnBack by rememberUpdatedState(onBack)
-    // The map view is built (it blocks the main thread for a moment) only once the layer has finished coming in.
-    var entered by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        appear.animateTo(1f, tween(ENTER_MS, easing = FastOutSlowInEasing))
-        entered = true
-    }
-    suspend fun leave() {
-        if (leaving) return
-        leaving = true
-        appear.animateTo(0f, tween(EXIT_MS, easing = FastOutLinearInEasing))
-        currentOnBack()
-    }
-    PredictiveBackHandler(enabled = !leaving) { progress ->
-        try {
-            progress.collect { drag.snapTo(it.progress) }
-            leave()
-        } catch (cancelled: CancellationException) {
-            drag.animateTo(0f, tween(EXIT_MS))
-            throw cancelled
-        }
-    }
-    val scope = rememberCoroutineScope()
+    PredictiveLayer(onBack) { entered, dismiss -> MapContent(state, target, loadGeo, entered, dismiss) }
+}
+
+@Composable
+private fun MapContent(state: BoardUiState, target: MapTarget, loadGeo: suspend () -> GeoCatalog, entered: Boolean, dismiss: () -> Unit) {
     val geo by produceState<GeoCatalog?>(null) { value = loadGeo() }
     // The vehicle tapped on the map: its run is drawn; a tap on it again, or on the map, goes back to what was asked for.
     var selected by remember(target.destinationId, target.leg) { mutableStateOf<String?>(null) }
@@ -101,77 +65,67 @@ fun MapScreen(state: BoardUiState, target: MapTarget, loadGeo: suspend () -> Geo
         listOf(target.destinationId, target.leg, target.highlight?.tripId, target.highlight?.scheduled)
     }
 
-    val layer = Modifier.fillMaxSize().graphicsLayer {
-        val scale = (0.94f + 0.06f * appear.value) * (1f - 0.1f * drag.value)
-        scaleX = scale
-        scaleY = scale
-        alpha = appear.value
-        shape = RoundedCornerShape((28 * drag.value).dp)
-        clip = drag.value > 0f
-    }
-    Surface(color = MaterialTheme.colorScheme.background, modifier = layer) {
-        Box(Modifier.fillMaxSize()) {
-            if (model != null && entered) {
-                TransitMap(
-                    model, cameraKey, topPadding = barHeight, dark = dark, recenter = recenter,
-                    onVehicleTap = { key -> selected = key.takeIf { it != selected } },
-                )
-            }
+    Box(Modifier.fillMaxSize()) {
+        if (model != null && entered) {
+            TransitMap(
+                model, cameraKey, topPadding = barHeight, dark = dark, recenter = recenter,
+                onVehicleTap = { key -> selected = key.takeIf { it != selected } },
+            )
+        }
 
-            Surface(
-                shape = RoundedCornerShape(28.dp),
-                color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                shadowElevation = 6.dp,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .statusBarsPadding()
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
-                    .onSizeChanged { barHeight = with(density) { it.height.toDp() + 8.dp + 8.dp } },
-            ) {
-                Row(Modifier.padding(start = 4.dp, end = 20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    IconButton(onClick = { scope.launch { leave() } }) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.map_back))
-                    }
-                    Column(Modifier.padding(vertical = 8.dp)) {
-                        Text(
-                            text = model?.title.orEmpty(),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Text(
-                            text = subtitle(state, target, model),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
+        Surface(
+            shape = RoundedCornerShape(28.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shadowElevation = 6.dp,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .statusBarsPadding()
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .onSizeChanged { barHeight = with(density) { it.height.toDp() + 8.dp + 8.dp } },
+        ) {
+            Row(Modifier.padding(start = 4.dp, end = 20.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                IconButton(onClick = dismiss) {
+                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.map_back))
+                }
+                Column(Modifier.padding(vertical = 8.dp)) {
+                    Text(
+                        text = model?.title.orEmpty(),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = subtitle(state, target, model),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
             }
+        }
 
-            SmallFloatingActionButton(
-                onClick = { recenter++ },
-                modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(16.dp),
-            ) {
-                Icon(Icons.Rounded.CenterFocusStrong, contentDescription = stringResource(R.string.map_recenter))
-            }
+        SmallFloatingActionButton(
+            onClick = { recenter++ },
+            modifier = Modifier.align(Alignment.BottomEnd).navigationBarsPadding().padding(16.dp),
+        ) {
+            Icon(Icons.Rounded.CenterFocusStrong, contentDescription = stringResource(R.string.map_recenter))
+        }
 
-            // A yellow "Tram" pill was tapped: say why it has no name and no minutes.
-            val loose = model?.vehicles?.firstOrNull { it.key == selected && it.line == null }
-            if (loose != null && model != null) {
-                LooseTramCard(loose, model.now, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(start = 16.dp, end = 16.dp, bottom = 88.dp))
-            }
+        // A yellow "Tram" pill was tapped: say why it has no name and no minutes.
+        val loose = model?.vehicles?.firstOrNull { it.key == selected && it.line == null }
+        if (loose != null && model != null) {
+            LooseTramCard(loose, model.now, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(start = 16.dp, end = 16.dp, bottom = 88.dp))
+        }
 
-            // Required by the OpenStreetMap licence; the map's own (i) button is off.
-            Surface(
-                shape = RoundedCornerShape(topEnd = 8.dp),
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-                modifier = Modifier.align(Alignment.BottomStart).navigationBarsPadding(),
-            ) {
-                Text(stringResource(R.string.map_attribution), style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
-            }
+        // Required by the OpenStreetMap licence; the map's own (i) button is off.
+        Surface(
+            shape = RoundedCornerShape(topEnd = 8.dp),
+            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+            modifier = Modifier.align(Alignment.BottomStart).navigationBarsPadding(),
+        ) {
+            Text(stringResource(R.string.map_attribution), style = MaterialTheme.typography.labelSmall, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
         }
     }
 }

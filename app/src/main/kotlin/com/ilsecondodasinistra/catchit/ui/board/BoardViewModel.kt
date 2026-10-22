@@ -24,6 +24,8 @@ import com.ilsecondodasinistra.catchit.shortcuts.ShortcutPublisher
 import com.ilsecondodasinistra.catchit.update.TimetableUpdater
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -179,30 +181,43 @@ class BoardViewModel @Inject constructor(
         val tt = timetables.timetable.filterNotNull().first()
         live.update { it.copy(refreshing = true) }
         try {
-            val parsed = withContext(Dispatchers.Default) {
-                val bytes = realtime.fetchTripUpdates()
-                val updates = TripUpdatesParser.parse(bytes, tt.stopIds)
-                val tripIds = updates.mapTo(HashSet()) { it.tripId }
-                updates to TripUpdatesParser.tripStopTimes(bytes, tripIds)
+            coroutineScope {
+                // Vehicle positions are a bonus: fetched alongside, a failure there is not "no live data".
+                val positions = async {
+                    try {
+                        realtime.fetchVehiclePositions()
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                val parsed = withContext(Dispatchers.Default) {
+                    val bytes = realtime.fetchTripUpdates()
+                    val updates = TripUpdatesParser.parse(bytes, tt.stopIds)
+                    val tripIds = updates.mapTo(HashSet()) { it.tripId }
+                    updates to TripUpdatesParser.tripStopTimes(bytes, tripIds)
+                }
+                val (updates, stopTimes) = parsed
+                val snapshots = positions.await()?.let { bytes ->
+                    try {
+                        VehiclePositionsParser.parseAll(bytes)
+                    } catch (e: Exception) {
+                        emptyList()
+                    }
+                }.orEmpty()
+                val vehicles = snapshots.filter { it.tripId in stopTimes }.associate { it.tripId to it.fix }
+                val trips = stopTimes.mapValues { (id, times) ->
+                    LiveTrip(times.mapValues { Instant.ofEpochSecond(it.value) }, vehicles[id])
+                }
+                // A tram with no line can't be placed on a leg, but the map can still say "something is there".
+                val looseTrams = snapshots.filter { it.isTram && it.routeId.isEmpty() }
+                if (live.value.failed) log.info(LogKind.Live, "Tempo reale di nuovo disponibile")
+                live.value = LiveState(updates, trips, looseTrams, clock.instant(), failed = false)
             }
-            val (updates, stopTimes) = parsed
-            // Where the vehicles are is a bonus: the board works without it, and its failure is not "no live data".
-            val snapshots = try {
-                VehiclePositionsParser.parseAll(realtime.fetchVehiclePositions())
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                emptyList()
-            }
-            val vehicles = snapshots.filter { it.tripId in stopTimes }.associate { it.tripId to it.fix }
-            val trips = stopTimes.mapValues { (id, times) ->
-                LiveTrip(times.mapValues { Instant.ofEpochSecond(it.value) }, vehicles[id])
-            }
-            // A tram with no line can't be placed on a leg, but the map can still say "something is there".
-            val looseTrams = snapshots.filter { it.isTram && it.routeId.isEmpty() }
-            if (live.value.failed) log.info(LogKind.Live, "Tempo reale di nuovo disponibile")
-            live.value = LiveState(updates, trips, looseTrams, clock.instant(), failed = false)
         } catch (e: CancellationException) {
+            // The poll stopped (screen left) mid-fetch: don't leave the pull-to-refresh spinner on.
+            live.update { it.copy(refreshing = false) }
             throw e
         } catch (e: Exception) {
             // Keep the last good predictions (they age out by themselves) and say the feed is unreachable.

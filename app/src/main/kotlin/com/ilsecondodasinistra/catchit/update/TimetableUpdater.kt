@@ -10,6 +10,7 @@ import com.ilsecondodasinistra.catchit.data.UpdateLog
 import com.ilsecondodasinistra.catchit.timetable.TimetableBuilder
 import com.ilsecondodasinistra.catchit.timetable.TimetableConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -143,6 +144,9 @@ class TimetableUpdater @Inject constructor(
             val versions = repository.versions.value.joinToString { "${it.feedStart}→${it.feedEnd}" }
             log.info(LogKind.Timetable, "Installato. Versioni in uso: $versions")
             UpdateOutcome.Updated
+        } catch (e: CancellationException) {
+            // The daily job was stopped (network gone, battery low): that is not the zip's fault, retry it next time.
+            throw e
         } catch (e: Exception) {
             repository.failedStamp = stamp
             log.error(LogKind.Timetable, "Impossibile costruire gli orari da questo zip", e)
@@ -182,7 +186,12 @@ class TimetableUpdater @Inject constructor(
             // The length AVM declared for the real file (HEAD) wins: an error page declares its own, tiny, length.
             val expected = expectedLength ?: connection.contentLengthLong.takeIf { it > 0 }
             val tmp = File(target.path + ".part")
-            connection.inputStream.use { input -> tmp.outputStream().use { input.copyTo(it) } }
+            try {
+                connection.inputStream.use { input -> tmp.outputStream().use { input.copyTo(it) } }
+            } catch (e: java.io.IOException) {
+                tmp.delete()
+                throw e
+            }
             if (expected != null && tmp.length() != expected) {
                 val head = tmp.inputStream().use { it.readNBytes(80) }.toString(Charsets.UTF_8).replace(Regex("\\s+"), " ")
                 tmp.delete()

@@ -141,6 +141,11 @@ Long-form notes of the map/shortcuts/startup work (decisions, feed findings, mea
   (`singleTop`: `onNewIntent` handles a shortcut used while the app is open). Test: `adb shell am start -a com.ilsecondodasinistra.catchit.OPEN_DESTINATION -n …/.MainActivity --es destination stazione`.
 
 ## Back and bar
+- Map and Settings are `PredictiveLayer`s (`ui/PredictiveLayer.kt`) over the board, which stays composed (state, tab, scroll and polling survive; Settings used to replace the board and
+  every return reset it to the first destination). The layer fades/scales in, `PredictiveBackHandler` drives it while the back gesture moves, the button plays the same exit.
+  Its content gets `entered`: the `MapView` is built only after the enter animation (creating it blocks the main thread).
+- `TransitMap` uses MapLibre's **TextureView** mode (`textureMode(true)`): the default SurfaceView flashed beige then black on open and can't be faded/scaled. It stays transparent
+  until the camera is framed and a frame is fully rendered (else the first frame is the default camera: a blurry zoomed tile), with a 1.5 s timeout.
 - The tabs have no "Andata"/"Ritorno" labels: each is titled "verso <where the leg goes>" (SemiBold). The baseline profile generator and the startup benchmark
   look for that text ("verso Venezia" on the first destination), not for the old labels.
 - Back from a bar button other than the first goes to the first (`BackHandler` in `BoardContent`); from the first it leaves the app.
