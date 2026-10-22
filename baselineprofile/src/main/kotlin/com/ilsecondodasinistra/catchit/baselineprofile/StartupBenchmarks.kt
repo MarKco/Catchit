@@ -36,6 +36,6 @@ class StartupBenchmarks {
     ) {
         startActivityAndWait()
         // The list is what the user came for.
-        device.wait(Until.hasObject(By.text("Andata")), 8_000)
+        device.wait(Until.hasObject(By.text("verso Venezia")), 8_000)
     }
 }

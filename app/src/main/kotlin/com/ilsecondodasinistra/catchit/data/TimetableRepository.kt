@@ -33,6 +33,7 @@ data class LastCheck(val epochMillis: Long, val trigger: String, val outcome: St
 @Singleton
 class TimetableRepository @Inject constructor(@ApplicationContext private val context: Context) {
     private val json = Json { ignoreUnknownKeys = true }
+    private val geoJson = json
     private val directory = File(context.filesDir, "timetables")
     private val prefs = context.getSharedPreferences("timetable_updates", Context.MODE_PRIVATE)
     private val _timetable = MutableStateFlow<Timetable?>(null)
@@ -95,19 +96,50 @@ class TimetableRepository @Inject constructor(@ApplicationContext private val co
      * Validates [jsonText] and stores it as the timetable starting on its `feedStart`. Throws when it is not a
      * usable timetable for the current destinations, so a bad download never replaces anything.
      */
-    suspend fun install(jsonText: String, today: LocalDate) = withContext(Dispatchers.IO) {
+    suspend fun install(jsonText: String, today: LocalDate, geoText: String? = null) = withContext(Dispatchers.IO) {
         val data = decode(jsonText)
         require(data.config == TimetableConfig.fingerprint) { "Built for other destinations" }
         require(data.patterns.isNotEmpty() && data.destinations.isNotEmpty()) { "Empty timetable" }
         requireNotNull(data.feedStart.toDateOrNull()) { "No start date" }
 
         directory.mkdirs()
+        // The map data first: a timetable never sits there without it. A broken one only costs the map its paths.
+        if (geoText != null) {
+            val geo = File(directory, "$GEO_PREFIX${data.feedStart}$SUFFIX")
+            val geoTmp = File(directory, geo.name + ".part")
+            geoTmp.writeText(geoText)
+            check(geoTmp.renameTo(geo)) { "Could not install ${geo.name}" }
+        }
         val target = File(directory, "$PREFIX${data.feedStart}$SUFFIX")
         val tmp = File(directory, target.name + ".part")
         tmp.writeText(jsonText)
         check(tmp.renameTo(target)) { "Could not install ${target.name}" }
         prune(today)
         _timetable.value = read()
+        geoCache = null
+    }
+
+    @Volatile
+    private var geoCache: GeoCatalog? = null
+
+    /**
+     * The geography (paths, whole runs) of the timetables, read the first time a map asks: the board never needs it,
+     * so it costs the start nothing. Empty when no file can be read.
+     */
+    suspend fun geo(): GeoCatalog = geoCache ?: withContext(Dispatchers.IO) { readGeo().also { geoCache = it } }
+
+    private fun readGeo(): GeoCatalog {
+        val byStart = LinkedHashMap<String, GeoData>()
+        runCatching { context.assets.open(GEO_ASSET).bufferedReader().use { it.readText() } }
+            .mapCatching { geoJson.decodeFromString(GeoData.serializer(), it) }
+            .getOrNull()
+            ?.takeIf { it.config == TimetableConfig.fingerprint }
+            ?.let { byStart[it.feedStart] = it }
+        for (file in geoFiles()) {
+            val data = runCatching { geoJson.decodeFromString(GeoData.serializer(), file.readText()) }.getOrNull()
+            if (data == null || data.config != TimetableConfig.fingerprint) file.delete() else byStart[data.feedStart] = data
+        }
+        return GeoCatalog(byStart.values.toList())
     }
 
     private fun read(): Timetable {
@@ -131,7 +163,13 @@ class TimetableRepository @Inject constructor(@ApplicationContext private val co
         val dated = files().mapNotNull { f -> f.startDate()?.let { it to f } }.toMap().entries.associate { (k, v) -> v to k }
         val doomed = SnapshotPolicy.obsolete(dated.values.toList(), today)
         dated.filter { it.value in doomed }.keys.forEach { it.delete() }
+        // The map data of a timetable that is gone goes with it.
+        val kept = files().mapNotNull { it.startDate() }.toSet()
+        geoFiles().filter { f -> f.name.removePrefix(GEO_PREFIX).removeSuffix(SUFFIX).toDateOrNull() !in kept }.forEach { it.delete() }
     }
+
+    private fun geoFiles(): List<File> =
+        directory.listFiles { f -> f.name.startsWith(GEO_PREFIX) && f.name.endsWith(SUFFIX) }?.toList().orEmpty()
 
     private fun files(): List<File> =
         directory.listFiles { f -> f.name.startsWith(PREFIX) && f.name.endsWith(SUFFIX) }?.toList().orEmpty()
@@ -145,7 +183,9 @@ class TimetableRepository @Inject constructor(@ApplicationContext private val co
 
     private companion object {
         const val ASSET = "timetable.json"
+        const val GEO_ASSET = "geo.json"
         const val PREFIX = "timetable-"
+        const val GEO_PREFIX = "geo-"
         const val SUFFIX = ".json"
         const val KEY_PROCESSED = "processed"
         const val KEY_FAILED = "failed"

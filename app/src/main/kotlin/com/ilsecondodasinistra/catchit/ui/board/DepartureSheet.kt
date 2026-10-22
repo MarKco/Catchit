@@ -2,6 +2,7 @@ package com.ilsecondodasinistra.catchit.ui.board
 
 import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.rounded.Map
 import androidx.compose.material.icons.rounded.NearMe
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,6 +38,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
@@ -95,6 +99,8 @@ fun DepartureSheet(
     next: List<Instant>,
     state: BoardUiState,
     onDismiss: () -> Unit,
+    /** Opens the map with this passage's run highlighted. */
+    onShowMap: () -> Unit,
 ) {
     val model = SheetModel(departure, state)
     val context = LocalContext.current
@@ -125,9 +131,17 @@ fun DepartureSheet(
 
             model.vehicleDistance?.let { distance ->
                 Section(stringResource(R.string.sheet_vehicle_title)) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable(onClick = onShowMap)
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
                         Icon(Icons.Rounded.NearMe, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary)
-                        Column {
+                        Column(Modifier.weight(1f)) {
                             Text(
                                 stringResource(R.string.sheet_vehicle_at, formatDistance(distance), model.from ?: ""),
                                 style = MaterialTheme.typography.bodyLarge,
@@ -139,7 +153,15 @@ fun DepartureSheet(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
+                            Text(
+                                stringResource(R.string.sheet_vehicle_map),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
                         }
+                        Icon(Icons.Rounded.Map, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }

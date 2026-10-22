@@ -179,4 +179,53 @@ class TimetableBuilderTest {
         assertEquals(45.2, middle.getValue("lat").jsonPrimitive.content.toDouble(), 1e-9)
         assertEquals(12.2, middle.getValue("lon").jsonPrimitive.content.toDouble(), 1e-9)
     }
+
+    private fun buildGeo(files: Map<String, String> = feed): JsonObject =
+        Json.parseToJsonElement(TimetableBuilder.buildFiles(zip(files), listOf(destination)).geo).jsonObject
+
+    @Test
+    fun geoKeepsTheWholeRunOfTheQualifyingTripsWithoutPathWhenThereIsNoShapesFile() {
+        val runs = buildGeo().getValue("runs").jsonArray.map { it.jsonObject }
+        val r1 = runs.single { it.getValue("route").jsonPrimitive.content == "R1" }
+        assertEquals(listOf("A", "M", "B1"), r1.getValue("stops").jsonArray.map { it.jsonPrimitive.content })
+        assertTrue("path" !in r1)
+        assertTrue(runs.none { it.getValue("route").jsonPrimitive.content == "R3" }) // never reaches Beta
+    }
+
+    @Test
+    fun geoPacksThePathOfTheMostCommonShapeAsDeltas() {
+        val withShapes = feed + mapOf(
+            "trips.txt" to """
+                route_id,trip_id,service_id,trip_headsign,direction_id,shape_id
+                R1,t1,wk,Beta,0,s1
+                R1,t1b,wk,Beta,0,s1
+                R1,t1c,wk,Beta,0,s2
+                R2,t2,wk,Alfa,1,s3
+                R3,t3,wk,Gamma,0,s3
+                R4,t4,feast,Loop,0,s3
+            """,
+            "shapes.txt" to """
+                shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence
+                s1,45.10000,12.10000,1
+                s1,45.15000,12.15000,2
+                s1,45.20000,12.20000,3
+                s2,40.0,10.0,1
+                s2,40.1,10.1,2
+                s3,45.4,12.4,1
+                s3,45.1,12.1,2
+            """,
+        )
+        val geo = buildGeo(withShapes)
+        val r1 = geo.getValue("runs").jsonArray.map { it.jsonObject }.single { it.getValue("route").jsonPrimitive.content == "R1" }
+        val path = geo.getValue("paths").jsonArray[r1.getValue("path").jsonPrimitive.content.toInt()].jsonArray.map { it.jsonPrimitive.content.toInt() }
+        // s1 is voted twice (s2 once); the middle point lies on the straight line, so it is simplified away.
+        assertEquals(listOf(4_510_000, 1_210_000, 10_000, 10_000), path)
+    }
+
+    @Test
+    fun simplifyDropsPointsOnTheLineAndKeepsTheCorners() {
+        val line = listOf(doubleArrayOf(45.0, 12.0), doubleArrayOf(45.0, 12.001), doubleArrayOf(45.0, 12.002), doubleArrayOf(45.001, 12.002))
+        val kept = simplify(line, 4.0)
+        assertEquals(listOf(0, 2, 3), kept.map { line.indexOf(it) })
+    }
 }

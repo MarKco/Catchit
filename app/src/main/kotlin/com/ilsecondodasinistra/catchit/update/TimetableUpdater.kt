@@ -135,9 +135,9 @@ class TimetableUpdater @Inject constructor(
 
         val buildStart = System.nanoTime()
         return try {
-            val json = withContext(worker) { TimetableBuilder.build(zip) }
-            log.info(LogKind.Timetable, "Orari costruiti in ${millisSince(buildStart)} ms (${json.length / 1024} KB)")
-            repository.install(json, LocalDate.now(clock))
+            val built = withContext(worker) { TimetableBuilder.buildFiles(zip) }
+            log.info(LogKind.Timetable, "Orari costruiti in ${millisSince(buildStart)} ms (${built.timetable.length / 1024} KB, mappa ${built.geo.length / 1024} KB)")
+            repository.install(built.timetable, LocalDate.now(clock), built.geo)
             repository.processedStamp = stamp
             repository.failedStamp = null
             val versions = repository.versions.value.joinToString { "${it.feedStart}→${it.feedEnd}" }

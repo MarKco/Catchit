@@ -96,6 +96,20 @@
     <string name="sheet_vehicle_title">Il mezzo</string>
     <string name="sheet_vehicle_at">È a %1$s da %2$s</string>
     <string name="sheet_vehicle_age">posizione di %1$s</string>
+    <string name="sheet_vehicle_map">Vedi sulla mappa</string>
+
+    <string name="map_open">Mappa</string>
+    <string name="map_back">Indietro</string>
+    <string name="map_no_vehicles">Nessun mezzo nei dintorni</string>
+    <plurals name="map_vehicles">
+        <item quantity="one">%1$d mezzo nei dintorni</item>
+        <item quantity="other">%1$d mezzi nei dintorni</item>
+    </plurals>
+    <string name="map_recenter">Ricentra</string>
+    <string name="map_position_seconds">posizione di %1$d s fa</string>
+    <string name="map_position_minutes">posizione di %1$d min fa</string>
+    <string name="map_route_of">Percorso della linea %1$s</string>
+    <string name="map_attribution">© OpenStreetMap</string>
     <string name="sheet_stops_title">Fermate</string>
     <string name="sheet_stops_note">Gli orari con ~ sono tipici della linea; quelli senza arrivano dal tempo reale di AVM.</string>
     <string name="sheet_stops_note_timetable">Gli orari con ~ sono tipici della linea.</string>

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.DirectionsBus
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Map
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.WifiOff
@@ -36,6 +37,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -83,9 +85,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.ilsecondodasinistra.catchit.R
 import com.ilsecondodasinistra.catchit.StartupTrace
+import com.ilsecondodasinistra.catchit.data.GeoCatalog
 import com.ilsecondodasinistra.catchit.domain.Departure
 import com.ilsecondodasinistra.catchit.domain.isPast
 import com.ilsecondodasinistra.catchit.ui.destinationIcon
+import com.ilsecondodasinistra.catchit.ui.map.MapScreen
+import com.ilsecondodasinistra.catchit.ui.map.MapTarget
 import com.ilsecondodasinistra.catchit.ui.theme.glass
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
@@ -99,6 +104,7 @@ import java.time.LocalTime
 import java.time.ZoneOffset
 
 private const val POLL_MS = 20_000L
+private val MAP_FAB_ROOM = 72.dp
 private val DEFAULT_BROWSE_TIME = LocalTime.of(8, 0)
 
 /** What the header menu can do. */
@@ -113,6 +119,7 @@ fun BoardScreen(onOpenSettings: () -> Unit, viewModel: BoardViewModel = hiltView
     val state by viewModel.state.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val browsing by rememberUpdatedState(state.browsing != null)
+    val requested by viewModel.requestedDestination.collectAsStateWithLifecycle()
 
     // Poll only while the screen is visible: no service, no background traffic. Another day has no live data.
     LaunchedEffect(lifecycleOwner, viewModel) {
@@ -130,6 +137,9 @@ fun BoardScreen(onOpenSettings: () -> Unit, viewModel: BoardViewModel = hiltView
         onBrowse = viewModel::browse,
         onToday = viewModel::backToToday,
         onOpenSettings = onOpenSettings,
+        loadGeo = viewModel::geo,
+        requestedDestination = requested,
+        onDestinationOpened = viewModel::destinationOpened,
     )
 }
 
@@ -140,8 +150,12 @@ fun BoardContent(
     onBrowse: (Instant) -> Unit,
     onToday: () -> Unit,
     onOpenSettings: () -> Unit,
+    loadGeo: suspend () -> GeoCatalog,
+    /** A destination to open (launcher shortcut), null for none. */
+    requestedDestination: String?,
+    onDestinationOpened: () -> Unit,
 ) {
-    var selectedId by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedId by rememberSaveable { mutableStateOf(requestedDestination) }
     // The first visible button is the start screen; a button hidden from the settings falls back to it too.
     val selected = state.destinations.firstOrNull { it.id == selectedId } ?: state.destinations.firstOrNull()
 
@@ -158,6 +172,20 @@ fun BoardContent(
 
     // The passage whose sheet is open.
     var sheet by remember { mutableStateOf<Departure?>(null) }
+
+    // The map layer, when open: a leg of the selected destination, maybe with one passage's run highlighted.
+    var mapTarget by remember { mutableStateOf<MapTarget?>(null) }
+    BackHandler(enabled = mapTarget != null) { mapTarget = null }
+
+    // A shortcut used while the app is open: close what is on top of the board and go there.
+    LaunchedEffect(requestedDestination) {
+        requestedDestination?.let {
+            selectedId = it
+            sheet = null
+            mapTarget = null
+            onDestinationOpened()
+        }
+    }
 
     var pickingDay by rememberSaveable { mutableStateOf(false) }
     var pickedDay by rememberSaveable { mutableStateOf<String?>(null) } // ISO date, between the two dialogs
@@ -190,7 +218,9 @@ fun BoardContent(
             }
             if (!state.isLoading && selected != null) {
                 // A fresh pager (and tab) per destination.
-                key(selected.id) { DestinationPage(selected, state, haze, barHeight, actions, onRefresh) { sheet = it } }
+                key(selected.id) {
+                    DestinationPage(selected, state, haze, barHeight, actions, onRefresh, onOpenMap = { mapTarget = it }) { sheet = it }
+                }
             }
             NavigationBar(
                 modifier = Modifier
@@ -219,7 +249,24 @@ fun BoardContent(
         val current = all.firstOrNull { it.sameRun(shown) } ?: shown
         val next = all.filter { it.route.id == current.route.id && it.stopId == current.stopId && it.time > current.time }
             .sortedBy { it.time }.take(3).map { it.time }
-        DepartureSheet(current, next, state, onDismiss = { sheet = null })
+        DepartureSheet(
+            current, next, state,
+            onDismiss = { sheet = null },
+            onShowMap = {
+                val leg = selected?.legs?.firstOrNull { board -> board.departures.any { it.sameRun(current) } }?.leg
+                if (selected != null && leg != null) {
+                    sheet = null
+                    mapTarget = MapTarget(selected.id, leg, highlight = current)
+                }
+            },
+        )
+    }
+
+    mapTarget?.let { target ->
+        // The passage moves under the map (live data arrives, rows age): follow the same one, not the stale copy.
+        val all = state.destinations.firstOrNull { it.id == target.destinationId }?.legs?.flatMap { it.departures }.orEmpty()
+        val current = target.highlight?.let { shown -> all.firstOrNull { it.sameRun(shown) } ?: shown }
+        MapScreen(state, target.copy(highlight = current), loadGeo, onBack = { mapTarget = null })
     }
 
     val today = state.today
@@ -275,6 +322,7 @@ private fun DestinationPage(
     bottomPadding: Dp,
     actions: BoardActions,
     onRefresh: () -> Unit,
+    onOpenMap: (MapTarget) -> Unit,
     onOpen: (Departure) -> Unit,
 ) {
     val pagerState = rememberPagerState { destination.legs.size }
@@ -293,7 +341,8 @@ private fun DestinationPage(
                     departures = destination.legs[page].departures,
                     state = state,
                     topPadding = headerHeight,
-                    bottomPadding = bottomPadding,
+                    // Room for the map button too: the last row must scroll clear of it.
+                    bottomPadding = bottomPadding + MAP_FAB_ROOM,
                     onRefresh = onRefresh,
                     onOpen = onOpen,
                 )
@@ -344,6 +393,15 @@ private fun DestinationPage(
                 Column(Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     notices.forEach { (icon, text) -> Notice(icon, text) }
                 }
+            }
+        }
+        // The map is about live vehicles: another day has none.
+        if (state.browsing == null) {
+            FloatingActionButton(
+                onClick = { onOpenMap(MapTarget(destination.id, destination.legs[pagerState.currentPage].leg)) },
+                modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = bottomPadding + 16.dp),
+            ) {
+                Icon(Icons.Rounded.Map, contentDescription = stringResource(R.string.map_open))
             }
         }
     }

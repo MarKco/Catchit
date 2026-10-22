@@ -29,7 +29,7 @@ class Destination(val id: String, val label: String, val origin: Place, val targ
  */
 object TimetableConfig {
     /** Bump when the shape of the generated timetable changes: older downloaded files are then discarded. */
-    private const val SCHEMA = 2
+    private const val SCHEMA = 3
 
     const val FEED_URL = "https://actv.avmspa.it/sites/default/files/attachments/opendata/automobilistico/actv_aut.zip"
 

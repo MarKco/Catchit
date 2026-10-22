@@ -15,8 +15,8 @@ android {
         applicationId = "com.ilsecondodasinistra.catchit"
         minSdk = 26
         targetSdk = 37
-        versionCode = 12
-        versionName = "12.0"
+        versionCode = 13
+        versionName = "13.0"
     }
 
     compileOptions {
@@ -35,6 +35,12 @@ android {
             }
             // Personal sideloaded build: sign with the debug key.
             signingConfig = signingConfigs.getByName("debug")
+            // The phones in use are all 64-bit ARM; MapLibre's .so is 9-13 MB per ABI and is stored uncompressed in the
+            // APK, so each extra ABI is that much to send and to keep on the phone. The debug build keeps all of them so any emulator runs.
+            // Add "armeabi-v7a" back for a phone with a 32-bit system (entry-level Android Go).
+            ndk {
+                abiFilters += listOf("arm64-v8a")
+            }
         }
     }
 }
@@ -62,6 +68,7 @@ dependencies {
     implementation(libs.androidx.work.runtime)
     implementation(libs.haze)
     implementation(libs.haze.materials)
+    implementation(libs.maplibre)
     implementation(project(":timetable-builder"))
     // Installs the baseline profile (precompiled hot start-up paths) when the app is installed.
     implementation(libs.androidx.profileinstaller)

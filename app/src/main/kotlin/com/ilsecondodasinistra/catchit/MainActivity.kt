@@ -1,6 +1,7 @@
 package com.ilsecondodasinistra.catchit
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.os.SystemClock
@@ -34,6 +35,8 @@ class MainActivity : ComponentActivity() {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // A launcher shortcut opens straight on its destination (not again after a rotation: the choice is saved then).
+        if (savedInstanceState == null) board.openDestination(intent.destinationExtra())
 
         // Keep the splash up until there is a list to show (a spinner flash is worse than 100 ms of splash), but never
         // for long: if something is slow the user must see the app.
@@ -50,7 +53,18 @@ class MainActivity : ComponentActivity() {
         StartupTrace.mark("MainActivity.onCreate end")
     }
 
-    private companion object {
-        const val SPLASH_MAX_MS = 800L
+    /** The activity is `singleTop`: a shortcut used while the app is open lands here. */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        board.openDestination(intent.destinationExtra())
+    }
+
+    private fun Intent?.destinationExtra(): String? =
+        this?.takeIf { it.action == ACTION_OPEN_DESTINATION }?.getStringExtra(EXTRA_DESTINATION)
+
+    companion object {
+        const val ACTION_OPEN_DESTINATION = "com.ilsecondodasinistra.catchit.OPEN_DESTINATION"
+        const val EXTRA_DESTINATION = "destination"
+        private const val SPLASH_MAX_MS = 800L
     }
 }

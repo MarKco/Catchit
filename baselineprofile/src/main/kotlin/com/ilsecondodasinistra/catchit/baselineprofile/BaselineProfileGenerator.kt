@@ -27,18 +27,30 @@ class BaselineProfileGenerator {
         // Cold start up to the first list.
         pressHome()
         startActivityAndWait()
-        device.wait(Until.hasObject(By.text("Andata")), TIMEOUT)
+        // The tabs of the first destination (Venezia) are called after where they go; the cards say "verso Venezia Corsia C".
+        device.wait(Until.hasObject(By.text("verso Venezia")), TIMEOUT)
 
         // Scroll the list, switch to the other leg and back.
         swipeList(device)
-        device.findObject(By.text("Ritorno"))?.click()
+        device.findObject(By.text("verso Musatti"))?.click()
         device.waitForIdle()
-        device.findObject(By.text("Andata"))?.click()
+        device.findObject(By.text("verso Venezia"))?.click()
         device.waitForIdle()
 
-        // Open the sheet of a passage and close it.
+        // The map of the leg, from the button.
+        device.findObject(By.desc("Mappa"))?.click()
+        lookAtTheMap(device)
+        device.pressBack()
+        device.waitForIdle()
+
+        // Open the sheet of a passage; from there, the map with its run (only when the vehicle is on the feed); close.
         device.click(device.displayWidth / 2, device.displayHeight / 2)
         device.wait(Until.hasObject(By.text("Partenza")), TIMEOUT)
+        val showMap = device.findObject(By.text("Vedi sulla mappa"))
+        if (showMap != null) {
+            showMap.click()
+            lookAtTheMap(device)
+        }
         device.pressBack()
         device.waitForIdle()
 
@@ -65,6 +77,13 @@ class BaselineProfileGenerator {
         device.waitForIdle()
     }
 
+    /** Waits for the map to be up (the attribution is drawn with it), then a few seconds for the tiles and vehicles. */
+    private fun lookAtTheMap(device: UiDevice) {
+        device.wait(Until.hasObject(By.text("© OpenStreetMap")), TIMEOUT)
+        Thread.sleep(MAP_SETTLE_MS)
+        device.waitForIdle()
+    }
+
     private fun swipeList(device: UiDevice) {
         val x = device.displayWidth / 2
         repeat(2) {
@@ -76,5 +95,6 @@ class BaselineProfileGenerator {
     private companion object {
         const val PACKAGE = "com.ilsecondodasinistra.catchit"
         const val TIMEOUT = 8_000L
+        const val MAP_SETTLE_MS = 4_000L
     }
 }

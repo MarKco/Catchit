@@ -7,6 +7,8 @@ in Venezia/Mestre. Bottom bar = destinations (`ImporterConfig.destinations`): Ve
 changing, *ritorno* = departures from the target that reach the origin. The app never ships the whole network, only the
 lines that directly link those places (derived from the feed by the importer).
 
+Long-form notes of the map/shortcuts/startup work (decisions, feed findings, measurements, limits, ideas not done): `docs/diario-2026-10-22-mappa.md`.
+
 ## Working agreements
 - Talk to the user in Italian; ask (AskUserQuestion, recommended option first) before significant architectural decisions.
 - UI strings: Italian only, in `strings.xml` (`board_*` for the board screen).
@@ -32,11 +34,13 @@ lines that directly link those places (derived from the feed by the importer).
   publishes a new version often. `DepartureMerger` matches by line + `time - delay` (±150 s) instead. RT carries absolute predicted
   time, delay, `route_id`, `direction_id` but no headsign (taken from the timetable).
 - The static feed has a validity window (`feed_start_date`): before it, `Timetable.runsOn` reuses the first timetable (same weekday) as an *indicative* stand-in and the UI says so.
-- **Tram realtime (checked 2026-10-21 21:40)**: `tripUpdates` has no T1/T2, but `vehiclePositions` does list the trams as
-  vehicles `TRAM_01…TRAM_20` (ids 3361x–3363x) with lat/lon/bearing and **no trip, no route, no stop** (74 of 127 vehicles
-  are trip-less; none are near the 15/43/12L stops, so those lines simply weren't running). So trams only show timetable
-  data today; an ETA would have to be inferred from position + bearing + the T1 stop sequence. The official AVM app uses
-  data that isn't in the open feed. `/tram/GTFSRT/*` and `/aut/GTFSRT/alerts` give 404/403.
+- **Tram realtime**: checked at night (2026-10-21 21:40) the trams were trip-less (just `TRAM_01…TRAM_20` with lat/lon/bearing), but
+  **in daytime (2026-10-22 09:10) 11 of 13 trams carry trip + route (`T1_UM`/`T2_UM`) + stop updates**, like the buses; only a couple
+  (e.g. `TRAM_05`) have no trip/route. So trams are live like buses when running. `/tram/GTFSRT/*` and `/aut/GTFSRT/alerts` give 404/403.
+- `vehiclePositions` (checked 2026-10-22 09:12): every vehicle has a `bearing`, but `0.0` means "unknown" (101 of 327: parked/trip-less) and is
+  read as null. `stop_id` (field 7) is the *last stop served* (the next stop update is the one after it), fixes are ~50-60 s old. A trip's
+  `stop_time_update`s cover every remaining stop (`stop_sequence` equals the static one). Not every RT trip id is in the static zip (134/158),
+  so runs are matched by route + stops, never by trip id.
 - The feed only covers ~25 of the 97 lines at any time; absence from `tripUpdates` means "no live data", not "not running".
 - The navigation (vaporetti) feeds live under `/nav/` (same schema); unused so far.
 
@@ -100,10 +104,39 @@ lines that directly link those places (derived from the feed by the importer).
 - Baseline profile: module `:baselineprofile` (generator = the main journeys of the app). Regenerate when the UI changes a lot:
   `./gradlew :app:generateBaselineProfile` (needs an emulator/device, ~12 min; result in `app/src/release/generated/baselineProfiles/`, committed).
   `StartupBenchmarks` compares cold start with and without it: `./gradlew :baselineprofile:connectedBenchmarkReleaseAndroidTest`. It needs a **physical
-  device**: Macrobenchmark refuses emulators ("not representative"; it fails with `EMULATOR`). Not run yet: the first numbers have to come from a phone.
+  device**: Macrobenchmark refuses emulators ("not representative"; it fails with `EMULATOR`). Measured on a physical phone (Android 17, release, 10 cold starts, 2026-10-22, after the map was added): **270 ms median with the profile (254–319), 320 ms without
+  (316–335)**. The profile was regenerated on a physical phone with the map journeys (FAB, "Vedi sulla mappa"); the generator and the benchmark wait for the tab
+  text "verso Venezia" (tabs are no longer called Andata/Ritorno). MapLibre doesn't touch the start: it's initialised only when a map opens, and has no provider/initializer in the manifest.
+  Release APK: see the ABI note in the Map section (`.so` are stored uncompressed, so each ABI adds its full size).
 - The splash is held until the first list exists (max 800 ms) so there is no spinner flash.
 
+## Map (FAB on each page, MapLibre + OSM raster tiles)
+- `ui/map`: `MapModel.buildMapModel` (pure; testable) works out what the map shows from `BoardUiState`: boarding stops of the leg (`Timetable.stopRoutes`),
+  the **upcoming live passages of the leg** whose vehicle is within `MAP_RADIUS_METERS` (2 km) of a boarding stop (so direction is already right:
+  `(stop, route)` pairs), grey dots for `looseTrams` (trams with no route), and, for one selected/highlighted passage, its whole run
+  (`GeoCatalog.findRun`: route + boarding/alight stop + stops seen live; polyline + stops, passed ones grey, boarding/alight ringed).
+  `MapScreen` is a full-screen layer *inside* `BoardContent` (not another screen) so the 20 s polling keeps running; back closes it.
+  The FAB is hidden when browsing another day. Entry points: the FAB (leg of the current tab) and the "Vedi sulla mappa" row of the passage sheet
+  (that passage highlighted). Tapping a vehicle on the map selects it (draws its run); tapping it again or the map deselects.
+- `TransitMap` wraps `MapView` by hand (no maplibre-compose). Markers are bitmaps from `MapMarkers` (the style has no glyphs, so no text layers):
+  arrow layer (rotated by bearing, peeking out of the badge) under a badge+ETA-bubble layer. OSM attribution is drawn by `MapScreen` (built-in one is off).
+  MapLibre's `libmaplibre.so` is 9–13 MB uncompressed per ABI; `release` keeps only `arm64-v8a` (the phones in use are 64-bit; add `armeabi-v7a` back in `app/build.gradle.kts` for a 32-bit phone), `debug` keeps all so any emulator runs; `MapLibre.getInstance` runs only when a map is first opened.
+- Map polish: vehicles glide (1.2 s, straight line) from the previous fix to the new one (`Glide` in `TransitMap`; the feed has no speed, so no dead reckoning);
+  recenter button re-frames `MapModel.focus`; the subtitle of a selected vehicle says how old its fix is; in the dark theme the OSM tiles are inverted with
+  raster brightness min/max + hue-rotate (no second tile provider).
+- Data: `TimetableBuilder.buildFiles` returns `timetable.json` + `geo.json` (schema 3: `runs` = whole stop sequence of each qualifying trip with its
+  `path` index, `paths` = shapes.txt simplified to 4 m and delta-packed in 1e-5°; ~55 KB). `geo.json` is read lazily (`TimetableRepository.geo()`) only when a
+  map opens; downloaded versions live in `files/timetables/geo-<feedStart>.json`, written before the timetable and pruned with it.
+
+## Launcher shortcuts
+- `ShortcutPublisher` publishes one **dynamic** shortcut per visible destination of the bar, in the bar's order (5 s after start, whenever the bar or the
+  timetable changes: `BoardViewModel`). Icon = the bar's `ImageVector` drawn into an adaptive bitmap. They launch `MainActivity` with
+  `ACTION_OPEN_DESTINATION` + `EXTRA_DESTINATION`; `BoardViewModel.requestedDestination` carries it to `BoardContent`, which selects it and closes any sheet/map
+  (`singleTop`: `onNewIntent` handles a shortcut used while the app is open). Test: `adb shell am start -a com.ilsecondodasinistra.catchit.OPEN_DESTINATION -n …/.MainActivity --es destination stazione`.
+
 ## Back and bar
+- The tabs have no "Andata"/"Ritorno" labels: each is titled "verso <where the leg goes>" (SemiBold). The baseline profile generator and the startup benchmark
+  look for that text ("verso Venezia" on the first destination), not for the old labels.
 - Back from a bar button other than the first goes to the first (`BackHandler` in `BoardContent`); from the first it leaves the app.
 - Default bar order is fixed (`BarPreferences.DEFAULT_ORDER`: Venezia, Centro, Stazione, Aeroporto), whatever order the timetable lists;
   Settings has "Ripristina ordine predefinito".

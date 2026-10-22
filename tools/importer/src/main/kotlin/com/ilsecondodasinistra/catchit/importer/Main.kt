@@ -7,9 +7,10 @@ import java.net.URI
 
 private const val CACHE_FILE = "tools/cache/actv_aut.zip"
 private const val OUTPUT_FILE = "app/src/main/assets/timetable.json"
+private const val GEO_FILE = "app/src/main/assets/geo.json"
 
 /**
- * Regenerates the timetable bundled in the APK (the fallback of the app's own updates).
+ * Regenerates the timetable and the map data (paths, whole runs) bundled in the APK (the fallback of the app's own updates).
  * `./gradlew :tools:importer:run [--args=--refresh]`
  */
 fun main(args: Array<String>) {
@@ -25,6 +26,10 @@ fun main(args: Array<String>) {
     }
     val out = File(OUTPUT_FILE)
     out.parentFile.mkdirs()
-    out.writeText(TimetableBuilder.build(cache, TimetableConfig.destinations, ::println))
+    val built = TimetableBuilder.buildFiles(cache, TimetableConfig.destinations, ::println)
+    out.writeText(built.timetable)
     println("Wrote ${out.path} (${out.length() / 1024} KB)")
+    val geo = File(GEO_FILE)
+    geo.writeText(built.geo)
+    println("Wrote ${geo.path} (${geo.length() / 1024} KB)")
 }
