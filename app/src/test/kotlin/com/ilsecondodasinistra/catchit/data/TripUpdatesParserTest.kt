@@ -40,6 +40,45 @@ class TripUpdatesParserTest {
     }
 }
 
+class TerminusUpdatesTest {
+    private fun varint(value: Long): ByteArray {
+        val out = java.io.ByteArrayOutputStream()
+        var v = value
+        while (v >= 0x80) { out.write(((v and 0x7f) or 0x80).toInt()); v = v ushr 7 }
+        out.write(v.toInt())
+        return out.toByteArray()
+    }
+
+    private fun message(field: Int, payload: ByteArray) = varint((field shl 3 or 2).toLong()) + varint(payload.size.toLong()) + payload
+    private fun text(field: Int, value: String) = message(field, value.toByteArray())
+    private fun number(field: Int, value: Long) = varint((field shl 3).toLong()) + varint(value)
+
+    private fun stopUpdate(stop: String, time: Long) = message(2, message(3, number(2, time)) + text(4, stop))
+
+    /** A feed with one trip of route "L" whose stop updates are [stops] (id to time), in order. */
+    private fun feed(vararg stops: Pair<String, Long>): ByteArray {
+        val trip = message(1, text(1, "trip") + text(5, "L") + number(6, 0))
+        return message(2, message(3, trip + stops.fold(ByteArray(0)) { acc, (id, time) -> acc + stopUpdate(id, time) }))
+    }
+
+    @Test
+    fun theLastStopOfATripIsAnArrivalNotADeparture() {
+        val updates = TripUpdatesParser.parse(feed("A" to 100L, "B" to 200L, "C" to 300L), setOf("A", "C"))
+        assertEquals(listOf("A"), updates.map { it.stopId })
+    }
+
+    @Test
+    fun aLoopStartingAndEndingAtTheSamePoleKeepsOnlyItsDeparture() {
+        val updates = TripUpdatesParser.parse(feed("A" to 100L, "B" to 200L, "A" to 300L), setOf("A"))
+        assertEquals(listOf(100L), updates.map { it.epochSecond })
+    }
+
+    @Test
+    fun aVehicleAboutToArriveAtItsTerminusHasNothingToBoard() {
+        assertEquals(emptyList<RealtimeUpdate>(), TripUpdatesParser.parse(feed("A" to 100L), setOf("A")))
+    }
+}
+
 class TripStopTimesTest {
     private val sample = checkNotNull(javaClass.getResourceAsStream("/trip_updates_sample.pb")).use { it.readBytes() }
 

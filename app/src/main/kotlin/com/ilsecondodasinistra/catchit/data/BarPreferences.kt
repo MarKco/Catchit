@@ -27,8 +27,8 @@ class BarPreferences @Inject constructor(@ApplicationContext context: Context) {
     companion object {
         private const val KEY = "entries"
 
-        /** The bottom bar as it comes: Venezia, Centro, Stazione, Aeroporto. */
-        val DEFAULT_ORDER = listOf("venezia", "centro", "stazione", "aeroporto")
+        /** The bottom bar as it comes: Venezia, Centro, Stazione, Aeroporto (and Ospedale, in the cattaneo flavor). */
+        val DEFAULT_ORDER = listOf("venezia", "centro", "stazione", "aeroporto", "ospedale")
 
         internal fun parse(text: String?): List<BarEntry> =
             text.orEmpty().split(',').mapNotNull { part ->

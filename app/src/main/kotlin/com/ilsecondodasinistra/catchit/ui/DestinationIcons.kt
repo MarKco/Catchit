@@ -2,6 +2,7 @@ package com.ilsecondodasinistra.catchit.ui
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Flight
+import androidx.compose.material.icons.rounded.LocalHospital
 import androidx.compose.material.icons.rounded.LocationCity
 import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material.icons.rounded.Sailing
@@ -14,5 +15,6 @@ fun destinationIcon(id: String): ImageVector = when (id) {
     "centro" -> Icons.Rounded.LocationCity
     "stazione" -> Icons.Rounded.Train
     "aeroporto" -> Icons.Rounded.Flight
+    "ospedale" -> Icons.Rounded.LocalHospital
     else -> Icons.Rounded.Place
 }

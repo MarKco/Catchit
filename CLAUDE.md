@@ -20,7 +20,9 @@ Long-form notes of the map/shortcuts/startup work (decisions, feed findings, mea
   both flavors. `install…Debug` on a running app does not kill it: `adb shell am force-stop` before relaunching.
 - **Flavors** (dimension `place`, `TimetableConfig.Profile`): `musatti` (the original app id) and `cattaneo` (id `….catchit.cattaneo`, blue icon:
   `app/src/cattaneo/res/drawable/ic_launcher_*`, made for a friend). They differ only in the stop of the first two destinations (Venezia, Centro):
-  Musatti `6059`/`6060`, San Marco Cattaneo `6057`/`6058` (same T1 line, next poles). Stazione/Aeroporto are the same. Each flavor bundles its own
+  Musatti `6059`/`6060`, San Marco Cattaneo `6057`/`6058` (same T1 line, next poles). Stazione/Aeroporto are the same, and `cattaneo` adds a fifth destination **Ospedale** (Ospedale dell'Angelo, bus poles `1400`/`1401`; only
+  the 31H/32H Mestre loops link it to Cattaneo without changing, ~32 passages/day each way, ~35 min; Vespucci Cattaneo `289`/`1289` has no direct line to it
+  or to Centro and only the 84 to Venezia, so it is not used). Each flavor bundles its own
   `timetable.json` + `geo.json` in `app/src/<flavor>/assets`; the app selects its profile in `CatchitApplication` (`BuildConfig.PROFILE`), which changes
   the timetable fingerprint. Release for the friend: `./gradlew :app:assembleCattaneoRelease`. Baseline profile/benchmarks only target `musatti`
   (`missingDimensionStrategy`), the committed profile in `app/src/release` is shared.
@@ -36,7 +38,10 @@ Long-form notes of the map/shortcuts/startup work (decisions, feed findings, mea
   "no drop-off"); holiday services exist only in `calendar_dates` and are emitted with no weekly days. Run it **in a separate Gradle
   invocation before** `installDebug` (the app doesn't depend on it, the stale asset gets packaged otherwise).
 - Realtime: `https://tpl.actv.it/aut/GTFSRT/tripUpdates` (protobuf, no auth, ~50 KB), polled every 20 s only while the screen
-  is STARTED. Parsed by the hand-written `ProtoReader`/`TripUpdatesParser` (no protobuf dependency).
+  is STARTED. Parsed by the hand-written `ProtoReader`/`TripUpdatesParser` (no protobuf dependency). The **last stop update of a trip is its terminus**
+  (checked 2026-10-22: it equals the static last stop on every known trip) and is dropped: it is an arrival, and a loop's terminus can also be a boarding pole
+  (31H/32H at the Ospedale). `DepartureMerger` also needs the update's `direction_id` to match the leg's pattern (`Timetable.boardings`): a vehicle of the other
+  direction *arrives* at the pole (it showed up as a phantom T1 departure at Venezia Corsia C).
 - **RT `trip_id`s can't be joined to the static feed**: they embed the feed version (`AUT_ACTV_792_*` live vs `793` in the zip) and AVM
   publishes a new version often. `DepartureMerger` matches by line + `time - delay` (±150 s) instead. RT carries absolute predicted
   time, delay, `route_id`, `direction_id` but no headsign (taken from the timetable).

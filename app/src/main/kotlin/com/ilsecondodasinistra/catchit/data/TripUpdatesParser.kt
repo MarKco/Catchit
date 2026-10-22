@@ -90,16 +90,23 @@ object TripUpdatesParser {
 
     private fun readTripUpdate(tu: ProtoReader, stopIds: Set<String>, out: MutableList<RealtimeUpdate>) {
         val trip = Trip()
-        val stops = ArrayList<StopUpdate>(2)
+        val stops = ArrayList<IndexedValue<StopUpdate>>(2)
+        var count = 0
         tu.forEachField { field, wire ->
             when {
                 field == 1 && wire == WIRE_LENGTH -> readTrip(tu.readLengthDelimited(), trip)
-                field == 2 && wire == WIRE_LENGTH -> readStopUpdate(tu.readLengthDelimited())
-                    .takeIf { it.stopId in stopIds }?.let(stops::add)
+                field == 2 && wire == WIRE_LENGTH -> {
+                    val stop = readStopUpdate(tu.readLengthDelimited())
+                    if (stop.stopId in stopIds) stops += IndexedValue(count, stop)
+                    count++
+                }
                 else -> tu.skip(wire)
             }
         }
-        for (stop in stops) {
+        for ((index, stop) in stops) {
+            // The last update of a trip is its terminus: the vehicle arrives there, nobody boards. It matters for loops, whose
+            // terminus is also a boarding stop (the 31H/32H start and end at the same pole) and for the opposite direction.
+            if (index == count - 1) continue
             if (stop.skipped || stop.noData) continue
             if (stop.time == null && !trip.canceled) continue
             out += RealtimeUpdate(trip.id, trip.routeId, trip.direction, stop.stopId, stop.time, stop.delay, trip.canceled)
