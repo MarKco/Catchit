@@ -81,8 +81,9 @@ Long-form notes of the map/shortcuts/startup work (decisions, feed findings, mea
   pass 2: the stops between).
 - Live details: `TripUpdatesParser.tripStopTimes` (predicted time at every stop of the shown trips, so the arrival and the stops in between
   are exact for live trips) and `VehiclePositionsParser` (fix of the vehicle by trip id; trams have none). `DepartureSheet` shows the
-  straight-line distance from the vehicle to the boarding stop. The feed has **no accessibility data** (`wheelchair_accessible` /
-  `bikes_allowed` are empty in trips.txt), so the sheet doesn't show any.
+  straight-line distance from the vehicle to the boarding stop. The *static* feed has no accessibility data (`wheelchair_accessible` /
+  `bikes_allowed` are empty in trips.txt). The live `VehicleDescriptor` has a `wheelchair_accessible` field (2 = accessible on 174 vehicles, 3 = not on 75), but every tram reads 3,
+  which is implausible for low-floor trams: unreliable, so the sheet doesn't show any.
 - A live passage that matches no timetable row borrows headsign, destination, duration and stops from the busiest timetable row of that
   line (`Timetable.typical`).
 - Since 2026-10-22 00:00 the live feed uses the 793 trip ids, equal to the ids in the static zip: an exact join by trip id would now be
