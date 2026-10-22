@@ -115,12 +115,12 @@ Long-form notes of the map/shortcuts/startup work (decisions, feed findings, mea
 ## Map (FAB on each page, MapLibre + OSM raster tiles)
 - `ui/map`: `MapModel.buildMapModel` (pure; testable) works out what the map shows from `BoardUiState`: boarding stops of the leg (`Timetable.stopRoutes`),
   the **upcoming live passages of the leg** whose vehicle is within `MAP_RADIUS_METERS` (2 km) of a boarding stop (so direction is already right:
-  `(stop, route)` pairs), yellow dots for `looseTrams` (trams with no route), and, for one selected/highlighted passage, its whole run
+  `(stop, route)` pairs), yellow "Tram" pills for `looseTrams` (trams with no route), and, for one selected/highlighted passage, its whole run
   (`GeoCatalog.findRun`: route + boarding/alight stop + stops seen live; polyline + stops, passed ones grey, boarding/alight ringed).
   `MapScreen` is a full-screen layer *inside* `BoardContent` (not another screen) so the 20 s polling keeps running; back closes it.
   The FAB is hidden when browsing another day. Entry points: the FAB (leg of the current tab) and the "Vedi sulla mappa" row of the passage sheet
   (that passage highlighted). Tapping a vehicle on the map selects it (draws its run); tapping it again or the map deselects.
-- Yellow dots (trams the feed places with no trip/route, `TRAM_05` and the like): the subtitle counts them apart ("1 mezzo nei dintorni · 1 tram senza linea") and tapping one shows
+- Yellow "Tram" pills (trams the feed places with no trip/route, `TRAM_05` and the like): the subtitle counts them apart ("1 mezzo nei dintorni · 1 tram senza linea") and tapping one shows
   a card saying why it has no name/minutes. Nothing in the feed ties them to a trip (no trip id, and no trip in `tripUpdates` names them as its vehicle), so they are *not* matched to
   scheduled passages. A real case showed why: a scheduled T1 absent from the feed turned out to be running 31 min late on another tram (the feed adds a trip when the tram starts it), while the
   anonymous tram nearby was something else.

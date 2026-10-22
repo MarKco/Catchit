@@ -84,11 +84,19 @@ internal class MapMarkers(context: Context) {
         }
     }
 
-    /** A tram we can't tell the line of: a yellow dot (grey vanishes on the map) with a dark ring. */
-    fun unknown(): Bitmap = bitmap(dp(26f), dp(26f)) {
-        drawCircle(dp(13f), dp(13f), dp(10f), fill(0xFFFFFFFF.toInt()))
-        drawCircle(dp(13f), dp(13f), dp(8f), fill(0xFFFFD600.toInt()))
-        drawCircle(dp(13f), dp(13f), dp(8f), stroke(0xFF3E2723.toInt(), dp(1.5f)))
+    /** A vehicle we can't tell the line of: a yellow pill (grey vanishes on the map) that says only what it is, with a dark ring. */
+    fun unknown(kind: String): Bitmap {
+        val paint = text(12f, 0xFF1B1B1F.toInt())
+        val height = dp(24f)
+        val width = paint.measureText(kind) + dp(20f)
+        val pad = dp(3f)
+        return bitmap(width + 2 * pad, height + 2 * pad) {
+            val pill = RectF(pad, pad, pad + width, pad + height)
+            drawRoundRect(RectF(pill).apply { inset(-dp(1.5f), -dp(1.5f)) }, height, height, fill(0xFFFFFFFF.toInt()))
+            drawRoundRect(pill, height / 2, height / 2, fill(0xFFFFD600.toInt()))
+            drawRoundRect(pill, height / 2, height / 2, stroke(0xFF3E2723.toInt(), dp(1.5f)))
+            drawText(kind, pill.centerX() - paint.measureText(kind) / 2, pill.centerY() - (paint.ascent() + paint.descent()) / 2, paint)
+        }
     }
 
     /**

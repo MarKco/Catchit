@@ -110,7 +110,7 @@ fun MapScreen(state: BoardUiState, target: MapTarget, loadGeo: suspend () -> Geo
                 Icon(Icons.Rounded.CenterFocusStrong, contentDescription = stringResource(R.string.map_recenter))
             }
 
-            // A yellow dot was tapped: say why it has no name and no minutes.
+            // A yellow "Tram" pill was tapped: say why it has no name and no minutes.
             val loose = model?.vehicles?.firstOrNull { it.key == selected && it.line == null }
             if (loose != null && model != null) {
                 LooseTramCard(loose, model.now, Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(start = 16.dp, end = 16.dp, bottom = 88.dp))

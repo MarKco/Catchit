@@ -323,7 +323,9 @@ private fun renderVehicles(
                     val color = vehicle.colorArgb
                     val line = vehicle.line
                     if (color == null || line == null) {
-                        feature.addStringProperty("icon", image("unknown") { markers.unknown() })
+                        // Only trams are shown without a line (their label says what they are); nothing else tells a bus from the rest.
+                        val kind = context.getString(R.string.board_tram)
+                        feature.addStringProperty("icon", image("unknown:$kind") { markers.unknown(kind) })
                     } else {
                         val eta = vehicle.eta?.let { etaText(it, model.now, context) }
                         feature.addStringProperty("icon", image("v:$line:$color:$eta:${vehicle.highlighted}") { markers.vehicle(line, color, eta, vehicle.highlighted) })
