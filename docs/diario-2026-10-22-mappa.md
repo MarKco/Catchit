@@ -44,6 +44,15 @@ La nota precedente («i tram non hanno corsa né linea») era stata presa di ser
 - **Controllo per tratta:** per ogni tratta ci sono meno corse con aggiornamento alla fermata di salita che veicoli della stessa linea entro 2 km; i veicoli «extra» sono quelli già passati o nell'altro verso, e non vanno mostrati.
 - **Dimensioni dei dati mappa:** stimati ~109 KB di percorsi (tutte le corse delle 11 linee, 63 mila punti grezzi), in realtà solo le corse che collegano i posti: 22 corse e 22 percorsi, 3671 punti dopo la semplificazione a 4 m, `geo.json` ≈ 55 KB (`timetable.json` ≈ 104–107 KB, invariato).
 
+### Il caso del tram «senza linea» (verificato alle 09:57–10:02)
+
+In lista c'era un T1 delle 09:57 «Da orario» (nessun dato live) e nella mappa un pallino grigio a Mestre (`TRAM_05`, senza corsa né linea).
+- Le 7 corse T1 delle 09:57 al palo 6059 (una per calendario di servizio) non comparivano né in `tripUpdates` né in `vehiclePositions`; alle 09:59:57 l'unica corsa live verso Venezia a Musatti era `TRAM_13`, a 9 minuti.
+- `TRAM_05` in `vehiclePositions` ha solo id, etichetta, posizione, bearing e ora del fix; in `tripUpdates` nessuna corsa lo cita come veicolo. Nessun disallineamento tra linee e posizioni: dove esiste una corsa, i due feed si agganciano sempre per `trip_id` (150/150 veicoli con corsa presenti in `tripUpdates`, 0/139 corse senza veicolo).
+- Alle 10:02 lo stesso tram anonimo era oltre Musatti, in marcia verso Venezia: compatibile con quella corsa delle 09:57, ma i dati non lo provano.
+- Conclusione: nessuna associazione automatica fra puntino grigio e corsa da orario (sarebbe una stima senza appigli). Resta possibile come funzione esplicita «stimato» (tram anonimo che si muove lungo il percorso verso la fermata, con un passaggio programmato imminente senza live): non fatta.
+- Fatto: il sottotitolo conta a parte i tram senza linea e il tap sul pallino mostra una scheda che spiega perché non ha nome né minuti.
+
 ## 4. Misure
 
 | Cosa | Valore |
@@ -98,6 +107,7 @@ Test aggiunti: `GeoCatalogTest` (decodifica del percorso, scelta della corsa), t
 | Widget con i prossimi 3 passaggi | medio-alto (Glance) | alto | in background si aggiorna ogni ~15 min: orari programmati + ultimo dato live |
 | Ritardo tipico per linea e fascia oraria | medio (storico locale) | medio | l'app raccoglie dati solo da aperta: campione scarso |
 | Destinazioni modificabili dall'utente | alto | basso se l'app è personale | il builder gira già sul telefono |
+| Stima per il tram anonimo (es. `TRAM_05`) | medio | medio | solo come «stimato»: nessun dato nel feed lega il tram alla corsa, rischio di abbinamenti sbagliati |
 | Tile scuri «veri» (secondo fornitore) | basso | cosmetico | richiede condizioni d'uso e attribuzione aggiuntive |
 | Avvisi di servizio, affollamento dei mezzi | — | — | non fattibili: endpoint 403 / dato assente nel feed |
 

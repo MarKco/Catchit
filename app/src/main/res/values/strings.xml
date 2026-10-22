@@ -105,6 +105,12 @@
         <item quantity="one">%1$d mezzo nei dintorni</item>
         <item quantity="other">%1$d mezzi nei dintorni</item>
     </plurals>
+    <plurals name="map_loose_trams">
+        <item quantity="one">%1$d tram senza linea</item>
+        <item quantity="other">%1$d tram senza linea</item>
+    </plurals>
+    <string name="map_loose_title">Tram senza linea</string>
+    <string name="map_loose_body">Il feed di AVM ne indica la posizione ma non dice su quale linea o corsa sta andando: per questo non ha il nome né i minuti all\'arrivo.</string>
     <string name="map_recenter">Ricentra</string>
     <string name="map_position_seconds">posizione di %1$d s fa</string>
     <string name="map_position_minutes">posizione di %1$d min fa</string>

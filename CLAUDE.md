@@ -15,6 +15,7 @@ Long-form notes of the map/shortcuts/startup work (decisions, feed findings, mea
 - Commit on `master`, Conventional-ish messages ending with the Co-Authored-By line.
 
 ## Build & run
+- If a phone has the app installed with another signing key, `installDebug`/`adb install -r` fail with `INSTALL_FAILED_UPDATE_INCOMPATIBLE`: don't uninstall a phone in use (its data goes), test on the emulator instead.
 - `./gradlew :app:installDebug` (emulator `emulator-5554`; adb in `~/Library/Android/sdk/platform-tools`).
   `installDebug` on a running app does not kill it: `adb shell am force-stop` before relaunching.
 - Tests: `./gradlew :app:testDebugUnitTest :tools:importer:test`.
@@ -118,6 +119,9 @@ Long-form notes of the map/shortcuts/startup work (decisions, feed findings, mea
   `MapScreen` is a full-screen layer *inside* `BoardContent` (not another screen) so the 20 s polling keeps running; back closes it.
   The FAB is hidden when browsing another day. Entry points: the FAB (leg of the current tab) and the "Vedi sulla mappa" row of the passage sheet
   (that passage highlighted). Tapping a vehicle on the map selects it (draws its run); tapping it again or the map deselects.
+- Grey dots (trams the feed places with no trip/route, `TRAM_05` and the like): the subtitle counts them apart ("1 mezzo nei dintorni · 1 tram senza linea") and tapping one shows
+  a card saying why it has no name/minutes. Nothing in the feed ties them to a trip (no trip id, and no trip in `tripUpdates` names them as its vehicle), so they are *not* matched to
+  scheduled passages: a guess would be wrong in a convincing way.
 - `TransitMap` wraps `MapView` by hand (no maplibre-compose). Markers are bitmaps from `MapMarkers` (the style has no glyphs, so no text layers):
   arrow layer (rotated by bearing, peeking out of the badge) under a badge+ETA-bubble layer. OSM attribution is drawn by `MapScreen` (built-in one is off).
   MapLibre's `libmaplibre.so` is 9–13 MB uncompressed per ABI; `release` keeps only `arm64-v8a` (the phones in use are 64-bit; add `armeabi-v7a` back in `app/build.gradle.kts` for a 32-bit phone), `debug` keeps all so any emulator runs; `MapLibre.getInstance` runs only when a map is first opened.
