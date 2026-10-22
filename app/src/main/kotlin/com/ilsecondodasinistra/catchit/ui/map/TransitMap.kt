@@ -139,6 +139,7 @@ internal fun TransitMap(
     val tapped by rememberUpdatedState(onVehicleTap)
 
     DisposableEffect(lifecycle, mapView) {
+        var destroyed = false
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_CREATE -> mapView.onCreate(null)
@@ -146,7 +147,7 @@ internal fun TransitMap(
                 Lifecycle.Event.ON_RESUME -> mapView.onResume()
                 Lifecycle.Event.ON_PAUSE -> mapView.onPause()
                 Lifecycle.Event.ON_STOP -> mapView.onStop()
-                Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
+                Lifecycle.Event.ON_DESTROY -> if (!destroyed) { destroyed = true; mapView.onDestroy() }
                 else -> Unit
             }
         }
@@ -156,7 +157,8 @@ internal fun TransitMap(
             // The screen can leave while the activity lives on: bring the view down by hand.
             if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) mapView.onPause()
             if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) mapView.onStop()
-            mapView.onDestroy()
+            // The observer may already have taken it down with the activity: destroying twice is not allowed.
+            if (!destroyed) { destroyed = true; mapView.onDestroy() }
         }
     }
 
@@ -332,7 +334,10 @@ private fun renderVehicles(
     context: android.content.Context,
     positions: Map<String, LatLon>,
 ) {
-    fun image(id: String, make: () -> android.graphics.Bitmap): String = image(style, added, id, make)
+    // Badge+ETA images are per line and per wording of the minutes: only those of this render are kept, or a long
+    // session on the map would pile up one bitmap per minute per line.
+    val used = HashSet<String>()
+    fun image(id: String, make: () -> android.graphics.Bitmap): String = image(style, added, id, make).also { used += it }
     style.getSourceAs<GeoJsonSource>(SRC_VEHICLES)?.setGeoJson(
         FeatureCollection.fromFeatures(
             model.vehicles.map { vehicle ->
@@ -355,6 +360,9 @@ private fun renderVehicles(
             },
         ),
     )
+    // The source no longer names the old badges: free their bitmaps.
+    val stale = added.filter { it.startsWith("v:") && it !in used }
+    stale.forEach { style.removeImage(it); added.remove(it) }
 }
 
 /** "Ora", "7 min", or the clock time when it is an hour or more away. */
