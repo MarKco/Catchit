@@ -26,6 +26,22 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+
+    // One flavor per stop the first destinations leave from (`TimetableConfig.Profile`); each bundles its own timetable
+    // in `src/<flavor>/assets` (`./gradlew :tools:importer:run --args=--profile=<flavor>`).
+    flavorDimensions += "place"
+    productFlavors {
+        create("musatti") {
+            dimension = "place"
+            buildConfigField("String", "PROFILE", "\"musatti\"")
+        }
+        create("cattaneo") {
+            dimension = "place"
+            applicationIdSuffix = ".cattaneo"
+            buildConfigField("String", "PROFILE", "\"cattaneo\"")
+        }
     }
 
     buildTypes {

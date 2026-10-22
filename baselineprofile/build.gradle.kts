@@ -11,6 +11,8 @@ android {
         minSdk = 28
         targetSdk = 37
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // The app has a "place" flavor dimension; profile and benchmarks target the original one.
+        missingDimensionStrategy("place", "musatti")
     }
 
     compileOptions {

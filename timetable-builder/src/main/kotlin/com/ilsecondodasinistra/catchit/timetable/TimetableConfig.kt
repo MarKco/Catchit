@@ -22,6 +22,43 @@ class Place(
  */
 class Destination(val id: String, val label: String, val origin: Place, val target: Place)
 
+/** San Marco Musatti and San Marco Cattaneo, both poles each (one per direction). */
+private val musattiPlace = Place("Musatti", ids = setOf("6059", "6060"))
+private val cattaneoPlace = Place("Cattaneo", ids = setOf("6057", "6058"))
+
+/**
+ * No stop is called "uffici giudiziari" or "tribunale": Hermada (both poles) is the guess; every pole of
+ * Forte Marghera is served by the lines 15 (station + airport) and, from Hermada on, 43.
+ */
+private val forteMarghera = Place("Forte Marghera", ids = setOf("172", "1172"))
+
+private fun destinationsFrom(home: Place) = listOf(
+    Destination(
+        id = "venezia",
+        label = "Venezia",
+        origin = home,
+        target = Place("Venezia", exactNames = setOf("VENEZIA", "VENEZIA CORSIA C", "Piazzale Roma")),
+    ),
+    Destination(
+        id = "centro",
+        label = "Centro",
+        origin = home,
+        target = Place("Mestre Centro", namePrefixes = listOf("MESTRE CENTRO")),
+    ),
+    Destination(
+        id = "stazione",
+        label = "Stazione",
+        origin = forteMarghera,
+        target = Place("Stazione", namePrefixes = listOf("Stazione MESTRE FS", "Favretti MESTRE FS")),
+    ),
+    Destination(
+        id = "aeroporto",
+        label = "Aeroporto",
+        origin = forteMarghera,
+        target = Place("Aeroporto", namePrefixes = listOf("Aeroporto MARCO POLO")),
+    ),
+)
+
 /**
  * The app never ships the whole network: only the lines that directly link these places.
  * Shared by the importer tool (bundled asset) and the app (updates downloaded on the phone): edit it and regenerate
@@ -33,44 +70,26 @@ object TimetableConfig {
 
     const val FEED_URL = "https://actv.avmspa.it/sites/default/files/attachments/opendata/automobilistico/actv_aut.zip"
 
-    /** Both poles of San Marco Musatti. */
-    private val musatti = Place("Musatti", ids = setOf("6059", "6060"))
+    /** One app flavor: which stop the first two destinations leave from. Its bundled files are `app/src/<id>/assets`. */
+    enum class Profile(val id: String, internal val destinations: List<Destination>) {
+        MUSATTI("musatti", destinationsFrom(musattiPlace)),
+        CATTANEO("cattaneo", destinationsFrom(cattaneoPlace)),
+    }
+
+    /** The app picks its flavor's profile at start (`BuildConfig.PROFILE`); the importer takes `--profile=<id>`. */
+    @Volatile
+    var profile: Profile = Profile.MUSATTI
+        private set
+
+    fun select(id: String) {
+        profile = Profile.entries.firstOrNull { it.id == id } ?: error("Unknown profile $id")
+    }
+
+    val destinations: List<Destination>
+        get() = profile.destinations
 
     /**
-     * No stop is called "uffici giudiziari" or "tribunale": Hermada (both poles) is the guess; every pole of
-     * Forte Marghera is served by the lines 15 (station + airport) and, from Hermada on, 43.
-     */
-    private val forteMarghera = Place("Forte Marghera", ids = setOf("172", "1172"))
-
-    val destinations = listOf(
-        Destination(
-            id = "venezia",
-            label = "Venezia",
-            origin = musatti,
-            target = Place("Venezia", exactNames = setOf("VENEZIA", "VENEZIA CORSIA C", "Piazzale Roma")),
-        ),
-        Destination(
-            id = "centro",
-            label = "Centro",
-            origin = musatti,
-            target = Place("Mestre Centro", namePrefixes = listOf("MESTRE CENTRO")),
-        ),
-        Destination(
-            id = "stazione",
-            label = "Stazione",
-            origin = forteMarghera,
-            target = Place("Stazione", namePrefixes = listOf("Stazione MESTRE FS", "Favretti MESTRE FS")),
-        ),
-        Destination(
-            id = "aeroporto",
-            label = "Aeroporto",
-            origin = forteMarghera,
-            target = Place("Aeroporto", namePrefixes = listOf("Aeroporto MARCO POLO")),
-        ),
-    )
-
-    /**
-     * Identifies the destinations above. Stored in every generated timetable: a timetable built (and downloaded)
+     * Identifies the destinations of the selected profile. Stored in every generated timetable: a timetable built (and downloaded)
      * by an older version of the app with other destinations must not be used.
      */
     val fingerprint: String

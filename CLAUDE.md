@@ -1,7 +1,7 @@
 # CLAUDE.md — Catchit
 
 Android app (package `com.ilsecondodasinistra.catchit`) that shows live departures of ACTV/AVM bus and tram lines
-in Venezia/Mestre. Bottom bar = destinations (`ImporterConfig.destinations`): Venezia and Centro from San Marco Musatti
+in Venezia/Mestre. Bottom bar = destinations (`TimetableConfig.destinations`): Venezia and Centro from San Marco Musatti
 (poles `6059`, `6060`), Stazione and Aeroporto from Forte Marghera (`172`/`1172` Hermada: a guess, no stop is called
 "uffici giudiziari"/"tribunale"). Each has two tabs: *andata* = departures from the origin that reach the target without
 changing, *ritorno* = departures from the target that reach the origin. The app never ships the whole network, only the
@@ -16,16 +16,22 @@ Long-form notes of the map/shortcuts/startup work (decisions, feed findings, mea
 
 ## Build & run
 - If a phone has the app installed with another signing key, `installDebug`/`adb install -r` fail with `INSTALL_FAILED_UPDATE_INCOMPATIBLE`: don't uninstall a phone in use (its data goes), test on the emulator instead.
-- `./gradlew :app:installDebug` (emulator `emulator-5554`; adb in `~/Library/Android/sdk/platform-tools`).
-  `installDebug` on a running app does not kill it: `adb shell am force-stop` before relaunching.
-- Tests: `./gradlew :app:testDebugUnitTest :tools:importer:test`.
+- `./gradlew :app:installMusattiDebug` (emulator `emulator-5554`; adb in `~/Library/Android/sdk/platform-tools`). Plain `installDebug` would install
+  both flavors. `install…Debug` on a running app does not kill it: `adb shell am force-stop` before relaunching.
+- **Flavors** (dimension `place`, `TimetableConfig.Profile`): `musatti` (the original app id) and `cattaneo` (id `….catchit.cattaneo`, blue icon:
+  `app/src/cattaneo/res/drawable/ic_launcher_*`, made for a friend). They differ only in the stop of the first two destinations (Venezia, Centro):
+  Musatti `6059`/`6060`, San Marco Cattaneo `6057`/`6058` (same T1 line, next poles). Stazione/Aeroporto are the same. Each flavor bundles its own
+  `timetable.json` + `geo.json` in `app/src/<flavor>/assets`; the app selects its profile in `CatchitApplication` (`BuildConfig.PROFILE`), which changes
+  the timetable fingerprint. Release for the friend: `./gradlew :app:assembleCattaneoRelease`. Baseline profile/benchmarks only target `musatti`
+  (`missingDimensionStrategy`), the committed profile in `app/src/release` is shared.
+- Tests: `./gradlew :app:testMusattiDebugUnitTest :tools:importer:test` (tests use the default profile, musatti).
 - Single module `:app` + JVM tool `:tools:importer`. Versions in `gradle/libs.versions.toml` (same stack as ~/projects/discography:
   AGP 9.4 built-in Kotlin, Compose, Hilt, KSP). Material3 is pinned to `1.5.0-beta02` because the BOM's 1.4.0 hides the
   Expressive APIs (`MaterialExpressiveTheme`, `LargeFlexibleTopAppBar`).
 
 ## Data
-- Static: `./gradlew :tools:importer:run [--args=--refresh]` downloads AVM's `actv_aut.zip` (cached in `tools/cache/`, git-ignored)
-  and writes `app/src/main/assets/timetable.json` from the places in `ImporterConfig.kt` (a `Place` matches stops by id,
+- Static: `./gradlew :tools:importer:run [--args="--refresh --profile=cattaneo"]` downloads AVM's `actv_aut.zip` (cached in `tools/cache/`, git-ignored)
+  and writes `app/src/<profile>/assets/timetable.json` (default profile `musatti`; run it once per flavor) from the places in `TimetableConfig.kt` (a `Place` matches stops by id,
   exact name or name prefix). Notes: the last stop of a trip always allows alighting (the night loops' terminus is flagged
   "no drop-off"); holiday services exist only in `calendar_dates` and are emitted with no weekly days. Run it **in a separate Gradle
   invocation before** `installDebug` (the app doesn't depend on it, the stale asset gets packaged otherwise).
