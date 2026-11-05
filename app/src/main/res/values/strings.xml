@@ -100,10 +100,10 @@
 
     <string name="map_open">Mappa</string>
     <string name="map_back">Indietro</string>
-    <string name="map_no_vehicles">Nessun mezzo nei dintorni</string>
+    <string name="map_no_vehicles">Nessun mezzo in arrivo</string>
     <plurals name="map_vehicles">
-        <item quantity="one">%1$d mezzo nei dintorni</item>
-        <item quantity="other">%1$d mezzi nei dintorni</item>
+        <item quantity="one">%1$d mezzo in arrivo</item>
+        <item quantity="other">%1$d mezzi in arrivo</item>
     </plurals>
     <plurals name="map_loose_trams">
         <item quantity="one">%1$d tram senza linea</item>

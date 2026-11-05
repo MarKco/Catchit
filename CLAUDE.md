@@ -125,13 +125,13 @@ Long-form notes of the map/shortcuts/startup work (decisions, feed findings, mea
 
 ## Map (FAB on each page, MapLibre + OSM raster tiles)
 - `ui/map`: `MapModel.buildMapModel` (pure; testable) works out what the map shows from `BoardUiState`: boarding stops of the leg (`Timetable.stopRoutes`),
-  the **upcoming live passages of the leg** whose vehicle is within `MAP_RADIUS_METERS` (2 km) of a boarding stop (so direction is already right:
-  `(stop, route)` pairs), yellow "Tram" pills for `looseTrams` (trams with no route), and, for one selected/highlighted passage, its whole run
+  the **upcoming live passages of the leg**, wherever their vehicle is (no distance filter: pan along the line to find the next one; direction is already right:
+  `(stop, route)` pairs), yellow "Tram" pills for `looseTrams` (trams with no route, only within `MAP_RADIUS_METERS` = 2 km of a boarding stop), and, for one selected/highlighted passage, its whole run
   (`GeoCatalog.findRun`: route + boarding/alight stop + stops seen live; polyline + stops, passed ones grey, boarding/alight ringed).
   `MapScreen` is a full-screen layer *inside* `BoardContent` (not another screen) so the 20 s polling keeps running; back closes it.
   The FAB is hidden when browsing another day. Entry points: the FAB (leg of the current tab) and the "Vedi sulla mappa" row of the passage sheet
   (that passage highlighted). Tapping a vehicle on the map selects it (draws its run); tapping it again or the map deselects.
-- Yellow "Tram" pills (trams the feed places with no trip/route, `TRAM_05` and the like): the subtitle counts them apart ("1 mezzo nei dintorni · 1 tram senza linea") and tapping one shows
+- Yellow "Tram" pills (trams the feed places with no trip/route, `TRAM_05` and the like): the subtitle counts them apart ("1 mezzo in arrivo · 1 tram senza linea") and tapping one shows
   a card saying why it has no name/minutes. Nothing in the feed ties them to a trip (no trip id, and no trip in `tripUpdates` names them as its vehicle), so they are *not* matched to
   scheduled passages. A real case showed why: a scheduled T1 absent from the feed turned out to be running 31 min late on another tram (the feed adds a trip when the tram starts it), while the
   anonymous tram nearby was something else.
@@ -139,7 +139,7 @@ Long-form notes of the map/shortcuts/startup work (decisions, feed findings, mea
   arrow layer (rotated by bearing, peeking out of the badge) under a badge+ETA-bubble layer. OSM attribution is drawn by `MapScreen` (built-in one is off).
   MapLibre's `libmaplibre.so` is 9–13 MB uncompressed per ABI; `release` keeps only `arm64-v8a` (the phones in use are 64-bit; add `armeabi-v7a` back in `app/build.gradle.kts` for a 32-bit phone), `debug` keeps all so any emulator runs; `MapLibre.getInstance` runs only when a map is first opened.
 - Map polish: vehicles glide (1.2 s, straight line) from the previous fix to the new one (`Glide` in `TransitMap`; the feed has no speed, so no dead reckoning);
-  recenter button re-frames `MapModel.focus`; the subtitle of a selected vehicle says how old its fix is; in the dark theme the OSM tiles are inverted with
+  recenter button re-frames `MapModel.focus` (boarding stops + the vehicle of each line closest to them, up to `MAP_FRAMING_MAX_METERS` = 6 km, so the opening zoom already takes in the next passages); the subtitle of a selected vehicle says how old its fix is; in the dark theme the OSM tiles are inverted with
   raster brightness min/max + hue-rotate (no second tile provider).
 - Data: `TimetableBuilder.buildFiles` returns `timetable.json` + `geo.json` (schema 3: `runs` = whole stop sequence of each qualifying trip with its
   `path` index, `paths` = shapes.txt simplified to 4 m and delta-packed in 1e-5°; ~55 KB). `geo.json` is read lazily (`TimetableRepository.geo()`) only when a

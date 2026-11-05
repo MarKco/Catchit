@@ -53,15 +53,19 @@ data class MapModel(
     val now: Instant,
 )
 
-/** Vehicles farther than this from every boarding stop are left out: the map is about what is about to arrive. */
+/** Trams with no line farther than this from every boarding stop are left out (passages of the leg are shown wherever they are). */
 const val MAP_RADIUS_METERS = 2_000.0
+
+/** The opening camera zooms out to include the nearest vehicle of each line, but not one farther than this from the stops. */
+const val MAP_FRAMING_MAX_METERS = 6_000.0
 
 /** The camera never opens tighter than this around the stops, so a vehicle that is close by is still in view. */
 const val MAP_MIN_HALF_SPAN_METERS = 900.0
 
 /**
  * Works out what the map shows from the board's state: the boarding stops of the leg, and the vehicles of the
- * upcoming live passages of that leg that are within [MAP_RADIUS_METERS] of them (plus the highlighted one wherever it is).
+ * upcoming live passages of that leg wherever their vehicle is (so panning along the line finds the next one), plus the
+ * lineless trams within [MAP_RADIUS_METERS] of the stops.
  * The run drawn is the one of the vehicle tapped on the map ([selectedTripId]) or, failing that, of [MapTarget.highlight].
  * Pure, so the map keeps up with every live update and is easy to test.
  */
@@ -90,7 +94,6 @@ fun buildMapModel(state: BoardUiState, target: MapTarget, geo: GeoCatalog?, sele
     for ((tripId, departure) in upcoming) {
         val fix = state.liveTrips[tripId]?.vehicle ?: continue
         val isHighlighted = highlight?.tripId == tripId
-        if (!isHighlighted && stops.none { it.position.metersTo(fix) <= MAP_RADIUS_METERS }) continue
         vehicles += MapVehicle(
             key = tripId.orEmpty(),
             position = LatLon(fix.latitude, fix.longitude),
@@ -122,10 +125,23 @@ fun buildMapModel(state: BoardUiState, target: MapTarget, geo: GeoCatalog?, sele
     val focus = if (highlight != null && highlightedVehicle != null) {
         listOfNotNull(highlightedVehicle.position, boarding?.position)
     } else {
-        stops.map { it.position }
+        stops.map { it.position } + nearestPerLine(vehicles, stops)
     }
     return MapModel(stops, vehicles, route, focus, title = "${destination.origin} ⇄ ${destination.target}", now = state.now)
 }
+
+/**
+ * The vehicle of each line that is closest to the stops (within [MAP_FRAMING_MAX_METERS]): the opening camera zooms out to take them
+ * in, so the first look already shows where the next passage of every line is. Lineless trams are not framed.
+ */
+private fun nearestPerLine(vehicles: List<MapVehicle>, stops: List<MapStop>): List<LatLon> =
+    vehicles.filter { it.line != null }
+        .groupBy { it.line }
+        .mapNotNull { (_, ofLine) ->
+            ofLine.map { it.position to stops.minOf { s -> s.position.metersTo(it.position) } }
+                .filter { it.second <= MAP_FRAMING_MAX_METERS }
+                .minByOrNull { it.second }?.first
+        }
 
 private fun routeOverlay(state: BoardUiState, departure: Departure, geo: GeoCatalog?): RouteOverlay? {
     val timetable = state.timetable ?: return null
@@ -180,3 +196,5 @@ private fun com.ilsecondodasinistra.catchit.data.StopInfo.position(): LatLon? {
 }
 
 private fun LatLon.metersTo(fix: VehicleFix): Double = distanceMeters(lat, lon, fix.latitude, fix.longitude)
+
+private fun LatLon.metersTo(other: LatLon): Double = distanceMeters(lat, lon, other.lat, other.lon)
